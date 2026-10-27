@@ -52,8 +52,6 @@ button{font:inherit;color:inherit}
 .who{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:4px;padding:1px 8px;margin-bottom:6px}
 .who.side-B{background:var(--br)} .who.side-F{background:var(--fr)}
 .modesel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.modesel.m3{grid-template-columns:repeat(3,1fr)}
-@media (max-width:620px){.modesel.m3{grid-template-columns:1fr}}
 .ph3{font-family:var(--f-display);font-size:15px;margin:14px 0 6px}
 .sidesel{display:flex;gap:6px;margin-bottom:4px}
 .sidesel button{flex:1;padding:8px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:700;cursor:pointer}
@@ -127,6 +125,17 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 @keyframes pulse{50%{fill:rgba(255,200,50,.12)}}
 /* side panel */
 .side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidecol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidecol > .side{display:contents} .sidecol > .chat{order:1} .side > .logblock{order:2}
+.chatlog{list-style:none;padding:0;margin:0 0 8px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.chatlog .cm{display:flex;gap:6px;align-items:baseline;padding:4px 8px;border-radius:6px;background:var(--surface-2);border-left:3px solid var(--line-2);overflow-wrap:anywhere}
+.chatlog .cm.side-B{border-left-color:var(--br)} .chatlog .cm.side-F{border-left-color:var(--fr)}
+.chatlog .cm.me{background:var(--felt)}
+.chatlog .cm b{flex:none;font-size:12px;color:var(--ink-dim)}
+.chatlog .cm span{flex:1;min-width:0}
+.chatlog .cm time{flex:none;font-size:11px;color:var(--ink-faint);font-family:var(--f-mono)}
+.chatlog .cm.empty{color:var(--ink-faint);border-left-color:transparent;background:none}
+.chatform{margin:0}
 .block,.turn,.prompt{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
 .block h3,.prompt h3{font-family:var(--f-display);font-size:15px;margin:0 0 8px;font-weight:800}
 .block h3 small{font-family:var(--f-body);color:var(--ink-faint);font-weight:500;font-size:12px;margin-left:6px}
@@ -271,7 +280,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 2인</small></div>
+    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인</small></div>
     <nav class="tabs" role="tablist" aria-label="화면">
       <button data-tab="game" role="tab">게임</button>
       <button data-tab="rules" role="tab">규칙</button>
@@ -290,7 +299,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
           <span><i style="background:#5b8fd8"></i>보병 띠</span><span><i style="background:#e2bd2f"></i>기병 띠</span><span><i style="background:#d2443a"></i>포병 띠</span><span>★ 리더 · 흰 네모 = 남은 블록 · 금색 테두리 = 명령받음 · 옅은 금색 칸 = 지금 명령/공격할 수 있는 유닛</span>
         </div>
       </div>
-      <aside class="side" id="side"></aside>
+      <div class="sidecol"><aside class="side" id="side"></aside><section class="block chat" id="chat" hidden></section></div>
     </div>
   </section>
 

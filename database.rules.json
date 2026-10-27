@@ -27,6 +27,12 @@
         },
         "fx": {
           ".write": "auth != null && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)"
+        },
+        "chat": {
+          "$msg": {
+            ".write": "auth != null && !data.exists() && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['side', 'text', 't']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 200 && newData.child('side').val() !== null && root.child('rooms').child($room).child('seats').child(newData.child('side').val()).val() === auth.uid"
+          }
         }
       }
     }

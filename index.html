@@ -62,8 +62,6 @@ button{font:inherit;color:inherit}
 .who{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:4px;padding:1px 8px;margin-bottom:6px}
 .who.side-B{background:var(--br)} .who.side-F{background:var(--fr)}
 .modesel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.modesel.m3{grid-template-columns:repeat(3,1fr)}
-@media (max-width:620px){.modesel.m3{grid-template-columns:1fr}}
 .ph3{font-family:var(--f-display);font-size:15px;margin:14px 0 6px}
 .sidesel{display:flex;gap:6px;margin-bottom:4px}
 .sidesel button{flex:1;padding:8px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:700;cursor:pointer}
@@ -137,6 +135,17 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 @keyframes pulse{50%{fill:rgba(255,200,50,.12)}}
 /* side panel */
 .side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidecol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidecol > .side{display:contents} .sidecol > .chat{order:1} .side > .logblock{order:2}
+.chatlog{list-style:none;padding:0;margin:0 0 8px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.chatlog .cm{display:flex;gap:6px;align-items:baseline;padding:4px 8px;border-radius:6px;background:var(--surface-2);border-left:3px solid var(--line-2);overflow-wrap:anywhere}
+.chatlog .cm.side-B{border-left-color:var(--br)} .chatlog .cm.side-F{border-left-color:var(--fr)}
+.chatlog .cm.me{background:var(--felt)}
+.chatlog .cm b{flex:none;font-size:12px;color:var(--ink-dim)}
+.chatlog .cm span{flex:1;min-width:0}
+.chatlog .cm time{flex:none;font-size:11px;color:var(--ink-faint);font-family:var(--f-mono)}
+.chatlog .cm.empty{color:var(--ink-faint);border-left-color:transparent;background:none}
+.chatform{margin:0}
 .block,.turn,.prompt{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
 .block h3,.prompt h3{font-family:var(--f-display);font-size:15px;margin:0 0 8px;font-weight:800}
 .block h3 small{font-family:var(--f-body);color:var(--ink-faint);font-weight:500;font-size:12px;margin-left:6px}
@@ -281,7 +290,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 2인</small></div>
+    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인</small></div>
     <nav class="tabs" role="tablist" aria-label="화면">
       <button data-tab="game" role="tab">게임</button>
       <button data-tab="rules" role="tab">규칙</button>
@@ -300,7 +309,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
           <span><i style="background:#5b8fd8"></i>보병 띠</span><span><i style="background:#e2bd2f"></i>기병 띠</span><span><i style="background:#d2443a"></i>포병 띠</span><span>★ 리더 · 흰 네모 = 남은 블록 · 금색 테두리 = 명령받음 · 옅은 금색 칸 = 지금 명령/공격할 수 있는 유닛</span>
         </div>
       </div>
-      <aside class="side" id="side"></aside>
+      <div class="sidecol"><aside class="side" id="side"></aside><section class="block chat" id="chat" hidden></section></div>
     </div>
   </section>
 
@@ -471,7 +480,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   <section id="tab-solo" class="tabpane" hidden>
     <div class="doc">
   <h2>진행법: 솔로, 2인, 온라인</h2>
-  <p class="lede"><b>솔로</b>는 리처드 보그의 Power of Three 규칙, <b>2인</b>은 한 기기에서 번갈아 하는 원래 규칙이다. 아래는 먼저 솔로 규칙이다. 리처드 보그의 솔로 규칙(2021년 2월 1일판)이다. 혼자 양쪽을 모두 지휘하되, 턴 끝에 카드 1장을 들고 넘어가서 다음 턴을 계획할 수 있고, 새로 받는 2장이 계획을 흔들어 안개 같은 불확실성을 만든다.</p>
+  <p class="lede"><b>솔로</b>는 리처드 보그의 Power of Three 규칙, <b>온라인 2인</b>은 각자 자기 기기에서 원래 규칙으로 대전한다. 아래는 먼저 솔로 규칙이다. 리처드 보그의 솔로 규칙(2021년 2월 1일판)이다. 혼자 양쪽을 모두 지휘하되, 턴 끝에 카드 1장을 들고 넘어가서 다음 턴을 계획할 수 있고, 새로 받는 2장이 계획을 흔들어 안개 같은 불확실성을 만든다.</p>
 
   <h3>준비</h3>
   <ol class="steps">
@@ -544,17 +553,16 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
     <li>실수했으면 <b>되돌리기</b>(Ctrl+Z)로 한 단계씩 돌아간다. 진행 상황은 이 브라우저에 자동 저장된다.</li>
   </ul>
 
-  <h3>2인 모드 (한 기기에서 번갈아)</h3>
-  <p>새 게임에서 <b>2인 (한 기기)</b>을 고르면 원래 게임 규칙으로 진행한다. 같은 화면을 두 사람이 번갈아 쓰므로, 상대 차례에는 화면에서 눈을 돌리는 것이 예의다.</p>
+  <h3>2인 규칙 (온라인 2인)</h3>
+  <p><b>온라인 2인</b>은 솔로 규칙이 아닌 원래 게임 규칙으로 진행한다.</p>
   <ul>
     <li>손패는 시나리오 전투 참고에 적힌 지휘카드 수만큼 받는다(예: 롤리사는 영국 6장, 프랑스 5장).</li>
     <li>매 턴 1장을 쓰고, 턴이 끝나면 1장을 받는다. 지휘능력은 방금 쓴 카드를 포함한 손패 수다.</li>
-    <li>차례가 바뀌면 손패가 뒷면으로 가려진다. <b>손패 확인</b>은 그 차례의 플레이어가 누른다.</li>
     <li><b>정찰</b>: 턴 끝에 2장을 받아 보고 1장을 고르고 1장은 버린다.</li>
     <li><b>선제 공격</b>: 내 차례에는 쓸 수 없다. 상대가 내 유닛에 근접공격을 선언하면, 손에 그 카드가 있을 때 화면에 "선제 공격?" 질문이 뜬다. 쓰면 내 유닛이 먼저 공격하고, 공격자가 밀려나지 않으면 원래 공격이 이어진다. 이 전투에서는 반격·위치확보·돌파가 없다. 그 턴이 끝날 때 내가 먼저 1장을 받는다.</li>
     <li><b>보급 부족</b>: 내 차례의 지휘카드로 쓴다. 쓰고 나면 다른 명령 없이 턴 종료.</li>
     <li><b>방진</b>: 방진을 짜면 손패에서 무작위로 1장이 방진표로 가서 지휘능력이 줄어든다(최대 4개, 손패가 2장 이하면 방진 불가). 방진을 풀거나 그 유닛이 전멸하면 카드가 손으로 돌아온다. 갈라시아 에르난데스는 프랑스가 방진 2개로 시작하므로 시작부터 2장이 방진표에 있다.</li>
-    <li>방어측이 고르는 질문(방진, 퇴각 및 재편성, 반격, 후퇴 칸)에는 <b>어느 군의 결정인지</b> 색 표시가 붙는다. 그 플레이어가 고른다.</li>
+    <li>방어측이 고르는 질문(방진, 퇴각 및 재편성, 반격, 후퇴 칸)에는 <b>어느 군의 결정인지</b> 색 표시가 붙고, 그 진영을 맡은 사람의 화면에 뜬다.</li>
   </ul>
 
 
@@ -563,8 +571,9 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   <ol class="steps">
     <li>방장이 <b>새 게임 → 온라인 2인</b>에서 내 진영을 고르고 시나리오를 누른다. 방 코드 5자리가 생긴다.</li>
     <li>위쪽의 <b>초대 링크 복사</b>로 링크를 상대에게 보낸다. 상대가 링크를 열면 코드가 채워진 참가 화면이 뜨고, <b>참가</b>를 누르면 남은 진영으로 들어온다. 코드를 직접 입력해도 된다.</li>
-    <li>규칙은 2인 모드와 같다. 내 손패만 보이고, 내 차례에만 카드와 유닛을 조작할 수 있다. 상대 차례에는 상대의 이동·사격·돌격 애니메이션과 효과음, 주사위가 내 화면에도 그대로 나온다.</li>
+    <li>규칙은 위의 2인 규칙과 같다. 내 손패만 보이고, 내 차례에만 카드와 유닛을 조작할 수 있다. 상대 차례에는 상대의 이동·사격·돌격 애니메이션과 효과음, 주사위가 내 화면에도 그대로 나온다.</li>
     <li>상대가 내 유닛을 공격하면 방진, 퇴각 및 재편성, 선제 공격, 반격, 후퇴 칸, 리더 후퇴 같은 결정이 <b>내 화면에</b> 질문으로 뜬다. 공격하는 쪽 화면에는 "상대가 결정하는 중"이 보인다. 상대 연결이 끊겼으면 공격하는 쪽이 <b>내가 대신 정하기</b>로 진행할 수 있다.</li>
+    <li>오른쪽 패널 아래 <b>채팅</b> 칸에서 상대와 메시지를 주고받는다(200자까지). 새 메시지가 오면 알림음과 함께 화면 아래에 잠깐 뜬다. 방이 남아 있는 동안 지난 대화도 다시 보인다.</li>
     <li>창을 닫거나 새로고침해도 같은 브라우저에서 다시 열면 그 방에 자동으로 다시 연결된다. <b>방 나가기</b>를 누르면 연결을 끊고 솔로로 돌아간다.</li>
   </ol>
   <p class="note">주사위는 차례인 쪽 브라우저에서 굴린다. 손패를 포함한 게임 상태가 방에 통째로 저장되므로, 개발자 도구로 들여다보면 상대 손패가 보인다. 친선 대전용으로 생각하면 된다.</p>
@@ -935,7 +944,7 @@ function parseLeaders(str, side) {
 function loadOverrides() { try { return JSON.parse(localStorage.getItem('cnc-solo-overrides') || '{}'); } catch (e) { return {}; } }
 function saveOverrides(o) { try { localStorage.setItem('cnc-solo-overrides', JSON.stringify(o)); } catch (e) {} }
 
-function isDuo() { return state && (state.mode === 'duo' || state.mode === 'online'); }
+function isDuo() { return state && state.mode === 'online'; }
 function newGame(scenId, mode) {
   mode = mode || 'solo';
   const sc = SCENARIOS.find(s => s.id === scenId);
@@ -954,14 +963,14 @@ function newGame(scenId, mode) {
   state = {
     v: 1, scenId, water: sc.water, terr, names: Object.assign({}, sc.names), objs: sc.obj || [], held: {},
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
-    deck, discard: [], hands: (mode === 'duo' || mode === 'online') ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
+    deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
     mode, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
     active: sc.first, turn: 1, phase: 'start', cur: null, lastEff: {B: null, F: null},
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
   };
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : mode === 'duo' ? '2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
   beginTurn(sc.first);
 }
 
@@ -1917,11 +1926,13 @@ const FX = {
      ask      {id, to, kind, json}       상대에게 묻는 결정 (방진, 반격, 후퇴 칸 …)
      ans      {id, json}                 그 답
      fx       push 목록 {json}           애니메이션·효과음·주사위 중계
+     chat     push 목록 {side, text, t}  채팅 (방이 남아 있는 동안 유지)
    차례인 쪽 브라우저가 규칙을 계산하고 상태를 올린다. 상대 브라우저는 받아서 그리고, 자기 결정만 답한다. */
 const FB_SDK = '10.12.2';
 const NET = (() => {
   const clientId = (() => { try { let v = sessionStorage.getItem('cnc-cid'); if (!v) { v = uid() + uid(); sessionStorage.setItem('cnc-cid', v); } return v; } catch (e) { return uid() + uid(); } })();
   let T = null, room = null, me = null, seq = 0, lastSeqIn = -1, unsub = [], seenFx = new Set(), prunedTurn = -1;
+  let chat = [], seenChat = new Set();
   let askSeq = 0, pendingAsk = null, handledAsk = null, replaying = false, fxq = [], fxRunning = false, pendingState = null;
   const net = {
     status: 'off', opp: false, error: null,
@@ -1929,6 +1940,7 @@ const NET = (() => {
     get on() { return !!(state && state.mode === 'online' && room); },
     get myTurn() { return !net.on || state.active === me; },
     get replaying() { return replaying; },
+    get chat() { return chat; },
     available() { return !!transportKind(); },
   };
   function transportKind() {
@@ -2003,11 +2015,18 @@ const NET = (() => {
   async function attach() {
     detach(); seenFx = new Set(); lastSeqIn = -1;
     const existing = (await T.get(P_('fx'))) || {}; Object.keys(existing).forEach(k => seenFx.add(k));
+    chat = []; seenChat = new Set(Object.keys((await T.get(P_('chat'))) || {}));
     unsub.push(T.presence(P_('presence/' + me)));
     unsub.push(T.on(P_('presence/' + other(me)), v => { net.opp = !!v; render(); }));
     unsub.push(T.on(P_('state'), onState));
     unsub.push(T.on(P_('ask'), onAsk));
     unsub.push(T.on(P_('ans'), onAns));
+    unsub.push(T.onChild(P_('chat'), (v, k) => {
+      if (!v || typeof v.text !== 'string') return;
+      chat.push({side: v.side, text: v.text.slice(0, 200), t: v.t});
+      if (!seenChat.has(k) && v.side !== me) { SFX.raw('order'); toast(`${SIDE_KO[v.side] || '상대'}: ${v.text.slice(0, 60)}`); }
+      seenChat.add(k); renderChat();
+    }));
     unsub.push(T.onChild(P_('fx'), (v, k) => { if (seenFx.has(k)) return; seenFx.add(k); if (!v || v.by === clientId) return; try { fxq.push(JSON.parse(v.json)); } catch (e) {} runFx(); }));
     net.status = 'on'; saveSession();
     try { history.replaceState(null, '', '#r-' + room); } catch (e) {}
@@ -2049,7 +2068,12 @@ const NET = (() => {
       await attach(); return true;
     } catch (e) { net.status = 'error'; net.error = e.message; render(); return false; }
   };
-  net.leave = () => { detach(); room = null; me = null; net.status = 'off'; net.opp = false; saveSession(); pendingAsk = null; ui.waiting = null; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} };
+  net.leave = () => { detach(); chat = []; room = null; me = null; net.status = 'off'; net.opp = false; saveSession(); pendingAsk = null; ui.waiting = null; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} };
+  net.say = async text => {
+    text = String(text).trim().slice(0, 200);
+    if (!text || !T || !room) return;
+    await T.push(P_('chat'), {side: me, text, t: Date.now()});
+  };
   net.link = () => location.href.split('#')[0] + '#r-' + room;
 
   /* ---------- 상태 ---------- */
@@ -2258,7 +2282,7 @@ function cardHtml(k, opts = {}) {
 }
 function phaseHelp() {
   const p = state.phase, side = SIDE_KO[state.active];
-  if (p === 'start') return state.mode === 'online' ? `${side} 차례. <b>손패 확인</b>을 누르면 시작한다.` : state.mode === 'duo' ? `<b>${side}</b> 플레이어 차례. 상대 플레이어는 화면에서 눈을 돌린 뒤 손패를 연다.` : `${side} 차례가 시작됐다. 손패를 확인한다. (솔로: 상대 손패는 그 군의 차례가 올 때까지 보지 않는다)`;
+  if (p === 'start') return state.mode === 'online' ? `${side} 차례. <b>손패 확인</b>을 누르면 시작한다.` : `${side} 차례가 시작됐다. 손패를 확인한다. (솔로: 상대 손패는 그 군의 차례가 올 때까지 보지 않는다)`;
   if (p === 'scout') return '정찰: 새로 받은 2장 중 손에 넣을 1장을 고르세요. 다른 1장은 버린다.';
   if (p === 'pre') return '손에 <b>선제 공격</b>이나 <b>보급 부족</b>이 있으면 지휘카드보다 먼저 사용해야 한다. 그 카드를 누르세요.';
   if (p === 'card') return '이번 턴에 쓸 지휘카드를 고른 뒤 <b>카드 사용</b>을 누르세요.' + (isDuo() ? ' 선제 공격은 상대 턴에 적이 근접공격할 때 쓰는 카드라 지금은 쓸 수 없다.' : '');
@@ -2327,7 +2351,7 @@ function renderSide() {
     s += `<section class="block dice-block"><h3>주사위</h3><p class="dlabel">${esc(dd.label)}</p><div class="dice${dd.rolling ? ' rolling' : ''}">${dd.faces.length ? dd.faces.map(f => dieSvg(f)).join('') : '<span class="note">굴릴 주사위가 없다</span>'}</div>${dd.note ? `<p class="dnote">${dd.note}</p>` : ''}</section>`;
   }
   // 기록
-  s += `<section class="block"><h3>기록</h3><ol class="log">${state.log.slice(0, 60).map(e => `<li class="lg ${e.c}"><span class="lt">${e.t}</span>${esc(e.m)}</li>`).join('')}</ol></section>`;
+  s += `<section class="block logblock"><h3>기록</h3><ol class="log">${state.log.slice(0, 60).map(e => `<li class="lg ${e.c}"><span class="lt">${e.t}</span>${esc(e.m)}</li>`).join('')}</ol></section>`;
   el.innerHTML = s;
 }
 function phaseButtons() {
@@ -2401,7 +2425,7 @@ function renderBar() {
   const el = document.getElementById('bar'); if (!el || !state) return;
   const sc = scen();
   const pips = side => { const n = bannerTotal(side), t = state.target; let s = ''; for (let i = 0; i < t; i++) s += `<i class="${i < state.vb[side] ? 'on' : i < n ? 'obj' : ''}"></i>`; return s; };
-  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : state.mode === 'duo' ? '2인 (한 기기)' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
+  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
    <div class="vbs"><div class="vb side-B"><span>영국군</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
    ${NET.on ? `<div class="netbox side-${NET.me}"><span>방 <b class="code">${NET.room}</b></span><span>나: ${SIDE_KO[NET.me]}</span><span class="dot ${NET.opp ? 'ok' : ''}">${NET.opp ? '상대 접속 중' : '상대 기다리는 중'}</span><button class="btn small" data-a="copylink">초대 링크 복사</button><button class="btn small ghost" data-a="leave">방 나가기</button></div>` : ''}
    <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && NET.myTurn ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
@@ -2416,8 +2440,8 @@ function renderOverlay() {
 }
 function newGameDialog() {
   const m = ui.newMode || 'solo';
-  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['duo', '2인 (한 기기)', '번갈아 화면을 넘기며 대전'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
-  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel m3" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
+  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
+  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
   const list = act => `<div class="plist">${SCENARIOS.map(x => `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${SIDE_KO[x.first]} · 카드 영국 ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`).join('')}</div>`;
   if (m !== 'online') s += list('start');
   else if (!NET.available()) s += `<div class="callout"><p><b>온라인 대전은 Firebase 설정이 있어야 켜진다.</b></p><p>${location.protocol.startsWith('http') && !/claude/.test(location.host) ? '저장소의 <code>firebase-config.js</code>에 Firebase 웹 앱 설정을 넣고 다시 올려라. 방법은 README의 "온라인 대전 설정"에 있다.' : '이 미리보기 페이지는 외부 서버 연결이 막혀 있다. GitHub Pages에 올린 버전에서 <code>firebase-config.js</code>를 채우면 쓸 수 있다.'}</p></div>`;
@@ -2431,7 +2455,17 @@ function newGameDialog() {
 function render() {
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false'));
   document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.id !== 'tab-' + ui.tab);
-  renderBar(); renderBoard(); renderSide(); renderOverlay();
+  renderBar(); renderBoard(); renderSide(); renderChat(); renderOverlay();
+}
+function renderChat() {
+  const el = document.getElementById('chat'); if (!el) return;
+  el.hidden = !NET.on; if (!NET.on) { el._n = -1; return; }
+  if (!el.firstChild) el.innerHTML = `<h3>채팅</h3><ol class="chatlog" aria-live="polite"></ol><form class="addrow chatform"><input id="chat-in" maxlength="200" placeholder="상대에게 메시지" autocomplete="off" enterkeyhint="send"><button class="btn primary small" type="submit">보내기</button></form>`;
+  const msgs = NET.chat; if (el._n === msgs.length) return; el._n = msgs.length;
+  const ol = el.querySelector('.chatlog');
+  const hm = t => { const d = new Date(t); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  ol.innerHTML = msgs.map(m => `<li class="cm side-${m.side}${m.side === NET.me ? ' me' : ''}"><b>${m.side === NET.me ? '나' : SIDE_KO[m.side]}</b><span>${esc(m.text)}</span><time>${m.t ? hm(m.t) : ''}</time></li>`).join('') || '<li class="cm empty">아직 메시지가 없다. 인사를 건네 보자.</li>';
+  ol.scrollTop = ol.scrollHeight;
 }
 
 /* ===================== INTERACTION ===================== */
@@ -2492,7 +2526,7 @@ function editClick(k) {
   }
   ui.editSel = (u || l) ? k : null; render();
 }
-const FREE_ACTIONS = new Set(['pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen']);
+const FREE_ACTIONS = new Set(['pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
 async function onAction(a, el) {
   const side = state && state.active;
   if (NET.on && !NET.myTurn && !FREE_ACTIONS.has(a)) return;
@@ -2559,6 +2593,7 @@ async function onAction(a, el) {
     case 'saveov': { const o = loadOverrides(); o[state.scenId] = {terr: state.terr, units: state.units.map(u => ({...u, ordered: false, moved: 0, battled: false})), leaders: state.leaders.map(l => ({...l, ordered: false, moved: 0}))}; saveOverrides(o); state.overridden = true; toast('이 브라우저에 기본 배치로 저장했다.'); return render(); }
     case 'clearov': { const o = loadOverrides(); delete o[state.scenId]; saveOverrides(o); toast('책 배치로 되돌렸다. 새 게임부터 적용된다.'); return render(); }
     case 'tab': ui.tab = el.dataset.tab; render(); window.scrollTo({top: 0}); return;
+    case 'goonline': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'online'; render(); window.scrollTo({top: 0}); return;
     case 'goscen': if (NET.on) NET.leave(); ui.tab = 'game'; ui.newGame = false; undoStack.length = 0; ui.sel = null; ui.dice = null; ui.winSeen = false; ui.newMode = el.dataset.m || 'solo'; newGame(el.dataset.v, ui.newMode); save(); render(); window.scrollTo({top: 0}); return;
   }
 }
@@ -2569,17 +2604,22 @@ function init() {
   });
   document.getElementById('board').addEventListener('click', e => { const h = e.target.closest('[data-k]'); if (h) boardClick(h.dataset.k); });
   document.addEventListener('change', e => { if (e.target.id === 'add-type' && ui.add && ui.add !== 'leader') { ui.add = e.target.value; render(); } });
-  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); } });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.target.closest('input, textarea')) { e.preventDefault(); undo(); } });
+  document.addEventListener('submit', e => {
+    if (!e.target.closest('.chatform')) return; e.preventDefault();
+    const i = document.getElementById('chat-in'); const t = i.value.trim(); if (!t) return;
+    i.value = ''; NET.say(t).catch(err => { i.value = t; toast('채팅을 보내지 못했다: ' + err.message); });
+  });
   let saved = null; try { saved = JSON.parse(localStorage.getItem('cnc-solo-save') || 'null'); } catch (e) {}
-  if (saved && saved.v === 1 && SCENARIOS.find(s => s.id === saved.scenId)) { state = saved; state.mode = state.mode || 'solo'; state.sqCards = state.sqCards || {B: [], F: []}; state.fsRefill = state.fsRefill || []; } else newGame('rolica1');
+  if (saved && saved.v === 1 && saved.mode !== 'duo' && SCENARIOS.find(s => s.id === saved.scenId)) { state = saved; state.mode = state.mode || 'solo'; state.sqCards = state.sqCards || {B: [], F: []}; state.fsRefill = state.fsRefill || []; } else newGame(saved && SCENARIOS.find(s => s.id === saved.scenId) ? saved.scenId : 'rolica1');
   ui.newMode = state.mode === 'online' ? 'online' : state.mode;
   document.addEventListener('input', e => { if (e.target.id === 'join-code') ui.joinCode = e.target.value; });
   renderScenarioList(); renderRefTables();
-  if (state.mode === 'online') { state.mode = 'duo'; }
   render();
   const hm = (location.hash || '').match(/^#r-([A-Z0-9]{4,8})$/i);
   NET.resume().then(ok => {
     if (ok && (!hm || hm[1].toUpperCase() === NET.room)) { toast(`방 ${NET.room}에 다시 연결했다.`); return; }
+    if (!ok && state.mode === 'online') { newGame(state.scenId, 'solo'); undoStack.length = 0; save(); render(); }
     if (hm) { ui.newGame = true; ui.newMode = 'online'; ui.joinCode = hm[1].toUpperCase(); render(); }
   });
 }
@@ -2589,7 +2629,7 @@ function renderScenarioList() {
    <p class="shist">${sc.hist}</p>
    <dl class="snotes"><div><dt>영국군</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
    <ul class="srules">${sc.rules.map(r => `<li>${r}</li>`).join('')}</ul>
-   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goscen" data-v="${sc.id}" data-m="duo">2인으로 시작</button></div></article>`).join('');
+   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
 }
 function renderRefTables() {
   const el = document.getElementById('unittables');

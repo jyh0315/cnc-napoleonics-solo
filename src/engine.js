@@ -77,7 +77,7 @@ function parseLeaders(str, side) {
 function loadOverrides() { try { return JSON.parse(localStorage.getItem('cnc-solo-overrides') || '{}'); } catch (e) { return {}; } }
 function saveOverrides(o) { try { localStorage.setItem('cnc-solo-overrides', JSON.stringify(o)); } catch (e) {} }
 
-function isDuo() { return state && (state.mode === 'duo' || state.mode === 'online'); }
+function isDuo() { return state && state.mode === 'online'; }
 function newGame(scenId, mode) {
   mode = mode || 'solo';
   const sc = SCENARIOS.find(s => s.id === scenId);
@@ -96,14 +96,14 @@ function newGame(scenId, mode) {
   state = {
     v: 1, scenId, water: sc.water, terr, names: Object.assign({}, sc.names), objs: sc.obj || [], held: {},
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
-    deck, discard: [], hands: (mode === 'duo' || mode === 'online') ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
+    deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
     mode, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
     active: sc.first, turn: 1, phase: 'start', cur: null, lastEff: {B: null, F: null},
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
   };
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : mode === 'duo' ? '2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
   beginTurn(sc.first);
 }
 

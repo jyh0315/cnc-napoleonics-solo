@@ -7,11 +7,13 @@
      ask      {id, to, kind, json}       상대에게 묻는 결정 (방진, 반격, 후퇴 칸 …)
      ans      {id, json}                 그 답
      fx       push 목록 {json}           애니메이션·효과음·주사위 중계
+     chat     push 목록 {side, text, t}  채팅 (방이 남아 있는 동안 유지)
    차례인 쪽 브라우저가 규칙을 계산하고 상태를 올린다. 상대 브라우저는 받아서 그리고, 자기 결정만 답한다. */
 const FB_SDK = '10.12.2';
 const NET = (() => {
   const clientId = (() => { try { let v = sessionStorage.getItem('cnc-cid'); if (!v) { v = uid() + uid(); sessionStorage.setItem('cnc-cid', v); } return v; } catch (e) { return uid() + uid(); } })();
   let T = null, room = null, me = null, seq = 0, lastSeqIn = -1, unsub = [], seenFx = new Set(), prunedTurn = -1;
+  let chat = [], seenChat = new Set();
   let askSeq = 0, pendingAsk = null, handledAsk = null, replaying = false, fxq = [], fxRunning = false, pendingState = null;
   const net = {
     status: 'off', opp: false, error: null,
@@ -19,6 +21,7 @@ const NET = (() => {
     get on() { return !!(state && state.mode === 'online' && room); },
     get myTurn() { return !net.on || state.active === me; },
     get replaying() { return replaying; },
+    get chat() { return chat; },
     available() { return !!transportKind(); },
   };
   function transportKind() {
@@ -93,11 +96,18 @@ const NET = (() => {
   async function attach() {
     detach(); seenFx = new Set(); lastSeqIn = -1;
     const existing = (await T.get(P_('fx'))) || {}; Object.keys(existing).forEach(k => seenFx.add(k));
+    chat = []; seenChat = new Set(Object.keys((await T.get(P_('chat'))) || {}));
     unsub.push(T.presence(P_('presence/' + me)));
     unsub.push(T.on(P_('presence/' + other(me)), v => { net.opp = !!v; render(); }));
     unsub.push(T.on(P_('state'), onState));
     unsub.push(T.on(P_('ask'), onAsk));
     unsub.push(T.on(P_('ans'), onAns));
+    unsub.push(T.onChild(P_('chat'), (v, k) => {
+      if (!v || typeof v.text !== 'string') return;
+      chat.push({side: v.side, text: v.text.slice(0, 200), t: v.t});
+      if (!seenChat.has(k) && v.side !== me) { SFX.raw('order'); toast(`${SIDE_KO[v.side] || '상대'}: ${v.text.slice(0, 60)}`); }
+      seenChat.add(k); renderChat();
+    }));
     unsub.push(T.onChild(P_('fx'), (v, k) => { if (seenFx.has(k)) return; seenFx.add(k); if (!v || v.by === clientId) return; try { fxq.push(JSON.parse(v.json)); } catch (e) {} runFx(); }));
     net.status = 'on'; saveSession();
     try { history.replaceState(null, '', '#r-' + room); } catch (e) {}
@@ -139,7 +149,12 @@ const NET = (() => {
       await attach(); return true;
     } catch (e) { net.status = 'error'; net.error = e.message; render(); return false; }
   };
-  net.leave = () => { detach(); room = null; me = null; net.status = 'off'; net.opp = false; saveSession(); pendingAsk = null; ui.waiting = null; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} };
+  net.leave = () => { detach(); chat = []; room = null; me = null; net.status = 'off'; net.opp = false; saveSession(); pendingAsk = null; ui.waiting = null; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} };
+  net.say = async text => {
+    text = String(text).trim().slice(0, 200);
+    if (!text || !T || !room) return;
+    await T.push(P_('chat'), {side: me, text, t: Date.now()});
+  };
   net.link = () => location.href.split('#')[0] + '#r-' + room;
 
   /* ---------- 상태 ---------- */

@@ -114,7 +114,7 @@ function cardHtml(k, opts = {}) {
 }
 function phaseHelp() {
   const p = state.phase, side = SIDE_KO[state.active];
-  if (p === 'start') return state.mode === 'online' ? `${side} 차례. <b>손패 확인</b>을 누르면 시작한다.` : state.mode === 'duo' ? `<b>${side}</b> 플레이어 차례. 상대 플레이어는 화면에서 눈을 돌린 뒤 손패를 연다.` : `${side} 차례가 시작됐다. 손패를 확인한다. (솔로: 상대 손패는 그 군의 차례가 올 때까지 보지 않는다)`;
+  if (p === 'start') return state.mode === 'online' ? `${side} 차례. <b>손패 확인</b>을 누르면 시작한다.` : `${side} 차례가 시작됐다. 손패를 확인한다. (솔로: 상대 손패는 그 군의 차례가 올 때까지 보지 않는다)`;
   if (p === 'scout') return '정찰: 새로 받은 2장 중 손에 넣을 1장을 고르세요. 다른 1장은 버린다.';
   if (p === 'pre') return '손에 <b>선제 공격</b>이나 <b>보급 부족</b>이 있으면 지휘카드보다 먼저 사용해야 한다. 그 카드를 누르세요.';
   if (p === 'card') return '이번 턴에 쓸 지휘카드를 고른 뒤 <b>카드 사용</b>을 누르세요.' + (isDuo() ? ' 선제 공격은 상대 턴에 적이 근접공격할 때 쓰는 카드라 지금은 쓸 수 없다.' : '');
@@ -183,7 +183,7 @@ function renderSide() {
     s += `<section class="block dice-block"><h3>주사위</h3><p class="dlabel">${esc(dd.label)}</p><div class="dice${dd.rolling ? ' rolling' : ''}">${dd.faces.length ? dd.faces.map(f => dieSvg(f)).join('') : '<span class="note">굴릴 주사위가 없다</span>'}</div>${dd.note ? `<p class="dnote">${dd.note}</p>` : ''}</section>`;
   }
   // 기록
-  s += `<section class="block"><h3>기록</h3><ol class="log">${state.log.slice(0, 60).map(e => `<li class="lg ${e.c}"><span class="lt">${e.t}</span>${esc(e.m)}</li>`).join('')}</ol></section>`;
+  s += `<section class="block logblock"><h3>기록</h3><ol class="log">${state.log.slice(0, 60).map(e => `<li class="lg ${e.c}"><span class="lt">${e.t}</span>${esc(e.m)}</li>`).join('')}</ol></section>`;
   el.innerHTML = s;
 }
 function phaseButtons() {
@@ -257,7 +257,7 @@ function renderBar() {
   const el = document.getElementById('bar'); if (!el || !state) return;
   const sc = scen();
   const pips = side => { const n = bannerTotal(side), t = state.target; let s = ''; for (let i = 0; i < t; i++) s += `<i class="${i < state.vb[side] ? 'on' : i < n ? 'obj' : ''}"></i>`; return s; };
-  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : state.mode === 'duo' ? '2인 (한 기기)' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
+  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
    <div class="vbs"><div class="vb side-B"><span>영국군</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
    ${NET.on ? `<div class="netbox side-${NET.me}"><span>방 <b class="code">${NET.room}</b></span><span>나: ${SIDE_KO[NET.me]}</span><span class="dot ${NET.opp ? 'ok' : ''}">${NET.opp ? '상대 접속 중' : '상대 기다리는 중'}</span><button class="btn small" data-a="copylink">초대 링크 복사</button><button class="btn small ghost" data-a="leave">방 나가기</button></div>` : ''}
    <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && NET.myTurn ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
@@ -272,8 +272,8 @@ function renderOverlay() {
 }
 function newGameDialog() {
   const m = ui.newMode || 'solo';
-  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['duo', '2인 (한 기기)', '번갈아 화면을 넘기며 대전'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
-  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel m3" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
+  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
+  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
   const list = act => `<div class="plist">${SCENARIOS.map(x => `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${SIDE_KO[x.first]} · 카드 영국 ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`).join('')}</div>`;
   if (m !== 'online') s += list('start');
   else if (!NET.available()) s += `<div class="callout"><p><b>온라인 대전은 Firebase 설정이 있어야 켜진다.</b></p><p>${location.protocol.startsWith('http') && !/claude/.test(location.host) ? '저장소의 <code>firebase-config.js</code>에 Firebase 웹 앱 설정을 넣고 다시 올려라. 방법은 README의 "온라인 대전 설정"에 있다.' : '이 미리보기 페이지는 외부 서버 연결이 막혀 있다. GitHub Pages에 올린 버전에서 <code>firebase-config.js</code>를 채우면 쓸 수 있다.'}</p></div>`;
@@ -287,7 +287,17 @@ function newGameDialog() {
 function render() {
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false'));
   document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.id !== 'tab-' + ui.tab);
-  renderBar(); renderBoard(); renderSide(); renderOverlay();
+  renderBar(); renderBoard(); renderSide(); renderChat(); renderOverlay();
+}
+function renderChat() {
+  const el = document.getElementById('chat'); if (!el) return;
+  el.hidden = !NET.on; if (!NET.on) { el._n = -1; return; }
+  if (!el.firstChild) el.innerHTML = `<h3>채팅</h3><ol class="chatlog" aria-live="polite"></ol><form class="addrow chatform"><input id="chat-in" maxlength="200" placeholder="상대에게 메시지" autocomplete="off" enterkeyhint="send"><button class="btn primary small" type="submit">보내기</button></form>`;
+  const msgs = NET.chat; if (el._n === msgs.length) return; el._n = msgs.length;
+  const ol = el.querySelector('.chatlog');
+  const hm = t => { const d = new Date(t); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  ol.innerHTML = msgs.map(m => `<li class="cm side-${m.side}${m.side === NET.me ? ' me' : ''}"><b>${m.side === NET.me ? '나' : SIDE_KO[m.side]}</b><span>${esc(m.text)}</span><time>${m.t ? hm(m.t) : ''}</time></li>`).join('') || '<li class="cm empty">아직 메시지가 없다. 인사를 건네 보자.</li>';
+  ol.scrollTop = ol.scrollHeight;
 }
 
 /* ===================== INTERACTION ===================== */
@@ -348,7 +358,7 @@ function editClick(k) {
   }
   ui.editSel = (u || l) ? k : null; render();
 }
-const FREE_ACTIONS = new Set(['pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen']);
+const FREE_ACTIONS = new Set(['pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
 async function onAction(a, el) {
   const side = state && state.active;
   if (NET.on && !NET.myTurn && !FREE_ACTIONS.has(a)) return;
@@ -415,6 +425,7 @@ async function onAction(a, el) {
     case 'saveov': { const o = loadOverrides(); o[state.scenId] = {terr: state.terr, units: state.units.map(u => ({...u, ordered: false, moved: 0, battled: false})), leaders: state.leaders.map(l => ({...l, ordered: false, moved: 0}))}; saveOverrides(o); state.overridden = true; toast('이 브라우저에 기본 배치로 저장했다.'); return render(); }
     case 'clearov': { const o = loadOverrides(); delete o[state.scenId]; saveOverrides(o); toast('책 배치로 되돌렸다. 새 게임부터 적용된다.'); return render(); }
     case 'tab': ui.tab = el.dataset.tab; render(); window.scrollTo({top: 0}); return;
+    case 'goonline': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'online'; render(); window.scrollTo({top: 0}); return;
     case 'goscen': if (NET.on) NET.leave(); ui.tab = 'game'; ui.newGame = false; undoStack.length = 0; ui.sel = null; ui.dice = null; ui.winSeen = false; ui.newMode = el.dataset.m || 'solo'; newGame(el.dataset.v, ui.newMode); save(); render(); window.scrollTo({top: 0}); return;
   }
 }
@@ -425,17 +436,22 @@ function init() {
   });
   document.getElementById('board').addEventListener('click', e => { const h = e.target.closest('[data-k]'); if (h) boardClick(h.dataset.k); });
   document.addEventListener('change', e => { if (e.target.id === 'add-type' && ui.add && ui.add !== 'leader') { ui.add = e.target.value; render(); } });
-  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); } });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.target.closest('input, textarea')) { e.preventDefault(); undo(); } });
+  document.addEventListener('submit', e => {
+    if (!e.target.closest('.chatform')) return; e.preventDefault();
+    const i = document.getElementById('chat-in'); const t = i.value.trim(); if (!t) return;
+    i.value = ''; NET.say(t).catch(err => { i.value = t; toast('채팅을 보내지 못했다: ' + err.message); });
+  });
   let saved = null; try { saved = JSON.parse(localStorage.getItem('cnc-solo-save') || 'null'); } catch (e) {}
-  if (saved && saved.v === 1 && SCENARIOS.find(s => s.id === saved.scenId)) { state = saved; state.mode = state.mode || 'solo'; state.sqCards = state.sqCards || {B: [], F: []}; state.fsRefill = state.fsRefill || []; } else newGame('rolica1');
+  if (saved && saved.v === 1 && saved.mode !== 'duo' && SCENARIOS.find(s => s.id === saved.scenId)) { state = saved; state.mode = state.mode || 'solo'; state.sqCards = state.sqCards || {B: [], F: []}; state.fsRefill = state.fsRefill || []; } else newGame(saved && SCENARIOS.find(s => s.id === saved.scenId) ? saved.scenId : 'rolica1');
   ui.newMode = state.mode === 'online' ? 'online' : state.mode;
   document.addEventListener('input', e => { if (e.target.id === 'join-code') ui.joinCode = e.target.value; });
   renderScenarioList(); renderRefTables();
-  if (state.mode === 'online') { state.mode = 'duo'; }
   render();
   const hm = (location.hash || '').match(/^#r-([A-Z0-9]{4,8})$/i);
   NET.resume().then(ok => {
     if (ok && (!hm || hm[1].toUpperCase() === NET.room)) { toast(`방 ${NET.room}에 다시 연결했다.`); return; }
+    if (!ok && state.mode === 'online') { newGame(state.scenId, 'solo'); undoStack.length = 0; save(); render(); }
     if (hm) { ui.newGame = true; ui.newMode = 'online'; ui.joinCode = hm[1].toUpperCase(); render(); }
   });
 }
@@ -445,7 +461,7 @@ function renderScenarioList() {
    <p class="shist">${sc.hist}</p>
    <dl class="snotes"><div><dt>영국군</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
    <ul class="srules">${sc.rules.map(r => `<li>${r}</li>`).join('')}</ul>
-   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goscen" data-v="${sc.id}" data-m="duo">2인으로 시작</button></div></article>`).join('');
+   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
 }
 function renderRefTables() {
   const el = document.getElementById('unittables');
