@@ -1,0 +1,34 @@
+{
+  "rules": {
+    "rooms": {
+      "$room": {
+        ".read": "auth != null",
+        "meta": {
+          ".write": "auth != null && !data.exists()"
+        },
+        "seats": {
+          "$side": {
+            ".write": "auth != null && ($side === 'B' || $side === 'F') && (!data.exists() || data.val() === auth.uid) && newData.val() === auth.uid"
+          }
+        },
+        "presence": {
+          "$side": {
+            ".write": "auth != null && root.child('rooms').child($room).child('seats').child($side).val() === auth.uid"
+          }
+        },
+        "state": {
+          ".write": "auth != null && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)"
+        },
+        "ask": {
+          ".write": "auth != null && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)"
+        },
+        "ans": {
+          ".write": "auth != null && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)"
+        },
+        "fx": {
+          ".write": "auth != null && (root.child('rooms').child($room).child('seats').child('B').val() === auth.uid || root.child('rooms').child($room).child('seats').child('F').val() === auth.uid)"
+        }
+      }
+    }
+  }
+}
