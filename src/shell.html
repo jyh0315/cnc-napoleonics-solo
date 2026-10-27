@@ -216,6 +216,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chipbtn{display:inline-flex;align-items:center;gap:5px;font-size:12px;border:1px solid var(--line-2);background:var(--surface-2);border-radius:20px;padding:4px 9px;cursor:pointer}
 .chipbtn i{width:11px;height:11px;border-radius:2px;border:1px solid rgba(0,0,0,.4)}
+.setchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .chipbtn.on{border-color:var(--brass);color:var(--brass)}
 .addrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .addrow select,.addrow input{background:var(--surface-2);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;padding:5px 8px;font:inherit;font-size:12.5px;min-width:0;flex:1 1 140px}
@@ -280,7 +281,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인</small></div>
+    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인 · 확장 스페인·러시아</small></div>
     <nav class="tabs" role="tablist" aria-label="화면">
       <button data-tab="game" role="tab">게임</button>
       <button data-tab="rules" role="tab">규칙</button>
@@ -295,7 +296,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
       <div class="boardwrap">
         <div class="boardscroll"><svg id="board" role="img" aria-label="전장 지도"></svg></div>
         <div class="legend">
-          <span><i style="background:#ebe4cd"></i>개활지</span><span><i style="background:#a8bd83"></i>숲</span><span><i style="background:#c9c88b"></i>언덕</span><span><i style="background:#b2a487"></i>요철 구릉(통과 불가)</span><span><i style="background:#e4d9bb"></i>마을</span><span><i style="background:#4b7aa8"></i>강(통과 불가)</span><span><i style="background:#79a5cd"></i>개울</span><span><i style="background:#e7d6a3"></i>채석장</span>
+          <span><i style="background:#ebe4cd"></i>개활지</span><span><i style="background:#a8bd83"></i>숲</span><span><i style="background:#c9c88b"></i>언덕</span><span><i style="background:#b2a487"></i>요철 구릉(통과 불가)</span><span><i style="background:#e4d9bb"></i>마을</span><span><i style="background:#4b7aa8"></i>강(통과 불가)</span><span><i style="background:#79a5cd"></i>개울</span><span><i style="background:#e7d6a3"></i>채석장</span><span><i style="background:#c4dbea"></i>얼어붙은 호수</span><span><i style="background:#d4cba7;outline:2px solid #6b4627"></i>4면 보루</span><span>✝ 교회(마을+깃발 1 무시)</span>
           <span><i style="background:#5b8fd8"></i>보병 띠</span><span><i style="background:#e2bd2f"></i>기병 띠</span><span><i style="background:#d2443a"></i>포병 띠</span><span>★ 리더 · 흰 네모 = 남은 블록 · 금색 테두리 = 명령받음 · 옅은 금색 칸 = 지금 명령/공격할 수 있는 유닛</span>
         </div>
       </div>
@@ -311,7 +312,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   </section>
   <section id="tab-scen" class="tabpane" hidden>
     <div class="doc" style="max-width:none">
-      <h2>시나리오 15개</h2>
+      <h2>시나리오 53개</h2>
       <p class="lede">시나리오북의 지도를 옮겨 놓았다. 지도 위쪽은 영국군, 아래쪽은 프랑스군이다. 책 그림을 칸 단위로 옮긴 것이라 일부 칸이 다를 수 있으니, 다르면 게임 화면의 <b>편집</b>으로 고치고 기본 배치로 저장하면 된다.</p>
       <div id="scenlist"></div>
     </div>

@@ -1,8 +1,19 @@
 /* ===================== RENDER: BOARD ===================== */
-const NAT_COL = {F: '#26448c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c'};
+const NAT_COL = {F: '#26448c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c', S: '#b7870f', R: '#2f6b35', W: '#7a5231'};
+// 바일렌의 스위스군: 프랑스 쪽은 영국 빨간 블록, 스페인 쪽은 포르투갈 갈색 블록
+const natCol = u => u.nat === 'W' ? (u.side === 'F' ? NAT_COL.B : NAT_COL.P) : NAT_COL[u.nat];
 const CLS_COL = {inf: '#5b8fd8', cav: '#e2bd2f', art: '#d2443a'};
 const SIDE_COL = {B: '#c4362c', F: '#2c56b0'};
-const T_FILL = {clear: '#ebe4cd', forest: '#a8bd83', hill: '#c9c88b', rugged: '#b2a487', town: '#e4d9bb', river: '#4b7aa8', stream: '#79a5cd', brook: '#8db6da', bridge: '#79a5cd', fw: '#d4cba7', quarry: '#e7d6a3'};
+const T_FILL = {clear: '#ebe4cd', forest: '#a8bd83', hill: '#c9c88b', rugged: '#b2a487', town: '#e4d9bb', river: '#4b7aa8', stream: '#79a5cd', brook: '#8db6da', bridge: '#79a5cd', fw: '#d4cba7', quarry: '#e7d6a3',
+  church: '#e4d9bb', redoubt: '#d4cba7', lake: '#4b7aa8', frozen: '#c4dbea', ford: '#79a5cd', streamInf: '#8db6da'};
+// 시나리오에 따라 위쪽 진영 이름·색을 바꾼다 (영국·스페인·러시아)
+let lookFor = null;
+function syncLook() {
+  if (!state || lookFor === state.scenId) return; lookFor = state.scenId;
+  const sc = SCENARIOS.find(x => x.id === state.scenId); const L = TOP_LOOK[sc.nat || 'B'];
+  SIDE_KO.B = sc.sideName || L.ko; SIDE_COL.B = L.col; state.top = sc.nat || 'B';
+  document.documentElement.style.setProperty('--br', L.col);
+}
 const W = PADX * 2 + HW * 13, H = PADY * 2 + HS * 2 + 8 * 1.5 * HS;
 function hexPts(cx, cy, s) { let p = ''; for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); p += `${(cx + s * Math.cos(a)).toFixed(1)},${(cy + s * Math.sin(a)).toFixed(1)} `; } return p; }
 function starPts(cx, cy, R, r) { let p = ''; for (let i = 0; i < 10; i++) { const rad = i % 2 ? r : R, a = Math.PI / 5 * i - Math.PI / 2; p += `${(cx + rad * Math.cos(a)).toFixed(1)},${(cy + rad * Math.sin(a)).toFixed(1)} `; } return p; }
@@ -31,9 +42,9 @@ function renderBoard() {
   s += `<rect x="${PADX}" y="${bandY[0]}" width="${W - 2 * PADX}" height="${PADY - 12}" rx="6" fill="#efe6cc" opacity=".55"/>`;
   s += `<rect x="${PADX}" y="${bandY[1]}" width="${W - 2 * PADX}" height="${PADY - 12}" rx="6" fill="#efe6cc" opacity=".55"/>`;
   const x1 = PADX + HW * 4, x2 = PADX + HW * 9;
-  const secLab = (y, side) => { const L = side === 'F' ? '좌측' : '우측', R = side === 'F' ? '우측' : '좌측'; const nm = side === 'B' ? '영국' : '프랑스';
+  const secLab = (y, side) => { const L = side === 'F' ? '좌측' : '우측', R = side === 'F' ? '우측' : '좌측'; const nm = side === 'B' ? SIDE_KO.B.replace(/군$/, '') : '프랑스';
     return `<text class="seclab" x="${(PADX + x1) / 2}" y="${y}">${nm} ${L}</text><text class="seclab" x="${(x1 + x2) / 2 - 70}" y="${y}">중앙</text><text class="seclab" x="${(x2 + W - PADX) / 2}" y="${y}">${nm} ${R}</text>`; };
-  s += `<g class="band"><rect x="${(x1 + x2) / 2 - 40}" y="${bandY[0] + 2}" width="80" height="18" rx="9" fill="${SIDE_COL.B}"/><text x="${(x1 + x2) / 2}" y="${bandY[0] + 15}" class="bandname">BRITISH</text>${secLab(bandY[0] + 15, 'B')}</g>`;
+  s += `<g class="band"><rect x="${(x1 + x2) / 2 - 40}" y="${bandY[0] + 2}" width="80" height="18" rx="9" fill="${SIDE_COL.B}"/><text x="${(x1 + x2) / 2}" y="${bandY[0] + 15}" class="bandname">${TOP_LOOK[state.top || 'B'].band}</text>${secLab(bandY[0] + 15, 'B')}</g>`;
   s += `<g class="band"><rect x="${(x1 + x2) / 2 - 40}" y="${bandY[1] + 2}" width="80" height="18" rx="9" fill="${SIDE_COL.F}"/><text x="${(x1 + x2) / 2}" y="${bandY[1] + 15}" class="bandname">FRENCH</text>${secLab(bandY[1] + 15, 'F')}</g>`;
   // 카드로 명령 가능한 구역 표시
   if (d && d.sec && ['order'].includes(state.phase)) {
@@ -48,9 +59,13 @@ function renderBoard() {
     const k = K(r, c), [cx, cy] = ctr(r, c); const raw = rawT(k), t = effT(k);
     const fill = raw === 'bridge' ? T_FILL.bridge : (T_FILL[t] || T_FILL.clear);
     s += `<polygon class="hex t-${t}" data-k="${k}" points="${hexPts(cx, cy, HS - 0.6)}" fill="${fill}"/>`;
-    const use = {forest: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
+    const use = {forest: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', church: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
     if (use) deco += `<use href="#${use}" x="${cx}" y="${cy}"/>`;
-    if (raw === 'river' || raw === 'bridge') deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
+    if (['river', 'bridge', 'stream', 'brook', 'ford', 'streamInf', 'lake'].includes(raw)) deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
+    if (raw === 'church') deco += `<path d="M${cx} ${cy - 22} v14 M${cx - 5} ${cy - 17} h10" stroke="#3a2f1e" stroke-width="2.4"/>`;
+    if (raw === 'frozen') deco += `<path d="M${cx - 16} ${cy - 4} l10 6 M${cx + 2} ${cy - 10} l12 8 M${cx - 8} ${cy + 8} l14 4" stroke="#fff" stroke-width="1.6" opacity=".85"/>`;
+    if (raw === 'redoubt') deco += `<polygon points="${hexPts(cx, cy, HS - 8)}" fill="none" stroke="#6b4627" stroke-width="4.5"/>`;
+    if ((state.fwPlus || []).includes(k)) deco += `<use href="#d-fw" x="${cx}" y="${cy}"/>`;
     if (raw === 'bridge') deco += `<use href="#d-bridge" x="${cx}" y="${cy}"/>`;
     if (raw === 'fw') deco += `<use href="#d-fw" x="${cx}" y="${cy}"/>`;
     if (state.names[k]) names += `<text class="pname" x="${cx}" y="${cy + HS - 9}">${esc(state.names[k])}</text>`;
@@ -67,10 +82,12 @@ function renderBoard() {
   if (tgtMap) tgtMap.forEach((kind, k) => s += over(k, kind === 'fire' ? 'ov-fire' : 'ov-melee'));
   if (!ui.edit && !ui.picking && !ui.busy && !state.winner && NET.myTurn) {
     if (state.phase === 'order' && !(d && (d.k === 'rally'))) state.units.forEach(u => { if (u.side === act && !u.ordered && !tryOrder(u, false)) s += over(hexOf(u), 'ov-elig'); });
-    if (state.phase === 'order' && d && d.k === 'rally' && state.tokens) state.units.forEach(u => { if (u.side === act && u.blocks < st(u).max && state.tokens[st(u).cls] > 0) s += over(hexOf(u), 'ov-elig'); });
+    if (state.phase === 'order' && d && d.k === 'rally' && state.tokens) state.units.forEach(u => { if (u.side === act && u.blocks < umax(u) && state.tokens[st(u).cls] > 0) s += over(hexOf(u), 'ov-elig'); });
     if (state.phase === 'battle') state.units.forEach(u => { if (u.side === act && u !== selU && targetsFor(u).size) s += over(hexOf(u), 'ov-ready'); });
   }
   if (ui.picking) ui.picking.cands.forEach(k => s += over(k, 'ov-pick'));
+  // 모룽엔 측면 부대 표지
+  if (state.flank != null) { const [fx, fy] = ctr(8, state.flank); s += `<g pointer-events="none"><polygon points="${starPts(fx, fy - 4, 16, 7)}" fill="${SIDE_COL.B}" stroke="#fff" stroke-width="1.6"/><text class="lname" x="${fx}" y="${fy + 20}">측면 부대</text></g>`; }
   if (ui.edit && ui.editSel) s += over(ui.editSel, 'ov-sel');
   // units
   state.units.forEach(u => s += unitSvg(u, selU === u));
@@ -82,17 +99,18 @@ function unitSvg(u, selected) {
   const [cx, cy] = ctr(u.r, u.c); const s = st(u); const ws = 44, hs = 30, x = -ws / 2, y = -hs / 2 + 2;
   let g = `<g class="unit${u.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(u)}" data-id="${u.id}" transform="translate(${cx},${cy})">`;
   if (u.square) g += `<rect x="${x - 4}" y="${y - 4}" width="${ws + 8}" height="${hs + 8}" rx="3" fill="none" stroke="#ffd84a" stroke-width="2.6" stroke-dasharray="4 2"/>`;
-  g += `<rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="3" fill="${NAT_COL[u.nat]}" class="ubody"/>`;
+  g += `<rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="3" fill="${natCol(u)}" class="ubody"/>`;
   g += `<rect x="${x}" y="${y}" width="${ws}" height="5" rx="2" fill="${CLS_COL[s.cls]}"/>`;
   if (u.nat === 'A') g += `<path d="M${x + ws - 8} ${y + 5} L${x + ws} ${y + 5} L${x + ws} ${y + 13} Z" fill="#f0b23a"/>`;
   g += `<text class="uab" x="0" y="${y + 17}">${s.ab}</text>`;
-  const pw = 5, gap = 2, tot = s.max * pw + (s.max - 1) * gap; let px = -tot / 2;
-  for (let i = 0; i < s.max; i++) { g += `<rect x="${px}" y="${y + 21}" width="${pw}" height="${pw}" fill="${i < u.blocks ? '#fff' : 'none'}" stroke="#fff" stroke-width=".8"/>`; px += pw + gap; }
+  const mx = umax(u), pw = mx > 5 ? 4 : 5, gap = mx > 5 ? 1.5 : 2, tot = mx * pw + (mx - 1) * gap; let px = -tot / 2;
+  for (let i = 0; i < mx; i++) { g += `<rect x="${px}" y="${y + 21}" width="${pw}" height="${pw}" fill="${i < u.blocks ? '#fff' : 'none'}" stroke="#fff" stroke-width=".8"/>`; px += pw + gap; }
   if (u.square) g += `<text class="sqtag" x="${x + ws + 1}" y="${y - 3}">방진</text>`;
   if (u.side === state.active && u.ordered) {
     if (u.moved) g += `<circle cx="${x + ws - 2}" cy="${y + hs - 2}" r="5" fill="#f2c14e"/><text class="mk" x="${x + ws - 2}" y="${y + hs + 1}">${u.moved}</text>`;
     if (u.battled) g += `<circle cx="${x + 2}" cy="${y + hs - 2}" r="5" fill="#2a2a2a"/><text class="mk w" x="${x + 2}" y="${y + hs + 1}">✕</text>`;
   }
+  if (u.tag === 'dav') g += `<text class="sstag" x="0" y="${y - 4}">다부</text>`;
   if (u.ssTurn === state.turn) g += `<text class="sstag" x="0" y="${y - 4}">보급부족</text>`;
   const l = attLeader(u);
   if (l) g += `<polygon points="${starPts(x + 2, y + 1, 9, 4)}" fill="${SIDE_COL[l.side]}" stroke="${l.ordered ? '#f2c14e' : '#fff'}" stroke-width="${l.ordered ? 2.2 : 1.2}"/>`;
@@ -152,6 +170,13 @@ function renderSide() {
   s += `<section class="turn side-${side}"><div class="turn-top"><span class="tnum">${state.turn}턴</span><span class="tside">${SIDE_KO[side]} 차례${NET.on ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">상대 진행 중</em>') : ''}</span><span class="tcmd">${state.mode === 'online' ? '온라인' : isDuo() ? '2인' : '솔로'} · 지휘능력 ${cmdNow()}</span></div>
     <ol class="phases">${PHASES.filter(x => (x[0] !== 'pre' || p === 'pre') && (x[0] !== 'scout' || p === 'scout') && !(x[0] === 'end' && isDuo())).map(([k, n]) => { const i = PHASES.findIndex(y => y[0] === k); return `<li class="${k === p ? 'now' : i < idx ? 'done' : ''}">${n}</li>`; }).join('')}</ol>
     <p class="help">${mine ? phaseHelp() : `${SIDE_KO[side]}(상대)가 진행하고 있다. 상대의 이동과 전투가 이 화면에도 그대로 보인다. 내 유닛이 공격받으면 방진·반격·후퇴 같은 결정을 여기서 고른다.`}</p><div class="actions">${mine ? phaseButtons() : (state.winner ? phaseButtons() : '')}</div></section>`;
+  // 확장 표시: 게릴라 카운터, 측면 부대
+  const extras = [];
+  if (state.guer != null) extras.push(`게릴라 카운터 <b>${state.guer}</b>개 (${SIDE_KO.B})`);
+  if (state.flank != null) extras.push(`러시아 측면 부대: 8,${state.flank} → 모룽엔(8,8)`);
+  if (scen().mr) extras.push('전투 전 어머니 러시아 굴림 적용');
+  if (state.cur && state.cur.eff === 'cancel') extras.push('<b>게릴라에게 카드가 취소됐다</b>');
+  if (extras.length) s += `<section class="block"><p class="note" style="margin:0">${extras.join(' · ')}</p></section>`;
   // 현재 카드
   if (state.cur) {
     s += `<section class="block"><h3>사용 중인 카드</h3>${cardHtml(state.cur.k, {attr: 'tabindex="-1"'})}`;
@@ -218,9 +243,9 @@ function selInfo() {
   let s = `<section class="block selinfo"><h3>선택</h3>`;
   if (u) {
     const S = st(u), k = hexOf(u), t = effT(k);
-    s += `<div class="ui-row"><span class="chip" style="background:${NAT_COL[u.nat]}">${unitName(u)}</span><span>${SIDE_KO[u.side]} · ${k} · ${TERRAIN[t] ? TERRAIN[t].ko : (t === 'stream' ? '개울' : t === 'brook' ? '개울(정지 없음)' : t)}</span></div>`;
-    s += `<dl class="stats"><div><dt>블록</dt><dd>${u.blocks}/${S.max}</dd></div><div><dt>이동</dt><dd>${S.cls === 'inf' ? (S.mv2 ? '1칸+전투 / 2칸' : '1칸+전투') : S.cls === 'cav' ? S.mv + '칸+전투' : S.foot ? '1칸(전투 불가)' : '1칸+전투 / 2칸'}</dd></div>
-      <div><dt>근접</dt><dd>${S.melee[S.max - u.blocks]}개</dd></div><div><dt>사거리</dt><dd>${S.rng ? S.rng + '칸' : '–'}</dd></div>${S.ign ? `<div><dt>깃발 무시</dt><dd>${S.ign}</dd></div>` : ''}${S.noSaber ? '<div><dt>칼</dt><dd>명중 아님</dd></div>' : ''}${S.retreat ? `<div><dt>후퇴</dt><dd>깃발당 ${S.retreat}칸</dd></div>` : ''}</dl>`;
+    s += `<div class="ui-row"><span class="chip" style="background:${natCol(u)}">${unitName(u)}</span><span>${SIDE_KO[u.side]} · ${k} · ${TERRAIN[t] ? TERRAIN[t].ko : (t === 'stream' ? '개울' : t === 'brook' ? '개울(정지 없음)' : t)}</span></div>`;
+    s += `<dl class="stats"><div><dt>블록</dt><dd>${u.blocks}/${umax(u)}</dd></div><div><dt>이동</dt><dd>${S.cls === 'inf' ? (S.mv2 ? '1칸+전투 / 2칸' : '1칸+전투') : S.cls === 'cav' ? S.mv + '칸+전투' : S.foot ? '1칸(전투 불가)' : '1칸+전투 / 2칸'}</dd></div>
+      <div><dt>근접</dt><dd>${byB(S.melee, u.blocks)}개</dd></div><div><dt>사거리</dt><dd>${S.rng ? S.rng + '칸' : '–'}</dd></div>${S.ign ? `<div><dt>깃발 무시</dt><dd>${S.ign}</dd></div>` : ''}${S.noSaber ? '<div><dt>칼</dt><dd>명중 아님</dd></div>' : ''}${S.retreat ? `<div><dt>후퇴</dt><dd>깃발당 ${S.retreat}칸</dd></div>` : ''}</dl>`;
     const st8 = [u.ordered ? '명령받음' : null, u.moved ? `${u.moved}칸 이동` : null, u.battled ? '전투함' : null, u.square ? '방진' : null, u.noBattleTerr ? '지형 때문에 전투 불가' : null].filter(Boolean);
     if (st8.length) s += `<p class="note">${st8.join(' · ')}</p>`;
     const btns = [];
@@ -228,7 +253,7 @@ function selInfo() {
     if (u.side === state.active && (state.phase === 'order' || state.phase === 'move') && u.square && u.ordered && !nbrKeys(k).some(n => { const e = unitAt(n); return e && e.side !== u.side && st(e).cls === 'cav'; })) btns.push(`<button class="btn small" data-a="unsquare">방진 해제</button>`);
     if (u.side === state.active && state.phase === 'move' && l && l.ordered && !l.moved) btns.push(`<button class="btn small" data-a="selleader">리더 ${esc(l.name)} 따로 이동</button>`);
     const sc = scen();
-    if (sc.exitHex && u.side === 'B' && k === sc.exitHex && state.phase === 'move' && u.ordered && u.side === state.active && u.moved < moveAllow(u)) btns.push(`<button class="btn small" data-a="exit">다리로 퇴장 (+1 깃발)</button>`);
+    if (canExit(u)) btns.push(`<button class="btn small" data-a="exit">${sc.exitHex ? '다리로 퇴장' : '전장 밖으로 퇴장'} (${exitGain(u.side) ? '+1 깃발' : '깃발 없음'})</button>`);
     if (btns.length) s += `<div class="sbtns">${btns.join('')}</div>`;
   }
   if (l && (!u)) s += `<div class="ui-row"><span class="chip" style="background:${SIDE_COL[l.side]}">리더</span><span>${esc(l.name)} · ${hexOf(l)}${l.ordered ? ' · 명령받음' : ''}</span></div><p class="note">리더는 3칸까지 이동. 혼자서는 전투할 수 없다.</p>`;
@@ -236,7 +261,7 @@ function selInfo() {
   return s + '</section>';
 }
 function editPanel() {
-  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장']];
+  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장'], ['redoubt', '4면 보루'], ['church', '교회'], ['lake', '호수'], ['frozen', '얼어붙은 호수'], ['stream', '개울'], ['ford', '개울(정지만)']];
   const types = side => Object.keys(STATS).filter(t => side === 'F' ? t.startsWith('F-') : !t.startsWith('F-'));
   const eu = ui.editSel ? unitAt(ui.editSel) : null, el = ui.editSel ? leaderAt(ui.editSel) : null;
   let s = `<section class="block edit"><h3>편집 모드</h3><p class="help">시나리오 배치가 책과 다르면 여기서 고친다. 지형이나 유닛을 고른 뒤 칸을 누르세요. 아무것도 고르지 않았을 때는 유닛을 누르고 빈 칸을 눌러 옮긴다.</p>
@@ -258,7 +283,7 @@ function renderBar() {
   const sc = scen();
   const pips = side => { const n = bannerTotal(side), t = state.target; let s = ''; for (let i = 0; i < t; i++) s += `<i class="${i < state.vb[side] ? 'on' : i < n ? 'obj' : ''}"></i>`; return s; };
   el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
-   <div class="vbs"><div class="vb side-B"><span>영국군</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
+   <div class="vbs"><div class="vb side-B"><span>${SIDE_KO.B}</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
    ${NET.on ? `<div class="netbox side-${NET.me}"><span>방 <b class="code">${NET.room}</b></span><span>나: ${SIDE_KO[NET.me]}</span><span class="dot ${NET.opp ? 'ok' : ''}">${NET.opp ? '상대 접속 중' : '상대 기다리는 중'}</span><button class="btn small" data-a="copylink">초대 링크 복사</button><button class="btn small ghost" data-a="leave">방 나가기</button></div>` : ''}
    <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && NET.myTurn ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
 }
@@ -274,17 +299,18 @@ function newGameDialog() {
   const m = ui.newMode || 'solo';
   const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
   let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
-  const list = act => `<div class="plist">${SCENARIOS.map(x => `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${SIDE_KO[x.first]} · 카드 영국 ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`).join('')}</div>`;
+  const list = act => `${setChips()}<div class="plist">${SCENARIOS.filter(x => (x.set || 'base') === curSet()).map(x => { const tn = topName(x); return `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${x.first === 'B' ? tn : '프랑스군'} · 카드 ${tn.replace(/군$/, '')} ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`; }).join('')}</div>`;
   if (m !== 'online') s += list('start');
   else if (!NET.available()) s += `<div class="callout"><p><b>온라인 대전은 Firebase 설정이 있어야 켜진다.</b></p><p>${location.protocol.startsWith('http') && !/claude/.test(location.host) ? '저장소의 <code>firebase-config.js</code>에 Firebase 웹 앱 설정을 넣고 다시 올려라. 방법은 README의 "온라인 대전 설정"에 있다.' : '이 미리보기 페이지는 외부 서버 연결이 막혀 있다. GitHub Pages에 올린 버전에서 <code>firebase-config.js</code>를 채우면 쓸 수 있다.'}</p></div>`;
   else {
     s += `${ui.netErr ? `<p class="neterr" role="alert">${esc(ui.netErr)}</p>` : ''}${ui.netBusy ? '<p class="note">연결 중…</p>' : ''}
       <h3 class="ph3">방 참가</h3><div class="addrow"><input id="join-code" placeholder="방 코드 5자리" maxlength="12" autocomplete="off" value="${esc(ui.joinCode || '')}"><button class="btn primary" data-a="join" ${ui.netBusy ? 'disabled' : ''}>참가</button></div>
-      <h3 class="ph3">방 만들기</h3><div class="sidesel" role="radiogroup" aria-label="내 진영">${['B', 'F'].map(sd => `<button role="radio" class="side-${sd}" aria-checked="${(ui.mySide || 'B') === sd}" data-a="myside" data-v="${sd}">${SIDE_KO[sd]}</button>`).join('')}</div><p class="note">진영을 고른 뒤 시나리오를 누르면 방이 생기고 코드가 나온다. 상대에게 코드나 초대 링크를 보내면 된다.</p>${list('create')}`;
+      <h3 class="ph3">방 만들기</h3><div class="sidesel" role="radiogroup" aria-label="내 진영">${['B', 'F'].map(sd => `<button role="radio" class="side-${sd}" aria-checked="${(ui.mySide || 'B') === sd}" data-a="myside" data-v="${sd}">${sd === 'B' ? '위쪽 (영국·스페인·러시아)' : '프랑스군'}</button>`).join('')}</div><p class="note">진영을 고른 뒤 시나리오를 누르면 방이 생기고 코드가 나온다. 상대에게 코드나 초대 링크를 보내면 된다.</p>${list('create')}`;
   }
   return s + `<button class="btn" data-a="closenew">닫기</button></div></div>`;
 }
 function render() {
+  syncLook();
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false'));
   document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.id !== 'tab-' + ui.tab);
   renderBar(); renderBoard(); renderSide(); renderChat(); renderOverlay();
@@ -313,8 +339,8 @@ function boardClick(k) {
     const d = effDef();
     if (u && u.side === side && d && d.k === 'rally' && state.tokens) {
       const c = st(u).cls;
-      if (u.blocks < st(u).max && state.tokens[c] > 0) return act(() => { u.blocks++; state.tokens[c]--; u.ordered = true; u.rallied = true; log(`재편: ${unitLabel(u)} 블록 1개 회복, 명령받음`); ui.sel = {type: 'u', id: u.id}; });
-      ui.sel = {type: 'u', id: u.id}; toast(u.blocks >= st(u).max ? '블록을 잃지 않은 유닛이다.' : `${FACE_KO[c]} 기호가 남아 있지 않다.`); return;
+      if (u.blocks < umax(u) && state.tokens[c] > 0) return act(() => { u.blocks++; state.tokens[c]--; u.ordered = true; u.rallied = true; log(`재편: ${unitLabel(u)} 블록 1개 회복, 명령받음`); ui.sel = {type: 'u', id: u.id}; });
+      ui.sel = {type: 'u', id: u.id}; toast(u.blocks >= umax(u) ? '블록을 잃지 않은 유닛이다.' : `${FACE_KO[c]} 기호가 남아 있지 않다.`); return;
     }
     let ent = u && u.side === side ? u : (!u && l && l.side === side ? l : null);
     if (ent && u && d && d.k === 'leadership' && attLeader(u)) ent = attLeader(u);
@@ -358,7 +384,7 @@ function editClick(k) {
   }
   ui.editSel = (u || l) ? k : null; render();
 }
-const FREE_ACTIONS = new Set(['pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
+const FREE_ACTIONS = new Set(['scenset', 'pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
 async function onAction(a, el) {
   const side = state && state.active;
   if (NET.on && !NET.myTurn && !FREE_ACTIONS.has(a)) return;
@@ -371,6 +397,7 @@ async function onAction(a, el) {
     case 'newgame': ui.newGame = true; return render();
     case 'closenew': ui.newGame = false; return render();
     case 'winseen': ui.winSeen = true; return render();
+    case 'scenset': ui.scenSet = el.dataset.v; renderScenarioList(); return render();
     case 'newmode': ui.newMode = el.dataset.v; ui.netErr = null; return render();
     case 'myside': ui.mySide = el.dataset.v; return render();
     case 'takeover': if (ui.waiting) ui.waiting.takeover(); return;
@@ -401,6 +428,8 @@ async function onAction(a, el) {
     }
     case 'play': if (ui.cardSel == null) return; SFX.play('card'); return act(async () => {
       const k = state.hands[side][ui.cardSel]; playCard(ui.cardSel); ui.cardSel = null; ui.sel = null;
+      if (await guerrillaCheck()) { if (isDuo() || state.hands[side].length <= 1) return finishTurn(state.hands[side].length ? 0 : null); state.phase = 'end'; return; }
+      if (k === 'cavcharge' && side === 'F' && scen().stewartsFolly) { state.folly = state.turn; log('스튜어트의 어리석음: 이번 턴 영국은 방진도 선제 공격도 할 수 없다', 'warn'); }
       if (isDuo() && k === 'shortsupply') { await playShortSupply(); state.phase = 'battle'; }
       if (isDuo() && k === 'firststrike') { log('선제 공격은 상대 턴에만 쓸 수 있어 효과 없이 버렸다.'); state.phase = 'battle'; }
     });
@@ -409,15 +438,15 @@ async function onAction(a, el) {
     case 'backorder': return act(() => { state.phase = 'order'; });
     case 'tobattle': return act(() => { state.phase = 'battle'; ui.sel = null; log('전투 단계'); });
     case 'endturn': ui.sel = null; if (isDuo()) return act(() => finishTurn()); if (state.hands[side].length <= 1) return act(() => finishTurn(state.hands[side].length ? 0 : null)); return act(() => { state.phase = 'end'; ui.cardSel = null; });
-    case 'keep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; finishTurn(i); });
+    case 'keep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; return finishTurn(i); });
     case 'orderleader': { const u = unitById(ui.sel.id); const l = u && attLeader(u); if (!l) return; if (l.ordered) return act(() => setOrder(l, true, false)); const err = tryOrder(l, true); if (err) return toast(err); return act(() => setOrder(l, true, true)); }
     case 'selleader': { const u = unitById(ui.sel.id); const l = u && attLeader(u); if (l) { ui.sel = {type: 'l', id: l.id}; render(); } return; }
     case 'unsquare': { const u = unitById(ui.sel.id); return act(() => { releaseSquare(u); log(`${unitLabel(u)} 방진 해제`); }); }
-    case 'exit': { const u = unitById(ui.sel.id); return act(() => { const l = attLeader(u); state.units = state.units.filter(x => x !== u); if (l) state.leaders = state.leaders.filter(x => x !== l); state.exited++; log(`${unitLabel(u)} 다리로 퇴장`); award('B', 1, '다리로 퇴장'); ui.sel = null; }); }
+    case 'exit': { const u = unitById(ui.sel.id); return act(() => doExit(u)); }
     case 'paint': ui.paint = ui.paint === el.dataset.v ? null : el.dataset.v; ui.add = null; return render();
     case 'addunit': { const v = document.getElementById('add-type').value; ui.add = ui.add && ui.add !== 'leader' ? null : v; ui.paint = null; return render(); }
     case 'addleader': ui.add = ui.add === 'leader' ? null : 'leader'; ui.paint = null; return render();
-    case 'eblk': { const u = unitAt(ui.editSel); if (!u) return; pushUndo(); u.blocks = Math.max(1, Math.min(st(u).max, u.blocks + +el.dataset.v)); return render(); }
+    case 'eblk': { const u = unitAt(ui.editSel); if (!u) return; pushUndo(); u.blocks = Math.max(1, Math.min(umax(u), u.blocks + +el.dataset.v)); return render(); }
     case 'esq': { const u = unitAt(ui.editSel); if (!u) return; pushUndo(); u.square = !u.square; return render(); }
     case 'edel': { const u = unitAt(ui.editSel); if (!u) return; pushUndo(); state.units = state.units.filter(x => x !== u); return render(); }
     case 'eldel': { const l = leaderAt(ui.editSel); if (!l) return; pushUndo(); state.leaders = state.leaders.filter(x => x !== l); return render(); }
@@ -455,11 +484,16 @@ function init() {
     if (hm) { ui.newGame = true; ui.newMode = 'online'; ui.joinCode = hm[1].toUpperCase(); render(); }
   });
 }
+// 시나리오 묶음: 기본판 / 확장1 스페인군 / 확장2 러시아군
+const SETS = [['base', '기본판 15'], ['ex1', '확장1 스페인군 18'], ['ex2', '확장2 러시아군 20']];
+const curSet = () => ui.scenSet || 'base';
+const topName = sc => sc.sideName || TOP_LOOK[sc.nat || 'B'].ko;
+function setChips() { return `<div class="setchips" role="tablist">${SETS.map(([k, n]) => `<button class="chipbtn${curSet() === k ? ' on' : ''}" role="tab" aria-selected="${curSet() === k}" data-a="scenset" data-v="${k}">${n}</button>`).join('')}</div>`; }
 function renderScenarioList() {
   const el = document.getElementById('scenlist'); if (!el) return;
-  el.innerHTML = SCENARIOS.map(sc => `<article class="scard"><header><span class="pno">${sc.no}</span><div><h3>${sc.name}</h3><p class="sdate">${sc.date}</p></div></header>
+  el.innerHTML = setChips() + SCENARIOS.filter(sc => (sc.set || 'base') === curSet()).map(sc => `<article class="scard"><header><span class="pno">${sc.no}</span><div><h3>${sc.name}</h3><p class="sdate">${sc.date}</p></div></header>
    <p class="shist">${sc.hist}</p>
-   <dl class="snotes"><div><dt>영국군</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
+   <dl class="snotes"><div><dt>${topName(sc)}</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
    <ul class="srules">${sc.rules.map(r => `<li>${r}</li>`).join('')}</ul>
    <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
 }
@@ -470,7 +504,7 @@ function renderRefTables() {
     const mv = s => s.cls === 'inf' ? (s.mv2 ? '1+전투 / 2' : '1+전투') : s.cls === 'cav' ? `${s.mv}+전투` : s.foot ? '1(전투 불가)' : '1+전투 / 2';
     const etc = s => [s.ign ? `깃발 ${s.ign}개 무시` : '', s.noSaber ? '근접 칼 빗나감' : '', s.retreat ? `깃발당 ${s.retreat}칸 후퇴` : '', s.meleeVsInf ? '보병 상대 근접 +1' : '', s.light ? '숲에 들어가도 전투' : ''].filter(Boolean).join(', ');
     let h = '';
-    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)']].forEach(([n, ko]) => {
+    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)'], ['S', '스페인 (확장1)'], ['W', '스위스 (확장1 바일렌)'], ['R', '러시아 (확장2)']].forEach(([n, ko]) => {
       h += `<h4>${ko}</h4><div class="tw"><table><tr><th>유닛</th><th>블록</th><th>이동</th><th>사거리</th><th>사격(제자리)</th><th>사격(이동 후)</th><th>근접</th><th>기타</th></tr>`;
       Object.entries(STATS).filter(([k]) => k.startsWith(n + '-')).forEach(([k, s]) => {
         const fire = s.cls === 'inf' ? arr(s.fire) : s.cls === 'art' ? `거리 1~: ${arr(s.r2)} / 1블록 ${arr(s.r1)}` : '–';
@@ -484,4 +518,25 @@ function renderRefTables() {
   }
   const ct = document.getElementById('cardtable');
   if (ct) ct.innerHTML = `<div class="tw"><table><tr><th>카드</th><th>매수</th><th>종류</th><th>내용</th></tr>${CARD_DEFS.map(d => `<tr><td><b>${d.n}</b><br><small>${d.en}</small></td><td>${d.cnt}</td><td>${d.sec ? '구역' : '전술'}</td><td class="w">${d.t}</td></tr>`).join('')}</table></div>`;
+}
+
+/* ===================== 전장 밖으로 퇴장 ===================== */
+// 시나리오의 퇴장 규칙: exitHex(쿠아 강 다리) 또는 exit {side, row|hex, free, cls, tag, cmdLossOther}
+function exitCfg() { const sc = scen(); return sc.exitHex ? {side: 'B', hex: sc.exitHex} : sc.exit || null; }
+function canExit(u) {
+  const c = exitCfg(); if (!c || state.phase !== 'move' || u.side !== c.side || u.side !== state.active || !u.ordered || u.moved >= moveAllow(u)) return false;
+  if (c.hex ? hexOf(u) !== c.hex : u.r !== c.row) return false;
+  if (c.cls && st(u).cls !== c.cls) return false;
+  if (c.tag && u.tag !== c.tag) return false;
+  return true;
+}
+function exitGain(side) { const c = exitCfg(); state.exits = state.exits || {B: 0, F: 0}; return state.exits[side] + 1 > (c.free || 0); }
+function doExit(u) {
+  const c = exitCfg(), gain = exitGain(u.side), l = attLeader(u);
+  state.units = state.units.filter(x => x !== u); if (l) state.leaders = state.leaders.filter(x => x !== l);
+  state.exits[u.side]++; state.exited = (state.exited || 0) + 1;
+  log(`${unitLabel(u)} 전장 밖으로 퇴장${l ? ` (리더 ${l.name} 동반)` : ''}`);
+  if (gain) award(u.side, 1, '전장 밖으로 퇴장'); else log(`퇴장 ${state.exits[u.side]}번째: 아직 깃발 없음`);
+  if (c.cmdLossOther) loseCmd(other(u.side), '다부의 보병이 빠져나감', 1);
+  ui.sel = null;
 }

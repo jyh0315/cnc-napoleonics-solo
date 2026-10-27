@@ -38,10 +38,50 @@ const STATS = {
 // 동맹(네덜란드·나사우·하노버): 포르투갈 블록과 같되 전열보병은 깃발 1개당 2칸 후퇴
 ['LN','LT','MI','LC','HC','FA','HA'].forEach(t=>{ STATS['A-'+t] = Object.assign({}, STATS['P-'+t], t==='LN'?{retreat:2}:{}); });
 
+// ---------- 확장1: 스페인 ---------- (meleeMv = 이동 후 근접. 스페인 보병은 이동 후 근접 -1)
+Object.assign(STATS, {
+  'S-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[1,0,0,0], melee:[4,3,2,1], meleeMv:[3,2,1,0], retreat:2},
+  'S-LT': {cls:'inf', ko:'경보병', ab:'경보', max:5, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2,1], fireMv:[2,2,1,1,0], melee:[5,4,3,2,1], meleeMv:[4,3,2,1,0], retreat:2},
+  'S-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[5,4,3,2], ign:1, retreat:2},
+  'S-MI': {cls:'inf', ko:'민병대', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[1,0,0,0], melee:[4,3,2,1], meleeMv:[3,2,1,0], noSaber:true, retreat:3},
+  'S-LC': {cls:'cav', ko:'경기병', ab:'경기', max:3, mv:3, melee:[3,2,1], retreat:2},
+  'S-HC': {cls:'cav', ko:'중기병', ab:'중기', max:3, mv:2, heavy:true, melee:[4,3,2], retreat:2},
+  'S-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:3, mv:2, heavy:true, cuir:true, melee:[4,3,2], ign:1, retreat:2},
+  'S-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,3]},
+  // 바일렌의 스위스 연대 (양쪽 모두 5블록, 이동 후 사격 절반 내림, 깃발 1개당 1칸)
+  'W-LN': {cls:'inf', ko:'스위스 전열보병', ab:'스위스', max:5, mv:1, rng:2, fire:[5,4,3,2,1], fireMv:[2,2,1,1,0], melee:[5,4,3,2,1]},
+  // 확장1·2의 새 프랑스 기병
+  'F-LNCR':{cls:'cav', ko:'경창기병', ab:'창기', max:4, mv:3, melee:[4,3,2,1], lancer:true},
+  'F-GLC': {cls:'cav', ko:'근위경기병', ab:'근경', max:4, mv:3, guard:true, melee:[4,3,2,1], ign:2},
+});
+// ---------- 확장2: 러시아 ---------- (전열·경보병·포병은 어머니 러시아로 블록이 1개 늘 수 있어 배열이 한 칸 길다)
+Object.assign(STATS, {
+  'R-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:3, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,2,1,1], melee:[4,3,2,1], ign:1},
+  'R-LT': {cls:'inf', ko:'경보병', ab:'경보', max:3, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,3,2,2], melee:[4,3,2,1], ign:1},
+  'R-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[4,3,2,1], fireMv:[2,2,1,1], melee:[5,4,3,2], ign:1},
+  'R-GLT':{cls:'inf', ko:'근위경보병', ab:'근경보', max:4, mv:1, mv2:true, light:true, guard:true, rng:2, fire:[5,4,3,2], fireMv:[3,3,2,2], melee:[4,3,2,1], ign:2},
+  'R-GG': {cls:'inf', ko:'근위척탄병', ab:'근척', max:4, mv:1, guard:true, rng:2, fire:[5,4,3,2], fireMv:[3,3,2,2], melee:[5,4,3,2], ign:2},
+  'R-MI': {cls:'inf', ko:'민병대', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], noSaber:true, retreat:3},
+  'R-LC': {cls:'cav', ko:'경기병', ab:'경기', max:4, mv:3, melee:[4,3,2,1]},
+  'R-HC': {cls:'cav', ko:'중기병', ab:'중기', max:4, mv:2, heavy:true, melee:[5,4,3,2]},
+  'R-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:4, mv:2, heavy:true, cuir:true, melee:[5,4,3,2], ign:1},
+  'R-GLC':{cls:'cav', ko:'근위경기병', ab:'근경', max:4, mv:3, guard:true, melee:[4,3,2,1], ign:2},
+  'R-GHC':{cls:'cav', ko:'근위중기병', ab:'근중', max:6, mv:2, heavy:true, guard:true, melee:[7,6,5,4,3,2], ign:2},
+  'R-COS':{cls:'cav', ko:'코사크', ab:'코사크', max:2, mv:3, melee:[2,1], noSaber:true, retreat:3, cossack:true},
+  'R-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,4,3]},
+  'R-HA': {cls:'art', ko:'기마포병', ab:'기포', max:3, mv:2, horse:true, rng:4, r2:[3,2,1,1], r1:[2,1,1], m2:[3,2,1], melee:[3,3,2]},
+  'R-GFA':{cls:'art', ko:'근위도보포병', ab:'근포', max:3, mv:1, foot:true, guard:true, rng:5, r2:[5,3,2,1,1], r1:[4,2,1,1], melee:[5,5,4], ign:2},
+});
+// 흉갑기병은 보병의 사격 명중 1개를 무시하고, 창기병의 깃발 재굴림을 받지 않는다
+STATS['F-CU'].cuir = true;
+
 const NATION = {
-  F:{ko:'프랑스', side:'F'}, B:{ko:'영국', side:'B'}, P:{ko:'포르투갈', side:'B'}, A:{ko:'동맹군', side:'B'}
+  F:{ko:'프랑스', side:'F'}, B:{ko:'영국', side:'B'}, P:{ko:'포르투갈', side:'B'}, A:{ko:'동맹군', side:'B'},
+  S:{ko:'스페인', side:'B'}, R:{ko:'러시아', side:'B'}, W:{ko:'스위스'}
 };
+// 위쪽 진영 이름은 시나리오마다 다르다 (영국군·스페인군·러시아군). syncLook()이 바꾼다
 const SIDE_KO = {B:'영국군', F:'프랑스군'};
+const TOP_LOOK = {B:{ko:'영국군', band:'BRITISH', col:'#c4362c', short:'영국'}, S:{ko:'스페인군', band:'SPANISH', col:'#b7870f', short:'스페인'}, R:{ko:'러시아군', band:'RUSSIAN', col:'#2f7a3b', short:'러시아'}};
 
 // 지형: stop=들어가면 정지, noBattle=들어간 턴 전투 불가(경보병 예외 light), los=조준선 차단, sq=방진 가능
 const TERRAIN = {
@@ -54,6 +94,13 @@ const TERRAIN = {
   river:  {ko:'강'},
   bridge: {ko:'다리'},
   quarry: {ko:'모래 채석장', stop:true, noArt:true},
+  // 확장 지형
+  redoubt:{ko:'4면 보루', stop:true, noSq:true},
+  church: {ko:'교회', stop:true, noBattle:'all', los:true, noSq:true},
+  lake:   {ko:'호수'},
+  frozen: {ko:'얼어붙은 호수', stop:true, noSq:true},
+  ford:   {ko:'개울(정지, 전투 영향 없음)', stop:true},
+  streamInf:{ko:'개울(보병은 영향 없음)'},
 };
 
 /* -------- 지휘카드 70장 -------- */

@@ -66,8 +66,17 @@ async function eliminate(u, bySide, l, chk) {
   state.units = state.units.filter(x => x !== u);
   log(`${unitLabel(u)} 전멸`, 'warn');
   let n = 1; const sc = scen();
+  if (state.killed) state.killed[u.side][st(u).cls]++;
   if (sc.infBonus === u.side && st(u).cls === 'inf') { n = state.garcia === 0 ? 1 : 2; state.garcia++; }
-  award(bySide, n, `${unitName(u)} 전멸`);
+  if (st(u).cossack) { n = 0; log('코사크는 전멸해도 승리깃발을 주지 않는다'); }
+  // 크라스노이: 다부의 전열보병은 2개를 전멸시킬 때마다 깃발 1개
+  if (u.tag === 'dav') { state.davKilled++; n = state.davKilled % 2 === 0 ? 1 : 0; if (!n) log('다부의 전열보병: 2개째를 전멸시켜야 깃발 1개'); }
+  if (n) award(bySide, n, `${unitName(u)} 전멸`);
+  // 바일렌: 프랑스 쪽 스위스군 2개가 전멸하면 남은 프랑스 스위스군도 이탈 (깃발 없음)
+  if (sc.swissBailen && u.nat === 'W' && u.side === 'F' && ++state.swissGone === 2) {
+    const rest = state.units.filter(x => x.nat === 'W' && x.side === 'F');
+    rest.forEach(x => { const xl = attLeader(x); state.units = state.units.filter(y => y !== x); log(`${unitLabel(x)} 편을 바꿔 전장을 떠났다 (깃발 없음)`, 'warn'); if (xl) state.leaders = state.leaders.filter(y => y !== xl); });
+  }
   if (l) {
     if (!chk.checked) {
       chk.checked = true;
@@ -94,7 +103,7 @@ async function leaderRetreat(l) {
   const rowsToBase = Math.abs(l.r - base);
   const extra = rowsToBase < 3 ? {label: '전장 밖으로 (깃발 없음)', value: 'off'} : null;
   if (!out.size && blocked && !extra) {
-    const s = st(blocked); const n = s.melee[s.max - blocked.blocks];
+    const n = byB(st(blocked).melee, blocked.blocks);
     const f = await rollDice(n, `리더 ${l.name} 탈출: ${unitLabel(blocked)} 주사위`);
     if (f.includes('saber')) { killLeader(l, blocked.side); return; }
     out = walk(true).out;
@@ -182,7 +191,7 @@ async function combat(att, defK, kind, opts) {
   }
   // 3b. 2인 규칙: 방어측 선제 공격
   let fsUsed = false;
-  if (isDuo() && kind === 'melee' && !opts.firstStrike && state.hands[def.side].includes('firststrike') && !(def.square && aS.cls === 'cav') && def.ssTurn !== state.turn) {
+  if (isDuo() && kind === 'melee' && !opts.firstStrike && !(state.folly === state.turn && def.side === 'B') && state.hands[def.side].includes('firststrike') && !(def.square && aS.cls === 'cav') && def.ssTurn !== state.turn) {
     const d0 = diceFor(def, aStart, 'melee', {battleBack: true});
     const v = await ask({title: '선제 공격?', who: def.side, body: `${SIDE_KO[def.side]} 플레이어: 손에 <b>선제 공격</b> 카드가 있다. 쓰면 ${unitLabel(def)}이(가) 먼저 주사위 ${d0.n}개로 공격한다. 공격자가 밀려나지 않으면 원래 공격이 이어지고, 이 전투에서는 반격하지 않는다. 턴이 끝날 때 1장을 받는다.`,
       buttons: [{l: '선제 공격 사용', v: true, p: 1}, {l: '쓰지 않음', v: false}]});
@@ -208,6 +217,13 @@ async function combat(att, defK, kind, opts) {
   let n = main.n; arts.forEach(o => { n += o.dice.n; o.a.battled = true; });
   const faces = await rollDice(n, `${opts.firstStrike ? '선제 공격 ' : ''}${unitLabel(att)} → ${unitLabel(def)} ${kind === 'melee' ? '근접' : '사격'}${arts.length ? ' (연합)' : ''}`);
   const r = hitsFrom(faces, dS.cls, kind, aS.noSaber);
+  // 창기병: 명령받은 창기병의 근접공격에서 나온 깃발을 한 번 다시 굴린다 (흉갑기병 상대는 안 됨)
+  if (aS.lancer && kind === 'melee' && r.flags && !dS.cuir && att.side === state.active) {
+    const f2 = await rollDice(r.flags, `창기병 깃발 재굴림 (${r.flags}개)`); const r2 = hitsFrom(f2, dS.cls, kind, aS.noSaber);
+    r.hits += r2.hits; r.flags = r2.flags;
+  }
+  // 흉갑기병: 보병의 사격 명중 1개 무시
+  if (dS.cuir && kind === 'fire' && aS.cls === 'inf' && r.hits > 0) { r.hits--; log(`${unitLabel(def)} 흉갑: 보병 사격 명중 1개 무시`); }
   diceNote(`명중 ${r.hits} · 깃발 ${r.flags}`);
   if (!r.hits && !r.flags) { SFX.play('miss'); FX.float(defK, '빗나감', '#e8f0e8', '#2b3d34'); }
   const chk = {checked: false};
@@ -330,4 +346,58 @@ async function rollCardDice() {
   if (d.k === 'rally') delete t.flag;
   state.tokens = t; state.rolled = true;
   diceNote(d.k === 'elan' ? `보병 ${t.inf} · 기병 ${t.cav} · 포병 ${t.art} · 깃발 ${t.flag} 명령` : `보병 ${t.inf} · 기병 ${t.cav} · 포병 ${t.art} 회복`);
+}
+
+/* ===================== 확장 규칙 ===================== */
+// 전투 전 어머니 러시아 굴림: 러시아가 카드를 받기 직전, 받을 카드 수만큼 주사위
+async function motherRussia(side, n) {
+  const sc = scen(); if (!sc.mr || side !== 'B' || state.top !== 'R' || n <= 0) return;
+  const f = await rollDice(n, `어머니 러시아 (주사위 ${n}개)`);
+  const fresh = t => state.units.filter(u => u.side === 'B' && u.t === t && !u.max);
+  const opts = {
+    inf: {l: '전열보병 +1블록', ok: () => fresh('R-LN').length, go: () => boost(fresh('R-LN'), '전열보병')},
+    art: {l: '포병 +1블록', ok: () => fresh('R-FA').length, go: () => boost(fresh('R-FA'), '도보포병')},
+    flag: {l: '경보병 +1블록', ok: () => fresh('R-LT').length, go: () => boost(fresh('R-LT'), '경보병')},
+    cav: {l: '코사크 배치', ok: () => sc.mr.cav !== false && cossackHexes().length, go: placeCossack},
+    saber: {l: '2면 보루 놓기', ok: () => sc.mr.saber !== false && fwCands().length, go: placeFW},
+  };
+  for (const face of f) {
+    if (face === 'flag') {
+      const avail = Object.entries(opts).filter(([, o]) => o.ok());
+      if (!avail.length) { log('어머니 러시아: 깃발 → 쓸 곳이 없다'); continue; }
+      const v = await ask({title: '어머니 러시아: 깃발', who: 'B', body: '깃발은 경보병 강화, 또는 다른 결과 하나를 골라 쓸 수 있다.', buttons: avail.map(([k, o], i) => ({l: o.l, v: k, p: i === 0 ? 1 : 0})).concat([{l: '쓰지 않음', v: null}])});
+      if (v) await opts[v].go();
+    } else if (opts[face] && opts[face].ok()) await opts[face].go();
+    else log(`어머니 러시아: ${FACE_KO[face]} → 효과 없음`);
+    render();
+  }
+}
+async function boost(list, nm) {
+  const k = list.length === 1 ? hexOf(list[0]) : await pickHex(`어머니 러시아: 블록을 1개 더할 ${nm}을 고르세요`, list.map(hexOf), {label: '건너뜀', value: null}, 'B');
+  if (!k) return; const u = unitAt(k); u.max = st(u).max + 1; u.blocks++;
+  log(`어머니 러시아: ${unitLabel(u)} 블록 +1 (최대 ${u.max})`, 'vb'); FX.float(k, '+1', '#fff', '#2f7a3b');
+}
+function cossackHexes() { const out = []; for (let c = 0; c < ncols(0); c++) { const k = K(0, c); if (passable(k) && !unitAt(k) && !leaderAt(k) && !nbrKeys(k).some(n => { const x = unitAt(n); return x && x.side === 'F'; })) out.push(k); } return out; }
+async function placeCossack() {
+  const k = await pickHex('어머니 러시아: 코사크(블록 2개)를 놓을 러시아 끝 열 칸을 고르세요', cossackHexes(), {label: '건너뜀', value: null}, 'B');
+  if (!k) return; const u = mkUnit('B', 'R', 'R-COS', ...P(k)); state.units.push(u); log(`어머니 러시아: 코사크 배치 (${k})`, 'vb');
+}
+function fwCands() { return state.units.filter(u => u.side === 'B' && st(u).cls !== 'cav' && !fwKind(hexOf(u))).map(hexOf); }
+async function placeFW() {
+  const k = await pickHex('어머니 러시아: 2면 보루를 놓을 보병·포병 칸을 고르세요', fwCands(), {label: '건너뜀', value: null}, 'B');
+  if (!k) return; if (rawT(k) === 'clear' || rawT(k) === 'hill') state.terr[k] = 'fw'; else state.fwPlus.push(k);
+  log(`어머니 러시아: ${k}에 보루`, 'vb');
+}
+// 스페인 게릴라 행동: 프랑스가 카드를 쓴 직후. 프랑스가 주사위 1개를 굴려 칼이면 무효, 아니면 그 카드는 취소
+async function guerrillaCheck() {
+  if (state.guer == null || !state.guer || state.active !== 'F' || !state.cur || state.cur.k === 'firststrike') return false;
+  const v = await ask({title: '게릴라 행동?', who: 'B', body: `${SIDE_KO.B}: 게릴라 카운터 ${state.guer}개. 하나를 써서 프랑스의 「${CARD_BY_KEY[state.cur.k].n}」을(를) 막을 수 있다. 프랑스가 주사위 1개를 굴려 칼이 나오면 카운터만 잃고, 아니면 카드가 취소되어 프랑스는 1장을 받고 턴을 끝낸다.`,
+    buttons: [{l: '게릴라 사용', v: true, p: 1}, {l: '쓰지 않음', v: false}]});
+  if (!v) return false;
+  state.guer--; log(`${SIDE_KO.B}: 게릴라 행동 (남은 카운터 ${state.guer}개)`, 'card');
+  const f = await rollDice(1, '게릴라 대응 (칼이면 프랑스가 막아 냄)');
+  if (f[0] === 'saber') { diceNote('칼: 게릴라를 물리쳤다'); log('프랑스가 게릴라를 물리쳐 카드를 그대로 쓴다'); return false; }
+  diceNote('카드 취소'); log(`게릴라에게 막혀 「${CARD_BY_KEY[state.cur.k].n}」 취소`, 'warn');
+  state.cur.eff = 'cancel'; state.cur.sec = null; state.scout = false; state.elanShuffle = false;
+  return true;
 }
