@@ -60,7 +60,9 @@ async function takeHits(u, hits, bySide, chk) {
   }
   return {dead: false};
 }
-function killLeader(l, bySide) { FX.float(hexOf(l), '리더 전사', '#fff', '#7a1d16'); SFX.play('die'); state.leaders = state.leaders.filter(x => x !== l); log(`리더 ${l.name} 전사`, 'warn'); award(bySide, 1, `리더 ${l.name}`); }
+function killLeader(l, bySide) { FX.float(hexOf(l), '리더 전사', '#fff', '#7a1d16'); SFX.play('die'); state.leaders = state.leaders.filter(x => x !== l); log(`리더 ${l.name} 전사`, 'warn');
+  // 아우어슈테트: 프랑스가 프로이센 리더를 쓰러뜨리면 승리깃발 2개
+  const lv = scen().leaderVb; award(bySide, lv && lv.side === bySide ? lv.vb : 1, `리더 ${l.name}`); }
 async function eliminate(u, bySide, l, chk) {
   if (u.square) releaseSquare(u);
   state.units = state.units.filter(x => x !== u);
@@ -137,14 +139,22 @@ async function retreatUnit(u, steps, chk) {
 async function resolveFlags(u, flags, attK, kind, chk, bounce) {
   if (!flags || !state.units.includes(u)) return {retreated: false};
   const ign = bounce ? {n: 0, why: []} : flagIgnore(u, attK, kind);
-  const use = Math.min(flags, ign.n), rem = flags - use;
+  const use = Math.min(flags, ign.n); let rem = flags - use;
   if (use) log(`${unitLabel(u)} 깃발 ${use}개 무시 (${ign.why.join(', ')})`);
+  // 프로이센 강철 같은 의지: 무시하지 못한 깃발을 카운터 1개당 1개 더 무시
+  if (rem && !bounce && u.side === 'B' && state.iron > 0) {
+    const mx = Math.min(rem, state.iron);
+    const k = await ask({title: '강철 같은 의지?', who: u.side, body: `${unitLabel(u)}: 남은 깃발 ${rem}개. 강철 같은 의지 카운터(지금 ${state.iron}개)를 1개 쓸 때마다 깃발 1개를 무시한다. 쓴 카운터는 사라진다.`,
+      buttons: Array.from({length: mx}, (_, i) => ({l: `${mx - i}개 사용`, v: mx - i, p: i === 0 ? 1 : 0})).concat([{l: '쓰지 않음', v: 0}])});
+    if (k) { state.iron -= k; rem -= k; log(`${SIDE_KO[u.side]} 강철 같은 의지 ${k}개 사용 → 깃발 ${k}개 무시 (남은 카운터 ${state.iron}개)`, 'card'); }
+  }
   if (bounce) log(`추방 깃발 ${flags}개: 기병은 무시할 수 없다`);
   if (!rem) { if (use) FX.float(hexOf(u), '깃발 무시', '#f2e6b8', '#3a2f10'); return {retreated: false}; }
   FX.float(hexOf(u), `깃발 ${rem}`, '#fff', '#222'); SFX.play('flag');
   if (u.square) { log(`${unitLabel(u)} 방진은 후퇴할 수 없다 → 블록 ${rem}개 손실`, 'warn'); const res = await takeHits(u, rem, other(u.side), chk); return {retreated: false, dead: res.dead}; }
   const per = bounce ? 1 : (st(u).retreat || 1);
-  return await retreatUnit(u, rem * per, chk);
+  // 프로이센 전열보병: 첫 깃발은 1칸, 다음 깃발마다 2칸
+  return await retreatUnit(u, per === 'k' ? 1 + (rem - 1) * 2 : rem * per, chk);
 }
 async function declare(att, defK, kind) {
   const isL = kind === 'leader';
@@ -201,6 +211,8 @@ async function combat(att, defK, kind, opts) {
       await FX.lunge(def.id, defK, aStart, dS.cls);
       const f0 = await rollDice(d0.n, `선제 공격: ${unitLabel(def)} → ${unitLabel(att)}`);
       const r0 = hitsFrom(f0, aS.cls, 'melee', dS.noSaber);
+      // 선제 공격 카드를 쓴 창기병은 깃발 재굴림을 쓸 수 있다
+      if (dS.lancer && r0.flags && !aS.cuir) { const fr = await rollDice(r0.flags, `창기병 깃발 재굴림 (${r0.flags}개)`); const rr = hitsFrom(fr, aS.cls, 'melee', dS.noSaber); r0.hits += rr.hits; r0.flags = rr.flags; }
       diceNote(`명중 ${r0.hits} · 깃발 ${r0.flags}`);
       const chk0 = {checked: false};
       const res0 = await takeHits(att, r0.hits, def.side, chk0);

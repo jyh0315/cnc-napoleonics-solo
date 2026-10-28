@@ -1,7 +1,7 @@
 // 사용법: node build.mjs   →  src/ 를 합쳐 index.html 한 파일을 만든다 (의존성 없음)
 import { readFileSync, writeFileSync } from 'node:fs';
 const src = f => readFileSync(new URL('./src/' + f, import.meta.url), 'utf8');
-const js = ['data.js', 'scen_ex.js', 'engine.js', 'flow.js', 'fx.js', 'net.js', 'ui.js'].map(src).join('\n');
+const js = ['data.js', 'scen_ex.js', 'scen_ex2.js', 'engine.js', 'flow.js', 'fx.js', 'net.js', 'ui.js'].map(src).join('\n');
 const body = src('shell.html')
   .replace('%%RULES%%', () => src('rules.html'))
   .replace('%%SOLO%%', () => src('guide.html'))

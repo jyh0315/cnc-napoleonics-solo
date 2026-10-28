@@ -44,9 +44,16 @@ function rawT(k) { return state.terr[k] || 'clear'; }
 // 실제 효과 지형: 강은 시나리오 규칙에 따라 river(통과불가)/stream(정지)/brook(정지 없음)
 function effT(k, u) { const t = rawT(k); if (t === 'river') return state.water === 'river' ? 'river' : (state.water === 'brook' ? 'brook' : 'stream');
   if (t === 'streamInf') return u && st(u).cls === 'inf' ? 'clear' : 'stream';
+  // 확장3·4: 성·탑·풍차·벽 있는 농장은 마을, 벽 있는 정원은 숲, 제한 없는 개울은 개활지처럼 처리 (추가 깃발 무시는 flagIgnore가 rawT로 본다)
+  if (t === 'castle' || t === 'tower' || t === 'mill' || t === 'wfarm') return 'town';
+  if (t === 'wgarden') return 'forest';
+  if (t === 'brookFree' || t === 'streamCharge') return 'clear';
+  if (t === 'fordCharge') return 'ford';
   return t; }
 const isWater = t => t === 'stream' || t === 'brook';
 const isTown = t => t === 'town' || t === 'church';
+// 기병 돌격을 막는 개울 (알테글로프스하임·리니)
+const chargeBlock = k => ['streamCharge', 'fordCharge'].includes(rawT(k));
 // 보루: 2면(fw, 정면만), 4면(redoubt, 모든 방향), 어머니 러시아로 생긴 2면 보루(fwPlus)
 function fwKind(k) { const t = effT(k); if (t === 'redoubt') return 4; if (t === 'fw' || (state.fwPlus || []).includes(k)) return 2; return 0; }
 function umax(u) { return u.max || st(u).max; }
@@ -108,11 +115,19 @@ function newGame(scenId, mode) {
   const deck = [];
   CARD_DEFS.forEach(d => { for (let i = 0; i < d.cnt; i++) deck.push(d.k); });
   shuffle(deck);
-  const objs = (sc.obj || []).map(o => Object.assign({}, o, {hexes: typeof o.hexes === 'string' ? o.hexes.split(/\s+/) : o.hexes}));
+  const objs = (sc.obj || []).map(o => Object.assign({}, o, {hexes: typeof o.hexes === 'string' ? o.hexes.split(/\s+/) : (o.hexes || [])}));
+  // 지역 정의: 'rows:0-3 +3,5 -2,0' = 0~3행 전체에 3,5를 더하고 2,0을 뺀다
+  const zones = {};
+  for (const [name, spec] of Object.entries(sc.zones || {})) { const set = new Set();
+    spec.split(/\s+/).forEach(t => { const m = t.match(/^rows:(\d+)-(\d+)$/); if (m) { for (let r = +m[1]; r <= +m[2]; r++) for (let c = 0; c < ncols(r); c++) set.add(K(r, c)); }
+      else if (t[0] === '+') set.add(t.slice(1)); else if (t[0] === '-') set.delete(t.slice(1)); });
+    zones[name] = [...set]; }
+  objs.forEach(o => { if (o.zone) o.hexes = zones[o.zone]; });
   const census = side => { const c = {inf: 0, cav: 0, art: 0}; units.forEach(u => { if (u.side === side) c[STATS[u.t].cls]++; }); return c; };
   state = {
     v: 1, scenId, top: sc.nat || 'B', water: sc.water, terr, names: Object.assign({}, sc.names), objs, held: {},
-    guer: sc.guerrilla != null ? sc.guerrilla : null, flank: sc.flank ? +sc.flank.start.split(',')[1] : null, fwPlus: [],
+    guer: sc.guerrilla != null ? sc.guerrilla : null, flank: sc.flank ? +sc.flank.start.split(',')[1] : null, fwPlus: sc.fwOn ? sc.fwOn.split(/\s+/) : [],
+    iron: sc.iron != null ? sc.iron : null, massUsed: 0, bag: sc.baggage ? +sc.baggage.start.split(',')[1] : null,
     init: {B: census('B'), F: census('F')}, killed: {B: {inf: 0, cav: 0, art: 0}, F: {inf: 0, cav: 0, art: 0}}, exits: {B: 0, F: 0}, davKilled: 0, swissGone: 0, medF: 0,
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
     deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
@@ -121,29 +136,49 @@ function newGame(scenId, mode) {
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
   };
-  (sc.heldStart || []).forEach(i => { state.held[i] = true; });
+  (sc.heldStart || []).forEach(i => { state.held[i] = objVal(state.objs[i]); });
+  // 체데닉: 양쪽이 주사위 4개를 굴려 칼이 많은 쪽이 먼저
+  let first = sc.first;
+  if (sc.firstRoll) { for (let t = 0; t < 20; t++) { const roll = () => Array.from({length: 4}, () => FACES[rand6()]).filter(f => f === 'saber').length; const b = roll(), f = roll();
+    if (b !== f) { first = b > f ? 'B' : 'F'; log(`선공 정하기: 칼 ${SIDE_KO.B} ${b}개 · ${SIDE_KO.F} ${f}개 → ${SIDE_KO[first]} 먼저`, 'sys'); break; } } state.active = first; }
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
   refreshHeld();
-  beginTurn(sc.first);
+  beginTurn(first);
 }
 
 /* ===================== OBJECTIVES / BANNERS ===================== */
 // 목표 조건: 기본은 모든 칸 점유. maj 상대보다 많이, any 한 칸이라도, cond:'noEnemy' 상대 유닛이 없으면
+// min 몇 칸 이상, zone 지역 안 유닛 수, uncontested 무경쟁 칸도 센다, perUnit 유닛마다 깃발, allVb 모두 차지하면 깃발 더
 function objOK(o) {
   const mine = k => { const u = unitAt(k); return !!(u && u.side === o.side); };
   const theirs = k => { const u = unitAt(k); return !!(u && u.side !== o.side); };
+  if (o.zone) return objCount(o) >= (o.min || 1);
+  if (o.min) return objCount(o) >= o.min;
   if (o.cond === 'noEnemy') return !o.hexes.some(theirs);
   if (o.maj) return o.hexes.filter(mine).length > o.hexes.filter(theirs).length;
   if (o.any) return o.hexes.some(mine);
   return o.hexes.every(mine);
 }
-function refreshHeld() {
-  for (const i of Object.keys(state.held)) { const o = state.objs[i]; if (!o.perm && !objOK(o)) { delete state.held[i]; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 잃어 승리깃발 ${o.vb}개가 사라졌다.`, 'warn'); } }
-  // 즉시 목표: 턴과 상관없이 차지하면 바로 깃발
-  state.objs.forEach((o, i) => { if (o.instant && !state.held[i] && objOK(o)) { state.held[i] = true; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 차지 → 승리깃발 ${o.vb}개`, 'vb'); } });
+function objCount(o) {
+  const mine = k => { const u = unitAt(k); return !!(u && u.side === o.side); };
+  if (!o.uncontested) return o.hexes.filter(mine).length;
+  const near = (k, sd) => [k, ...nbrKeys(k)].some(n => { const u = unitAt(n); return u && (sd === o.side ? u.side === o.side : u.side !== o.side); });
+  return o.hexes.filter(k => mine(k) || (!unitAt(k) && near(k, o.side) && !near(k, 'enemy'))).length;
 }
-function bannerTotal(side) { let n = state.vb[side]; for (const i of Object.keys(state.held)) if (state.objs[i].side === side) n += state.objs[i].vb; return n; }
+function objVal(o) { if (o.perUnit) return objCount(o); if (o.allVb && o.hexes.every(k => { const u = unitAt(k); return u && u.side === o.side; })) return o.allVb; return o.vb; }
+const heldVal = i => state.held[i] === true ? state.objs[i].vb : (state.held[i] || 0);
+function refreshHeld() {
+  for (const i of Object.keys(state.held)) { const o = state.objs[i]; if (o.perm) continue;
+    if (!objOK(o)) { const v = heldVal(i); delete state.held[i]; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 잃어 승리깃발 ${v}개가 사라졌다.`, 'warn'); continue; }
+    const v = objVal(o), h = heldVal(i); if (v < h) { state.held[i] = v; log(`${SIDE_KO[o.side]} ${o.label}: 승리깃발 ${h} → ${v}`, 'warn'); } }
+  // 즉시 목표: 턴과 상관없이 차지하면 바로 깃발
+  state.objs.forEach((o, i) => { if (o.instant && !state.held[i] && objOK(o)) { state.held[i] = objVal(o); log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 차지 → 승리깃발 ${state.held[i]}개`, 'vb'); } });
+}
+function bannerTotal(side) { let n = state.vb[side]; for (const i of Object.keys(state.held)) if (state.objs[i].side === side) n += heldVal(i);
+  // 뤼베크: 북문으로 나간 프랑스 유닛이 없으면 프로이센이 깃발 1개를 가진다
+  const sc = SCENARIOS.find(x => x.id === state.scenId); if (sc.noExitVb && sc.noExitVb.side === side && !(state.exits || {})[other(side)]) n += sc.noExitVb.vb;
+  return n; }
 function award(side, n, why) {
   state.vb[side] += n; log(`${SIDE_KO[side]} 승리깃발 +${n} (${why})`, 'vb'); checkWin();
 }
@@ -171,11 +206,15 @@ function loseCmd(side, why, min) {
 /* ===================== TURN FLOW ===================== */
 function beginTurn(side) {
   state.active = side; state.phase = 'start'; state.cur = null; state.scout = false; state.tokens = null; state.rolled = false;
-  state.units.forEach(u => { u.ordered = false; u.viaLeader = false; u.rallied = false; u.moved = 0; u.battled = false; u.noBattleTerr = false; u.lockMove = false; u.bonusUsed = false; });
+  state.units.forEach(u => { u.ordered = false; u.viaLeader = false; u.viaMac = false; u.inMac = false; u.crossedCharge = false; u.rallied = false; u.moved = 0; u.battled = false; u.noBattleTerr = false; u.lockMove = false; u.bonusUsed = false; });
   state.leaders.forEach(l => { l.ordered = false; l.moved = 0; });
   // 목표 칸 점유 확인 (그 군의 턴 시작 때만 획득)
-  state.objs.forEach((o, i) => { if (o.side === side && !o.instant && !state.held[i] && objOK(o)) { state.held[i] = true; log(`${SIDE_KO[side]}이 ${o.label}을(를) 점유 → 승리깃발 ${o.vb}개`, 'vb'); } });
-  for (const sd of SCENARIOS.find(x => x.id === state.scenId).sudden || []) if (sd.kind === 'occupyAny' && sd.side === side && sd.hexes.some(k => { const u = unitAt(k); return u && u.side === side; })) declareWin(side, sd.label);
+  state.objs.forEach((o, i) => { if (o.side !== side || o.instant || !objOK(o)) return; const v = objVal(o), h = state.held[i] ? heldVal(i) : 0;
+    if (v > h || (o.perm && !state.held[i])) { state.held[i] = Math.max(v, h); log(`${SIDE_KO[side]}이 ${o.label}을(를) 점유 → 승리깃발 ${state.held[i]}개`, 'vb'); } });
+  for (const sd of SCENARIOS.find(x => x.id === state.scenId).sudden || []) {
+    if (sd.kind === 'occupyAny' && sd.side === side && sd.hexes.some(k => { const u = unitAt(k); return u && u.side === side; })) declareWin(side, sd.label);
+    if (sd.kind === 'occupyRow' && sd.side === side && state.units.some(u => u.side === side && u.r === sd.row)) declareWin(side, sd.label);
+  }
   checkWin();
 }
 function revealHand() {
@@ -190,7 +229,10 @@ function drawCards(side, n) {
     state.hands[side].push(state.deck.shift());
   }
 }
-function squaresOf(side) { return state.units.filter(u => u.side === side && u.square).length; }
+// 대규모 대대(오스트리아 전열보병)는 방진표 카드를 쓰지 않으므로 방진 수 제한·카드 감소에 세지 않는다
+function squaresOf(side) { return state.units.filter(u => u.side === side && u.square && !u.mass).length; }
+const massCap = () => { const sc = SCENARIOS.find(x => x.id === state.scenId); return sc.nat === 'O' ? sc.B.cmd : 0; };
+const canMass = u => st(u).mass && (state.massUsed || 0) < massCap();
 // 스페인 게릴라를 받는 쪽: 게릴라 규칙이 있는 시나리오에서 위쪽 진영
 const guerOn = () => state.guer != null;
 async function scoutForGuerrilla(side) {
@@ -251,12 +293,14 @@ function takeSquareCard(u) {
   state.sqCards[u.side].push({id: u.id, k});
 }
 function formSquare(u) {
-  u.square = true;
+  u.square = true; if (u.tag === 'mac') u.tag = null;
+  if (canMass(u)) { u.mass = true; state.massUsed = (state.massUsed || 0) + 1; log(`${unitLabel(u)} 대규모 대대 방진 (카드를 쓰지 않음, ${state.massUsed}/${massCap()})`, 'warn'); return; }
   if (isDuo()) { takeSquareCard(u); log(`${unitLabel(u)} 방진 → 손패 1장이 방진표로 (지휘능력 감소)`, 'warn'); }
   else log(`${unitLabel(u)} 방진 형성`, 'warn');
 }
 function releaseSquare(u) {
   u.square = false;
+  if (u.mass) { u.mass = false; state.massUsed = Math.max(0, (state.massUsed || 0) - 1); return; }
   if (!isDuo()) return;
   const arr = state.sqCards[u.side]; const i = arr.findIndex(x => x.id === u.id);
   if (i >= 0) { state.hands[u.side].push(arr[i].k); arr.splice(i, 1); log(`방진표의 카드가 ${SIDE_KO[u.side]} 손으로 돌아왔다`); }
@@ -266,6 +310,7 @@ function canFormSquare(u) {
   const sc = SCENARIOS.find(x => x.id === state.scenId);
   if (sc.maxSquares && sc.maxSquares[u.side] != null && squaresOf(u.side) >= sc.maxSquares[u.side]) return false;
   if (state.folly === state.turn && u.side === 'B') return false;
+  if (canMass(u)) return true;
   if (isDuo()) return state.sqCards[u.side].length < 4 && state.hands[u.side].length > 2;
   return squaresOf(u.side) < 4;
 }
@@ -296,6 +341,8 @@ function playCard(idx) {
     const goal = +fsc.target.split(',')[1]; state.flank--; log(`러시아 측면 부대가 한 칸 전진 (${8},${state.flank})`, 'sys');
     if (state.flank <= goal) { state.flank = null; award('B', fsc.vb, '측면 부대가 모룽엔 도착'); }
   }
+  const ssc = SCENARIOS.find(x => x.id === state.scenId);
+  if (ssc.scoutVb === side && (d.scout || (k === 'counter' && CARD_BY_KEY[eff] && CARD_BY_KEY[eff].scout))) award(side, 1, '정찰 카드');
   log(`${SIDE_KO[side]}: 「${d.n}」 사용${k === 'counter' ? ` → ${eff === 'none' ? '상대가 쓴 카드가 없어 아무 유닛 1개' : '「' + CARD_BY_KEY[eff].n + '」'}` : ''}`, 'card');
 }
 function effDef() { if (!state.cur) return null; return state.cur.eff === 'none' ? null : CARD_BY_KEY[state.cur.eff]; }
@@ -339,7 +386,7 @@ function fallbackActive() {
 }
 function orderedItems() {
   const side = state.active, out = [];
-  state.units.forEach(u => { if (u.side === side && u.ordered && !u.viaLeader && !u.rallied) out.push(u); });
+  state.units.forEach(u => { if (u.side === side && u.ordered && !u.viaLeader && !u.viaMac && !u.rallied) out.push(u); });
   state.leaders.forEach(l => { if (l.side === side && l.ordered) out.push(l); });
   return out;
 }
@@ -372,8 +419,20 @@ function tryOrder(ent, isL) {
   if (d && d.k === 'gm' && !isL && ent.square) return '대기동: 방진 보병은 명령할 수 없다.';
   return null;
 }
+// 막도날 진형: 막도날 리더가 있는 칸과 이어진 '진형' 보병 무리. 하나에 명령하면 무리 전체(지휘카드 수까지)가 함께 명령받고 1칸만 움직인다
+function macGroup(u) {
+  if (!u || u.tag !== 'mac' || u.square) return null;
+  const ok = x => x && x.side === u.side && x.tag === 'mac' && !x.square;
+  const seen = new Set([u.id]), q = [u], out = [];
+  while (q.length) { const x = q.shift(); out.push(x); nbrKeys(hexOf(x)).forEach(k => { const y = unitAt(k); if (ok(y) && !seen.has(y.id)) { seen.add(y.id); q.push(y); } }); }
+  if (!out.some(x => { const l = attLeader(x); return l && /macdonald/i.test(l.name); })) return null;
+  return out;
+}
 function setOrder(ent, isL, on) {
   ent.ordered = on;
+  const mg = !isL && macGroup(ent);
+  if (mg) { const cap = Math.max(1, state.cmd[ent.side]); mg.forEach((x, i) => { if (x === ent) { x.inMac = on; return; } if (on && i >= cap) return; if (on && x.ordered) return; if (!on && !x.viaMac) return; x.ordered = on; x.viaMac = on; x.inMac = on; });
+    if (on) log(`막도날 진형: ${mg.filter(x => x.ordered).length}개 유닛이 함께 명령받음 (1칸만 이동)`); }
   const d = effDef();
   if (isL && d && d.k === 'leadership') { const u = unitOfLeader(ent); if (u) { u.ordered = on; u.viaLeader = on; } }
 }
@@ -397,6 +456,8 @@ function moveAllow(u) {
   const s = st(u), d = effDef(), k = d ? d.k : '';
   if (u.square || u.lockMove) return 0;
   if (k === 'firehold' || k === 'coldsteel') return 0;
+  if (u.inMac) return 1;
+  if ((k === 'bayonet' || k === 'forcemarch') && s.cls === 'inf' && s.noFM) return 1;
   if (k === 'gm') return 4;
   if (k === 'bombard' && s.cls === 'art') return 3;
   if (k === 'bayonet' && s.cls === 'inf') return 2;
@@ -408,10 +469,11 @@ function moveAllow(u) {
 function passable(k, u) {
   const t = effT(k);
   if (t === 'river' || t === 'rugged' || t === 'lake') return false;
+  if (t === 'marsh' && u && st(u).cls === 'art') return false;
   if (t === 'quarry' && u && st(u).cls === 'art') return false;
   return true;
 }
-const stopsIn = (k, u) => { const t = effT(k, u); return ['forest', 'town', 'church', 'fw', 'redoubt', 'stream', 'quarry', 'frozen', 'ford'].includes(t); };
+const stopsIn = (k, u) => { const t = effT(k, u); return ['forest', 'town', 'church', 'fw', 'redoubt', 'stream', 'quarry', 'frozen', 'ford', 'marsh'].includes(t); };
 function pathOf(m, k) { const out = [k]; let c = k; while (m.prev.has(c)) { c = m.prev.get(c); out.unshift(c); } return out; }
 function reachUnit(u, allow) {
   const start = hexOf(u), res = new Map(); res.prev = new Map(); const q = [[start, 0]]; const seen = new Set([start]);
@@ -446,7 +508,8 @@ function reachLeader(l, allow) {
   }
   return res;
 }
-function doMoveUnit(u, k, steps) {
+function doMoveUnit(u, k, steps, path) {
+  if (path && path.some(chargeBlock)) u.crossedCharge = true;
   const from = hexOf(u); const l = attLeader(u); const d = effDef();
   const carry = l && (!l.ordered || (d && d.k === 'leadership' && u.viaLeader)) && !l.moved;
   u.r = P(k)[0]; u.c = P(k)[1]; u.moved = steps;
@@ -499,7 +562,7 @@ function losCheck(a, b, shooter) {
         if (fr && sh && st(sh).cls === 'art' && shooterOnHill && dist(a, k) === 1 && rawT(k) !== 'hill') { over = true; continue; }
         return true;
       }
-      if (t === 'forest' || t === 'town' || t === 'church' || t === 'rugged') return true;
+      if (['forest', 'town', 'church', 'rugged', 'castle', 'tower', 'mill', 'wfarm', 'wgarden'].includes(t)) return true;
       if (t === 'hill' && !(shooterOnHill && targetOnHill)) return true;
     }
     return false;
@@ -520,6 +583,7 @@ function terrMods(attCls, kind, aK, dK, attSide, att) {
   if (fwD && defU && (fwD === 4 || front(defU.side)) && !isTown(tD) && tD !== 'forest') add(attCls === 'inf' ? -1 : attCls === 'cav' ? -2 : 0, fwD === 4 ? '목표가 4면 보루' : '목표가 보루(정면)');
   if (isWater(tD) && kind === 'melee') add(-1, '목표가 개울');
   if (tD === 'frozen' && kind === 'melee') add(-1, '목표가 얼어붙은 호수');
+  if (tD === 'marsh' && kind === 'melee') add(-1, '목표가 습지');
   if (tD === 'quarry') add(attCls === 'inf' ? (kind === 'melee' ? -1 : 0) : attCls === 'cav' ? -2 : -1, '목표가 채석장');
   // 공격자 칸 지형 (밖으로)
   if (tA === 'forest' && !cos) add(attCls === 'cav' ? -2 : attCls === 'art' ? -1 : 0, '숲에서 공격');
@@ -528,6 +592,7 @@ function terrMods(attCls, kind, aK, dK, attSide, att) {
   if (fwA && !isTown(tA) && tA !== 'forest') add(attCls === 'cav' ? -2 : 0, '보루에서 공격');
   if (isWater(tA)) add(-1, '개울에서 공격');
   if (tA === 'frozen') add(-1, '얼어붙은 호수에서 공격');
+  if (tA === 'marsh') add(-1, '습지에서 공격');
   if (tA === 'quarry') add(attCls === 'inf' ? -1 : attCls === 'cav' ? -2 : 0, '채석장에서 공격');
   return mods;
 }
@@ -543,11 +608,14 @@ function diceFor(att, defK, kind, ctx = {}) {
   }
   const scn = SCENARIOS.find(x => x.id === state.scenId);
   if (kind === 'melee' && s.meleeVsInf && def && st(def).cls === 'inf') { if (scn.conscripts) parts.push([0, '신병: 보병 상대 +1 없음']); else { n += 1; parts.push([1, '프랑스 전열보병: 보병 상대 근접']); } }
+  // 프로이센 전열보병: 명령받아 이동하지 않고 근접공격하거나 반격하면 +1 (선제 공격은 제외)
+  if (kind === 'melee' && s.holdMelee && !ctx.firstStrike && (ctx.battleBack || (att.side === state.active && att.ordered && !att.moved))) { n += s.holdMelee; parts.push([s.holdMelee, ctx.battleBack ? '프로이센 전열: 반격' : '프로이센 전열: 제자리 근접']); }
   const townInvolved = isTown(effT(aK)) || isTown(effT(defK));
   const d = effDef();
   if (!ctx.battleBack && !ctx.firstStrike && att.side === state.active && att.ordered && d) {
     const k = d.k;
-    if (k === 'cavcharge' && s.cls === 'cav') { const b = s.guard ? 2 : 1; if (townInvolved) parts.push([0, '기병 돌격 보너스 (마을이라 무효)']); else { n += b; parts.push([b, '기병 돌격']); } }
+    if (k === 'cavcharge' && s.cls === 'cav') { const b = s.guard ? 2 : 1; if (townInvolved) parts.push([0, '기병 돌격 보너스 (마을이라 무효)']);
+      else if (att.crossedCharge || chargeBlock(aK)) parts.push([0, '기병 돌격 보너스 (개울이 막음)']); else { n += b; parts.push([b, '기병 돌격']); } }
     if (k === 'bayonet' && s.cls === 'inf' && s.guard && kind === 'melee') { n += 1; parts.push([1, '총검 돌격 (근위)']); }
     if (k === 'bombard' && s.cls === 'art' && att.moved === 0) { const b = s.guard ? 3 : 2; n += b; parts.push([b, '포격']); }
     if (k === 'firehold' && kind === 'fire') { n += 1; parts.push([1, '사격 후 대기']); }
@@ -568,6 +636,10 @@ function flagIgnore(def, attK, kind) {
   const fk = fwKind(dK);
   if (fk && s.cls !== 'cav' && attK) { const [ar] = P(attK), [dr] = P(dK); if (fk === 4 || (def.side === 'B' ? ar > dr : ar < dr)) { n++; why.push('보루'); } }
   if (effT(dK) === 'church') { n++; why.push('교회'); }
+  const rt = rawT(dK);
+  if (rt === 'castle') { n += 2; why.push('성 2'); }
+  if (rt === 'wfarm') { n++; why.push('벽 있는 농장'); }
+  if (rt === 'wgarden') { n++; why.push('벽 있는 정원'); }
   const sc = SCENARIOS.find(x => x.id === state.scenId);
   if (sc.almeida && def.side === 'B' && sc.almeida.includes(dK)) { n++; why.push('알메이다 요새'); }
   if (s.ign) { n += s.ign; why.push(`${s.ko} ${s.ign}`); }

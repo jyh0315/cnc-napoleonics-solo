@@ -112,12 +112,14 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 .bandname{font:700 10.5px var(--f-mono);fill:#fff;text-anchor:middle;letter-spacing:.1em;pointer-events:none}
 .pname{font:italic 600 8.5px var(--f-body);fill:#2e2a20;text-anchor:middle;paint-order:stroke;stroke:#f1ead6;stroke-width:2.4px}
 .unit,.leader{cursor:pointer}
-.uab{font:700 11px var(--f-body);fill:#fff;text-anchor:middle;pointer-events:none}
-.ubody{stroke:rgba(0,0,0,.35);stroke-width:1}
-.unit.ordered .ubody{stroke:#f2c14e;stroke-width:3}
+.uab{font:800 10.5px var(--f-body);text-anchor:middle;pointer-events:none;letter-spacing:-.02em;paint-order:stroke;stroke:rgba(0,0,0,.18);stroke-width:.6px}
+.ubody{stroke:rgba(0,0,0,.55);stroke-width:1}
+.unit{transition:transform .15s}
+.unit:hover .ubody{stroke:#f6e2a6;stroke-width:1.6}
+.unit.ordered .ubody{stroke:#f2c14e;stroke-width:3.2}
 .unit.selected .ubody{stroke:#fff;stroke-width:3;stroke-dasharray:5 3}
 .unit.ordered.selected .ubody{stroke:#fff}
-.leader.selected polygon{stroke:#fff;stroke-width:3}
+.leader.selected circle:first-child{stroke:#fff;stroke-width:3}
 .sqtag,.sstag{font:700 8px var(--f-body);fill:#3a2f10;text-anchor:end;paint-order:stroke;stroke:#ffd84a;stroke-width:3px}
 .sstag{text-anchor:middle;stroke:#f0a59c}
 .mk{font:700 7.5px var(--f-mono);fill:#2b2210;text-anchor:middle;pointer-events:none}
@@ -291,7 +293,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인 · 확장 스페인·러시아</small></div>
+    <div class="brand"><span class="mk">C&amp;C</span><h1>나폴레오닉 솔로</h1><small>솔로 · 온라인 2인 · 확장 1~4</small></div>
     <nav class="tabs" role="tablist" aria-label="화면">
       <button data-tab="game" role="tab">게임</button>
       <button data-tab="rules" role="tab">규칙</button>
@@ -306,7 +308,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
       <div class="boardwrap">
         <div class="boardscroll"><svg id="board" role="img" aria-label="전장 지도"></svg></div>
         <div class="legend">
-          <span><i style="background:#ebe4cd"></i>개활지</span><span><i style="background:#a8bd83"></i>숲</span><span><i style="background:#c9c88b"></i>언덕</span><span><i style="background:#b2a487"></i>요철 구릉(통과 불가)</span><span><i style="background:#e4d9bb"></i>마을</span><span><i style="background:#4b7aa8"></i>강(통과 불가)</span><span><i style="background:#79a5cd"></i>개울</span><span><i style="background:#e7d6a3"></i>채석장</span><span><i style="background:#c4dbea"></i>얼어붙은 호수</span><span><i style="background:#d4cba7;outline:2px solid #6b4627"></i>4면 보루</span><span>✝ 교회(마을+깃발 1 무시)</span>
+          <span><i style="background:#ebe4cd"></i>개활지</span><span><i style="background:#a8bd83"></i>숲</span><span><i style="background:#c9c88b"></i>언덕</span><span><i style="background:#b2a487"></i>요철 구릉(통과 불가)</span><span><i style="background:#e4d9bb"></i>마을</span><span><i style="background:#4b7aa8"></i>강(통과 불가)</span><span><i style="background:#79a5cd"></i>개울</span><span><i style="background:#e7d6a3"></i>채석장</span><span><i style="background:#c4dbea"></i>얼어붙은 호수</span><span><i style="background:#d4cba7;outline:2px solid #6b4627"></i>4면 보루</span><span><i style="background:#a9bf9a"></i>습지</span><span>성·탑·풍차·벽 있는 농장 = 마을</span><span>✝ 교회(마을+깃발 1 무시)</span>
           <span><i style="background:#5b8fd8"></i>보병 띠</span><span><i style="background:#e2bd2f"></i>기병 띠</span><span><i style="background:#d2443a"></i>포병 띠</span><span>★ 리더 · 흰 네모 = 남은 블록 · 금색 테두리 = 명령받음 · 옅은 금색 칸 = 지금 명령/공격할 수 있는 유닛</span>
         </div>
       </div>
@@ -319,7 +321,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   <h2>Commands &amp; Colors: Napoleonics 규칙</h2>
   <p class="lede">게임 규칙서와 요약표를 정리했다. 실제 게임 화면은 이 규칙대로 주사위 수를 계산하고 명중·후퇴를 처리하지만, 판단이 필요한 순간(방진을 짤지, 어디로 후퇴할지)은 직접 고른다.</p>
   <nav class="toc" aria-label="목차">
-    <a href="#r-goal">목표</a><a href="#r-board">전장과 구역</a><a href="#r-turn">턴 순서</a><a href="#r-cards">지휘카드</a><a href="#r-move">이동</a><a href="#r-combat">전투</a><a href="#r-fire">원거리</a><a href="#r-melee">근접</a><a href="#r-retreat">후퇴·깃발 무시</a><a href="#r-after">반격·돌파</a><a href="#r-combined">연합전투</a><a href="#r-retire">퇴각 및 재편성</a><a href="#r-square">방진</a><a href="#r-leader">리더</a><a href="#r-terrain">지형</a><a href="#r-ex">확장</a><a href="#r-units">유닛표</a><a href="#r-cardlist">카드 목록</a>
+    <a href="#r-goal">목표</a><a href="#r-board">전장과 구역</a><a href="#r-turn">턴 순서</a><a href="#r-cards">지휘카드</a><a href="#r-move">이동</a><a href="#r-combat">전투</a><a href="#r-fire">원거리</a><a href="#r-melee">근접</a><a href="#r-retreat">후퇴·깃발 무시</a><a href="#r-after">반격·돌파</a><a href="#r-combined">연합전투</a><a href="#r-retire">퇴각 및 재편성</a><a href="#r-square">방진</a><a href="#r-leader">리더</a><a href="#r-terrain">지형</a><a href="#r-ex">확장 1·2</a><a href="#r-ex34">확장 3·4</a><a href="#r-units">유닛표</a><a href="#r-cardlist">카드 목록</a>
   </nav>
 
   <h3 id="r-goal">게임의 목표</h3>
@@ -500,6 +502,32 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
     <li>시나리오에 따라 전장 밖으로 퇴장(맨 끝 열에서 이동 단계에 <b>퇴장</b> 버튼), 즉시 승리 조건, 지휘카드 감소 같은 특별 규칙이 있다. 시나리오 탭에 모두 적어 두었다.</li>
   </ul>
 
+  <h3 id="r-ex34">확장3 오스트리아군 · 확장4 프로이센군</h3>
+  <h4>오스트리아군 (흰색)</h4>
+  <ul>
+    <li><b>전열보병</b>: 블록 5, 깃발당 2칸 후퇴. 강행군·총검 돌격으로 명령받아도 1칸만 움직인다. 민병대도 마찬가지다.</li>
+    <li><b>대규모 대대</b>: 오스트리아 전열보병이 방진을 짤 때 방진표에 카드를 넣지 않는다. 동시에 쓸 수 있는 수는 오스트리아 지휘카드 수까지이고, 솔로에서는 방진 수 제한·카드 감소에도 세지 않는다. 토큰에 "대대"라고 표시된다.</li>
+    <li><b>국경수비병(그렌처)</b>: 경보병처럼 2칸 이동, 사격 +1, 칼은 명중이 아니고 깃발당 2칸 후퇴. 오스트리아 보병의 이동 후 사격은 절반 내림.</li>
+    <li>경창기병은 깃발 재굴림, 흉갑기병은 보병 사격 명중 1개 무시.</li>
+  </ul>
+  <h4>프로이센군 (회색)</h4>
+  <ul>
+    <li><b>전열보병</b>: 명령받아 이동하지 않고 근접공격하거나 반격하면 주사위 +1(선제 공격은 제외). 후퇴는 첫 깃발 1칸, 그다음 깃발마다 2칸.</li>
+    <li>예비군은 깃발당 2칸, 란트베어(민병)와 란트베어 창기병은 칼 명중 아님·깃발당 3칸. 모든 프로이센 보병의 이동 후 사격은 절반 내림.</li>
+    <li><b>강철 같은 의지</b>: 시나리오마다 정해진 수의 카운터로 시작한다. 프로이센 유닛이 무시하지 못한 깃발을 받으면 카운터 1개당 1개를 더 무시할지 묻는다. 쓴 카운터는 사라진다.</li>
+    <li>창기병은 선제 공격 카드로 공격할 때도 깃발을 다시 굴린다(반격에는 없음).</li>
+  </ul>
+  <h4>새 지형</h4>
+  <ul>
+    <li><b>성</b>: 마을 + 깃발 2개 더 무시. <b>벽 있는 농장</b>: 마을 + 깃발 1개. <b>탑·풍차</b>: 마을. <b>벽 있는 정원</b>: 숲 + 깃발 1개.</li>
+    <li><b>습지</b>: 들어가면 멈추지만 그 턴에 전투할 수 있다. 포병은 못 들어가고, 방진 불가. 습지 안에서 공격하면 주사위 -1, 습지 안의 적을 근접공격하면 -1. 조준선은 막지 않는다.</li>
+    <li>일부 개울은 이동·전투 제한이 없거나, 기병 돌격 카드의 추가 주사위를 막는다(시나리오 탭 참고).</li>
+  </ul>
+  <h4>새 목표 종류</h4>
+  <ul>
+    <li>정해진 칸 가운데 몇 칸 이상, 무경쟁 칸 포함, 지역 안 유닛 수만큼 깃발, 모두 차지하면 깃발 더, 정찰 카드마다 깃발, 2개 퇴장마다 깃발, 병참 마차, 막도날 진형 같은 시나리오별 규칙은 이 도구가 자동으로 센다.</li>
+  </ul>
+
   <h3 id="r-units">국가별 유닛표</h3>
   <p>숫자는 남은 블록 수(왼쪽이 최대)에 따른 주사위 수다. 근접 칸에는 척탄·근위·중기병 보너스가 이미 들어 있다.</p>
   <div id="unittables"></div>
@@ -617,7 +645,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   </section>
   <section id="tab-scen" class="tabpane" hidden>
     <div class="doc" style="max-width:none">
-      <h2>시나리오 53개</h2>
+      <h2>시나리오 93개</h2>
       <p class="lede">시나리오북의 지도를 옮겨 놓았다. 지도 위쪽은 영국군, 아래쪽은 프랑스군이다. 책 그림을 칸 단위로 옮긴 것이라 일부 칸이 다를 수 있으니, 다르면 게임 화면의 <b>편집</b>으로 고치고 기본 배치로 저장하면 된다.</p>
       <div id="scenlist"></div>
     </div>
@@ -701,14 +729,45 @@ Object.assign(STATS, {
 });
 // 흉갑기병은 보병의 사격 명중 1개를 무시하고, 창기병의 깃발 재굴림을 받지 않는다
 STATS['F-CU'].cuir = true;
+// ---------- 확장3: 오스트리아 ---------- (보병 이동 후 사격은 절반 내림. mass = 대규모 대대 방진, noFM = 강행군·총검 돌격도 1칸)
+Object.assign(STATS, {
+  'O-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:5, mv:1, rng:2, fire:[5,4,3,2,1], fireMv:[2,2,1,1,0], melee:[5,4,3,2,1], retreat:2, mass:true, noFM:true},
+  'O-LT': {cls:'inf', ko:'경보병', ab:'예거', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1]},
+  'O-GRZ':{cls:'inf', ko:'국경수비병', ab:'그렌처', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1], noSaber:true, retreat:2},
+  'O-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[5,4,3,2], ign:1},
+  'O-MI': {cls:'inf', ko:'민병대', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], noSaber:true, retreat:3, noFM:true},
+  'O-LC': {cls:'cav', ko:'경기병', ab:'경기', max:4, mv:3, melee:[4,3,2,1]},
+  'O-LNCR':{cls:'cav', ko:'경창기병', ab:'창기', max:4, mv:3, melee:[4,3,2,1], lancer:true},
+  'O-HC': {cls:'cav', ko:'중기병', ab:'중기', max:4, mv:2, heavy:true, melee:[5,4,3,2]},
+  'O-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:4, mv:2, heavy:true, cuir:true, melee:[5,4,3,2], ign:1},
+  'O-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,3]},
+  'O-HA': {cls:'art', ko:'기마포병', ab:'기포', max:3, mv:2, horse:true, rng:4, r2:[3,2,1,1], r1:[2,1,1], m2:[3,2,1], melee:[3,3,2]},
+});
+// ---------- 확장4: 프로이센 ---------- (holdMelee = 이동하지 않고 근접공격·반격하면 +1, retreat 'k' = 첫 깃발 1칸, 다음 깃발마다 2칸)
+Object.assign(STATS, {
+  'K-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], holdMelee:1, retreat:'k'},
+  'K-LT': {cls:'inf', ko:'경보병', ab:'경보', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1]},
+  'K-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[5,4,3,2], ign:1},
+  'K-GG': {cls:'inf', ko:'근위척탄병', ab:'근척', max:4, mv:1, guard:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[5,4,3,2], ign:2},
+  'K-RI': {cls:'inf', ko:'예비군', ab:'예비', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], retreat:2},
+  'K-MI': {cls:'inf', ko:'란트베어', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], noSaber:true, retreat:3},
+  'K-LC': {cls:'cav', ko:'경기병', ab:'경기', max:3, mv:3, melee:[3,2,1]},
+  'K-LNCR':{cls:'cav', ko:'경창기병', ab:'창기', max:3, mv:3, melee:[3,2,1], lancer:true},
+  'K-HC': {cls:'cav', ko:'중기병', ab:'중기', max:3, mv:2, heavy:true, melee:[4,3,2]},
+  'K-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:3, mv:2, heavy:true, cuir:true, melee:[4,3,2], ign:1},
+  'K-MLNCR':{cls:'cav', ko:'란트베어 창기병', ab:'민창', max:3, mv:3, melee:[3,2,1], lancer:true, noSaber:true, retreat:3},
+  'K-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,3]},
+  'K-HA': {cls:'art', ko:'기마포병', ab:'기포', max:3, mv:2, horse:true, rng:4, r2:[3,2,1,1], r1:[2,1,1], m2:[3,2,1], melee:[3,3,2]},
+});
 
 const NATION = {
   F:{ko:'프랑스', side:'F'}, B:{ko:'영국', side:'B'}, P:{ko:'포르투갈', side:'B'}, A:{ko:'동맹군', side:'B'},
-  S:{ko:'스페인', side:'B'}, R:{ko:'러시아', side:'B'}, W:{ko:'스위스'}
+  S:{ko:'스페인', side:'B'}, R:{ko:'러시아', side:'B'}, W:{ko:'스위스'}, O:{ko:'오스트리아', side:'B'}, K:{ko:'프로이센', side:'B'}
 };
 // 위쪽 진영 이름은 시나리오마다 다르다 (영국군·스페인군·러시아군). syncLook()이 바꾼다
 const SIDE_KO = {B:'영국군', F:'프랑스군'};
-const TOP_LOOK = {B:{ko:'영국군', band:'BRITISH', col:'#c4362c', short:'영국'}, S:{ko:'스페인군', band:'SPANISH', col:'#b7870f', short:'스페인'}, R:{ko:'러시아군', band:'RUSSIAN', col:'#2f7a3b', short:'러시아'}};
+const TOP_LOOK = {B:{ko:'영국군', band:'BRITISH', col:'#c4362c', short:'영국'}, S:{ko:'스페인군', band:'SPANISH', col:'#b7870f', short:'스페인'}, R:{ko:'러시아군', band:'RUSSIAN', col:'#2f7a3b', short:'러시아'},
+  O:{ko:'오스트리아군', band:'AUSTRIAN', col:'#8f8670', short:'오스트리아'}, K:{ko:'프로이센군', band:'PRUSSIAN', col:'#4b5560', short:'프로이센'}};
 
 // 지형: stop=들어가면 정지, noBattle=들어간 턴 전투 불가(경보병 예외 light), los=조준선 차단, sq=방진 가능
 const TERRAIN = {
@@ -728,6 +787,16 @@ const TERRAIN = {
   frozen: {ko:'얼어붙은 호수', stop:true, noSq:true},
   ford:   {ko:'개울(정지, 전투 영향 없음)', stop:true},
   streamInf:{ko:'개울(보병은 영향 없음)'},
+  // 확장3·4 지형
+  castle: {ko:'성 (마을 + 깃발 2 무시)', stop:true, noBattle:'all', los:true, noSq:true},
+  tower:  {ko:'탑 (마을)', stop:true, noBattle:'all', los:true, noSq:true},
+  mill:   {ko:'풍차 (마을)', stop:true, noBattle:'all', los:true, noSq:true},
+  wfarm:  {ko:'벽 있는 농장 (마을 + 깃발 1 무시)', stop:true, noBattle:'all', los:true, noSq:true},
+  wgarden:{ko:'벽 있는 정원 (숲 + 깃발 1 무시)', stop:true, noBattle:'light', los:true},
+  marsh:  {ko:'습지', stop:true, noSq:true, noArt:true},
+  brookFree:{ko:'개울 (제한 없음)'},
+  streamCharge:{ko:'개울 (돌격 보너스 막음)'},
+  fordCharge:{ko:'개울 (정지, 돌격 보너스 막음)', stop:true},
 };
 
 /* -------- 지휘카드 70장 -------- */
@@ -1430,6 +1499,487 @@ SCENARIOS.push(
   hist:'크라온 근처에 러시아 후위가 있다고 믿은 나폴레옹이 다가가지만, 블뤼허는 병력을 모아 두었다. 네이의 청년근위대가 포병 지원도 없이 먼저 부딪친다.'},
 );
 
+/* ===================== 확장 시나리오: 확장3 오스트리아군(20), 확장4 프로이센군(20) =====================
+   nat O 오스트리아, K 프로이센. iron = 강철 같은 의지 카운터 수. 유닛 뒤 :mac = 막도날 진형 */
+SCENARIOS.push(
+ {id:'wertingen', no:1, set:'ex3', name:'베르팅엔', date:'1805년 10월 8일', vb:5, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'아우펜베르크'}, F:{cmd:5, cmdr:'뮈라'}, water:'stream',
+  T:{town:'0,8 2,1 3,4 4,8 5,7 6,1', hill:'1,4 2,3 5,3', forest:'2,4 2,12 5,10 6,3 6,10 7,2'},
+  names:{'0,7':'Geratsdorf','4,4':'Gottmannshofen','4,7':'Wertingen','7,1':'Hohenreichen'},
+  Bu:'LN0,3 LN0,4 LN0,5 CU0,9 FA2,6 GR2,7 GR2,8 LN3,6 LN3,9 LN3,10 LC4,0 LN4,1 LN5,0 LN6,0',
+  BL:'Baillet@1,7 Hohenzollern@3,0',
+  Fu:'GR6,11 GR6,12 LC7,3 HC7,5 HC7,6 HA7,7 HC7,8 HC7,9 LT7,10 LC8,3 LT8,10',
+  FL:'Lasalle@7,3 Beaumont@7,6 Kline@7,8 Oudinot@6,11',
+  obj:[], rules:['특별 규칙 없음.'],
+  hist:'울름 전역의 첫 충돌. 뮈라의 기병과 우디노의 척탄병이 베르팅엔에서 아우펜베르크의 오스트리아 사단을 덮친다.'},
+ {id:'gunzburg', no:2, set:'ex3', name:'귄츠부르크', date:'1805년 10월 9일', vb:7, first:'F', nat:'O',
+  B:{cmd:5, cmdr:'다스프르'}, F:{cmd:5, cmdr:'말레'}, water:'river',
+  T:{river:'4,0 4,2 4,4 4,5 3,5 3,6 3,8 3,9 4,10 4,12 5,4 6,5 6,6 6,9 5,9', bridge:'4,1 3,7 6,8 4,11', ford:'4,3 6,7',
+     town:'2,1 1,7 2,8 2,12', hill:'2,5 2,6', forest:'1,9 3,3 5,1 5,6 6,10', marsh:'5,10 6,12'},
+  names:{'2,2':'Reisenburg','2,9':'Günzburg','1,11':'Leipheim','4,2':'Danube R.'},
+  Bu:'LN0,3 LN0,4 GR0,5 FA0,6 LC0,7 LC0,8 GR0,9 LT1,3 GR1,5 FA1,6 LN1,8 LN2,7 LN2,10 FA4,8 LT4,9',
+  BL:'Gyulai@1,4 D\'Aspre@4,9',
+  Fu:'LT6,3 LT6,11 LN7,2 FA7,3 LN7,6 LT7,7 FA7,8 LN7,10 LN7,11 LN8,3 LN8,4 LC8,7 GR8,8 LN8,10',
+  FL:'Delabasse@7,2 Marcognet@7,6 Malher@8,8 Lefol@7,11',
+  obj:[{side:'B', hexes:'2,1 1,7 2,8 2,12', min:3, vb:1, label:'마을 3곳 이상'},{side:'F', hexes:'2,1 1,7 2,8 2,12', min:3, vb:1, label:'마을 3곳 이상'},
+       {side:'B', zone:'south', min:4, vb:2, label:'강 건너 4개 이상'},{side:'F', zone:'north', min:4, vb:2, label:'강 건너 4개 이상'},
+       {side:'B', hexes:'3,7 6,8', vb:1, label:'섬의 두 다리'},{side:'F', hexes:'3,7 6,8', vb:1, label:'섬의 두 다리'},
+       {side:'B', hexes:'4,1 3,7 6,8 4,11', min:3, vb:1, label:'다리 3곳 이상'},{side:'F', hexes:'4,1 3,7 6,8 4,11', min:3, vb:1, label:'다리 3곳 이상'}],
+  zones:{north:'rows:0-3 -3,5 -3,6 -3,7 -3,8 -3,9', south:'rows:5-8 -5,4 -5,5 -5,6 -5,7 -5,8 -5,9 -6,5 -6,6 -6,7 -6,8 -6,9'},
+  rules:['마을 4칸 가운데 3칸 이상을 차지한 쪽이 승리깃발 1개(턴 시작).','섬을 빼고 강 건너 상대 쪽 지역에 유닛이 4개 이상 있는 쪽이 승리깃발 2개(턴 시작).','섬으로 이어지는 다리 두 칸을 모두 차지한 쪽이 승리깃발 1개(턴 시작).','다리 4칸 가운데 3칸 이상을 차지한 쪽이 승리깃발 1개(턴 시작).','다뉴브 강은 다리와 얕은 여울 외에는 들어갈 수 없다. 여울에 들어가면 멈추지만 전투 주사위는 줄지 않는다.','습지: 들어가면 멈추고 포병은 못 들어간다. 그 안에서는 주사위 1개 감소.'],
+  hist:'울름에 갇히기 전, 오스트리아군이 다뉴브 다리를 지키려 한다. 말레 사단이 귄츠부르크의 다리를 강습한다.'},
+ {id:'haslach', no:3, set:'ex3', name:'하슬아흐-융잉겐', date:'1805년 10월 11일', vb:6, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'마크'}, F:{cmd:5, cmdr:'뒤퐁'}, water:'river',
+  T:{river:'6,0 7,0 8,0', stream:'0,6 2,6 3,5 4,5 5,5 6,6 7,6 8,7', bridge:'1,6', town:'4,1 3,8 8,6', church:'4,9',
+     forest:'2,7 3,4 3,10 4,6 4,11 5,4 5,6 5,11'},
+  names:{'4,0':'Böfingen','3,7':'Jungingen','4,10':'Church','8,5':'Haslach','7,0':'Danube R.'},
+  Bu:'LN0,0 LN0,1 LN0,3 FA0,5 CU0,7 CU0,10 LC0,11 LN1,1 LN1,4 GR1,5 HA1,9 LN2,0 FA2,1 LN2,3',
+  BL:'Schwarzenberg@0,4 Ferdinand@0,9',
+  Fu:'LN6,1 LN6,2 LN6,3 FA6,4 FA6,7 LN6,8 LT6,9 LT6,10 LC7,3 HC7,4 LC7,9 HC8,8',
+  FL:'Marchand@6,1 Tilly@7,4 Rouyer@6,9 Dupont@8,9',
+  obj:[{side:'B', hexes:'4,1 3,8 4,9', maj:true, vb:1, allVb:2, label:'뵈핑엔·융잉겐 다수'},{side:'F', hexes:'4,1 3,8 4,9', maj:true, vb:1, allVb:2, label:'뵈핑엔·융잉겐 다수'}],
+  rules:['뵈핑엔과 융잉겐의 마을 세 칸(교회 포함): 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 1개, 세 칸 모두면 2개.','다뉴브 강은 들어갈 수 없다. 가운데 강은 개울이다.'],
+  hist:'울름에서 빠져나가려던 마크의 오스트리아군 25,000이 뒤퐁의 한 사단 6,000과 부딪친다. 뒤퐁은 하루 종일 버틴다.'},
+ {id:'elchingen', no:4, set:'ex3', name:'엘힝엔', date:'1805년 10월 14일', vb:7, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'리슈'}, F:{cmd:6, cmdr:'네이'}, water:'river',
+  T:{river:'8,4', town:'3,7 4,7', church:'3,9', hill:'3,3 3,4 3,5 6,11 7,8', forest:'0,2 0,3 1,2 7,1 7,2 8,2 8,7 8,8'},
+  names:{'4,8':'Elchingen','3,10':'Abbey Church','8,4':'Danube R.'},
+  Bu:'LC1,6 CU1,9 HA1,10 GR2,5 LN3,3 LN3,4 FA3,5 LN3,8 GR3,9 LN4,2 LN5,0 CU6,0',
+  BL:'Mescery@0,10 Riesch@1,5 Laudon@4,0',
+  Fu:'LN6,5 LT6,6 LT6,7 LN6,8 LN6,9 FA6,11 LN6,12 LT7,2 FA7,3 LC7,4 HA7,5 HC7,6 LN7,8 LN7,11 HC8,5',
+  FL:'Villatte@6,7 Colbert@7,6 Roguet@7,8 Loison@8,6 Malher@8,12',
+  obj:[{side:'F', hexes:'3,9', vb:1, label:'수도원 교회'},{side:'F', hexes:'3,7 4,7 3,9', cond:'noEnemy', vb:1, label:'오스트리아가 마을을 하나도 못 가짐'},
+       {side:'F', hexes:'3,3 3,4 3,5 6,11 7,8', cond:'noEnemy', vb:1, label:'오스트리아가 언덕을 하나도 못 가짐'}],
+  rules:['수도원 교회는 프랑스 목표(턴 시작, 승리깃발 1개).','프랑스 턴 시작 때 오스트리아가 마을(교회 포함)을 하나도 차지하지 못하면 프랑스 승리깃발 1개. 오스트리아가 다시 들어오면 잃는다.','같은 방식으로 오스트리아가 언덕을 하나도 차지하지 못하면 프랑스 승리깃발 1개.','다뉴브 강은 들어갈 수 없다.'],
+  hist:'네이가 엘힝엔의 다리를 되찾고 강 건너 언덕 위 수도원으로 올라간다. 울름 포위가 완성된다.'},
+ {id:'mariazell', no:5, set:'ex3', name:'마리아첼', date:'1805년 11월 8일', vb:4, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'폰 메르펠트'}, F:{cmd:5, cmdr:'드 비에르'}, water:'stream',
+  T:{town:'3,8', forest:'1,1 3,1 4,1', hill:'1,3 2,2 2,3 2,4'},
+  names:{'3,9':'Mariazell'},
+  Bu:'GR1,8 LN2,3 LN2,4 LN2,6 LN2,11 FA3,7 LN3,8 GRZ4,1 LN4,11',
+  BL:'Merveldt@1,5',
+  Fu:'LT4,5 LT4,6 LN5,2 FA5,3 LN6,3 LC6,9 LC6,10',
+  FL:'Leader@4,5 Bierre@5,5 Leader@5,2 Leader@6,10',
+  obj:[], rules:['특별 규칙 없음.'],
+  hist:'울름 이후 빈으로 물러나던 메르펠트 군단을 다부의 선봉이 마리아첼 근처 산길에서 붙잡는다.'},
+ {id:'pordenone', no:6, set:'ex3', name:'포르데노네 충돌', date:'1809년 4월 15일', vb:5, first:'B', nat:'O',
+  B:{cmd:4, cmdr:'프리몽'}, F:{cmd:4, cmdr:'사위크'}, water:'stream',
+  T:{river:'0,7 1,7 1,8 2,9 3,10 4,11 5,11', bridge:'3,9', town:'3,7 5,6 5,8',
+     forest:'2,3 2,6 4,3 5,3 6,1 7,5', hill:'1,6 2,8 4,10 5,10'},
+  names:{'4,7':'Pordenone','0,7':'Noncello R.'},
+  Bu:'LNCR1,1 FA1,3 LN1,4 LN1,5 GRZ1,9 LC1,10 LC2,0 LC2,2 GRZ2,10 LC3,0 HA3,1',
+  BL:'Frimont@2,1 Schmidt@1,4 Wetzel@2,10',
+  Fu:'LN4,5 LN4,6 FA5,7 LN5,8 LC6,3 LC6,4 HA6,5 LN6,9 LC7,2 LC8,3',
+  FL:'Sahuc@7,3 Seras@6,7',
+  obj:[{side:'B', hexes:'3,7', vb:1, label:'포르데노네'},{side:'B', hexes:'5,6', vb:1, label:'포르데노네'},{side:'B', hexes:'5,8', vb:1, label:'포르데노네'}],
+  rules:['포르데노네 마을 칸은 각각 오스트리아 목표(턴 시작, 칸마다 승리깃발 1개).','Noncello 강은 개울이다.'],
+  hist:'1809년 이탈리아 전선. 요한 대공의 선봉 프리몽이 포르데노네의 프랑스 후위를 기병으로 덮친다.'},
+ {id:'sacile', no:7, set:'ex3', name:'사칠레', date:'1809년 4월 16일', vb:8, first:'F', nat:'O',
+  B:{cmd:5, cmdr:'요한 대공'}, F:{cmd:5, cmdr:'외젠'}, water:'stream',
+  T:{stream:'3,2 4,2 5,2 6,2 7,2 8,2 4,5 5,4 6,5 7,5 8,6 4,8 5,7 6,8 7,8 8,9 4,10 5,10 6,11 7,11',
+     town:'1,3 2,1 2,7 4,3 4,6 1,11', hill:'5,3 5,5 5,8 6,3 6,6 6,9 8,11'},
+  names:{'1,4':'Ronche','1,7':'Porcia','2,12':'Pordenone','3,1':'Fontanafredda','3,3':'Talponedo','4,7':'Palse'},
+  Bu:'LN0,2 LN0,3 GR0,5 GR0,6 LC0,11 HC0,12 GRZ1,1 FA1,2 LC1,6 LN1,8 FA1,10 GR1,11 FA2,5 LN2,6 LN2,9 GRZ2,10 GRZ3,6',
+  BL:'Knesevich@0,0 Kleinmayer@0,5 Reichenburg@0,10 Frimont@1,6 Gyulai@1,8',
+  Fu:'LN6,0 LN6,1 LT6,2 LT6,6 LN6,7 LN6,10 LN6,11 LN6,12 FA7,0 LN7,2 FA7,3 LN7,4 LN7,6 LN7,7 FA7,10 LC8,0 LC8,1 LN8,4 LN8,5',
+  FL:'Grenier@6,0 Sahuc@8,1 Barbou@7,4 Severoli@6,7 Seras@6,10',
+  obj:[{side:'B', hexes:'1,3 2,1 2,7 4,3 4,6 1,11', min:3, uncontested:true, vb:1, label:'마을 3곳 이상'},{side:'F', hexes:'1,3 2,1 2,7 4,3 4,6 1,11', min:3, uncontested:true, vb:1, label:'마을 3곳 이상'}],
+  rules:['자기 턴 시작 때 마을 칸 3곳 이상을 차지하거나 "무경쟁" 상태로 두면 승리깃발 1개. 무경쟁: 그 칸이나 인접 칸에 내 유닛은 있고 상대 유닛은 없는 상태.','모든 강은 개울이다.'],
+  hist:'요한 대공의 오스트리아군이 사칠레에서 외젠의 이탈리아군을 맞는다. 외젠이 성급하게 공격했다가 물러난다.'},
+ {id:'teugen', no:8, set:'ex3', name:'토이겐-하우젠', date:'1809년 4월 19일', vb:8, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'카를 대공'}, F:{cmd:5, cmdr:'다부'}, water:'stream',
+  T:{town:'6,5', hill:'1,3 1,4 1,5 1,8 1,9 1,10 3,4 3,7 3,8 3,9 4,3 4,4 4,10 5,1 5,2', forest:'2,2 2,11 3,1 4,11 4,12 5,0'},
+  names:{'6,4':'Teugen'},
+  Bu:'LN0,4 LN0,5 LN0,10 GRZ0,11 LC1,1 LN1,2 FA1,7 LN1,9 LN2,0 LN2,1 LN2,4 LN3,7 LN3,8 FA3,9 GRZ4,11',
+  BL:'Bieber@0,4 A. Liechtenstein@2,1 M. Liechtenstein@2,8',
+  Fu:'LN5,7 LN5,8 LT5,9 LN6,5 LN6,6 LN6,7 LN6,8 LT6,10 LN7,1 LT7,2 LN7,4 LN7,8 FA8,1 HA8,3',
+  FL:'Friant@8,2 Destabenrath@7,4 Lorencez@5,8 Davout@8,7',
+  obj:[{side:'B', hexes:'5,1 5,2 4,3 4,4 3,4 3,7 3,8 3,9 4,10', maj:true, vb:2, label:'앞줄 언덕 다수'},{side:'F', hexes:'5,1 5,2 4,3 4,4 3,4 3,7 3,8 3,9 4,10', maj:true, vb:2, label:'앞줄 언덕 다수'},
+       {side:'B', hexes:'1,3 1,4 1,5 1,8 1,9 1,10', maj:true, vb:1, label:'뒷줄 언덕 다수'},{side:'F', hexes:'1,3 1,4 1,5 1,8 1,9 1,10', maj:true, vb:1, label:'뒷줄 언덕 다수'},
+       {side:'B', hexes:'6,5', vb:2, perm:true, label:'토이겐'}],
+  rules:['프랑스 쪽 앞줄 언덕 9칸: 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 2개.','오스트리아 쪽 뒷줄 언덕 6칸: 다수를 차지한 쪽이 승리깃발 1개.','토이겐 마을은 오스트리아의 영구 목표(턴 시작, 승리깃발 2개).'],
+  hist:'레겐스부르크로 가던 다부의 3군단이 토이겐 근처 숲 언덕에서 카를 대공의 주력과 맞닥뜨린다.'},
+ {id:'rohr', no:9, set:'ex3', name:'로어', date:'1809년 4월 20일', vb:5, first:'B', nat:'O',
+  B:{cmd:4, cmdr:'슈스테크'}, F:{cmd:5, cmdr:'란'}, water:'stream',
+  T:{town:'2,6 3,4', hill:'0,3 1,2 1,3 1,7 1,9 2,8 3,8 3,9 4,10 5,4 5,10 6,5 6,6 7,5', forest:'0,7 1,1 1,8 3,1 4,11 5,1 6,1 6,3 6,8 6,10'},
+  names:{'1,5':'Rohr','0,4':'Exit','0,5':'Exit','0,6':'Exit'},
+  Bu:'LN1,2 LN1,3 LN1,4 LC2,7 HC2,11 LN3,4 LN3,5 GRZ3,6 FA3,8 LN3,9',
+  BL:'Schustekh@2,3 Thiery@2,9',
+  Fu:'LC5,2 LT6,2 LT6,4 LC6,9 LN7,1 LN7,3 LN7,4 FA7,5 LN7,6 LC7,9 LN8,1 LN8,3 LN8,6 LN8,7 CU8,9',
+  FL:'Morand@8,2 La Sablonniere@8,5 Jacquinot@7,8',
+  obj:[], exit:{side:'F', hexes:['0,4','0,5','0,6']},
+  rules:['프랑스 유닛은 오스트리아 끝 열의 Exit 칸(0,4 / 0,5 / 0,6)을 통해 지도 밖으로 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.'],
+  hist:'아벤스베르크 다음 날, 란이 로어로 물러나는 오스트리아 좌익을 뒤쫓는다.'},
+ {id:'eggmuhl1', no:10, set:'ex3', name:'에크뮐 (1일)', date:'1809년 4월 21일', vb:6, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'카를 대공'}, F:{cmd:5, cmdr:'다부'}, water:'stream',
+  T:{town:'3,1 0,11', hill:'0,5 6,12', forest:'3,4 3,7 3,11 4,4 4,5 4,7 4,8 5,5 5,8 5,9 6,4 6,7 6,8 7,4 7,8'},
+  names:{'2,2':'Obersanding','1,10':'Oberlaichling'},
+  Bu:'LN0,2 FA0,5 LC0,6 LN0,8 LN0,9 LN0,12 LN1,0 LN1,1 LN1,3 LN1,5 LN1,6 LN3,10 GRZ4,7 LN4,10',
+  BL:'Charles@0,1 Rosenberg@0,7 Hohenzollen@3,10',
+  Fu:'LN5,0 LN5,1 LN6,2 LN6,3 LN6,4 LN6,10 LN6,11 LT7,6 LT7,7 LT7,8 LN7,10 FA7,11 LN8,1 FA8,2 LN8,3',
+  FL:'Barbanegre@4,1 Grandeau@7,1 Gilly@7,5 Lorencez@7,10',
+  obj:[{side:'B', hexes:'3,1', vb:1, label:'오버잔딩'},{side:'F', hexes:'3,1', vb:1, label:'오버잔딩'},{side:'F', hexes:'0,11', vb:1, perm:true, label:'오버라이힐링'}],
+  rules:['오버잔딩은 양쪽 모두의 목표(턴 시작, 승리깃발 1개).','오버라이힐링은 프랑스의 영구 목표(턴 시작, 승리깃발 1개).'],
+  hist:'카를 대공이 레겐스부르크 쪽으로 다부를 밀어붙이려다 공격을 멈춘다. 나폴레옹이 전속력으로 돌아오고 있었다.'},
+ {id:'eggmuhl2', no:11, set:'ex3', name:'에크뮐 (2일째 에크뮐 공격)', date:'1809년 4월 22일', vb:5, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'로젠베르크'}, F:{cmd:5, cmdr:'폰 휘겔'}, water:'stream',
+  T:{stream:'8,1 7,1 6,2 6,3 6,4 6,5 6,7 6,8 5,8 5,9 5,10 4,11 3,11', bridge:'6,6', castle:'3,4', town:'4,6',
+     hill:'0,0 0,1 0,2 0,3 2,9 3,8 4,8', forest:'1,10 1,11 2,11 4,10 5,3 5,4 6,9 7,2'},
+  names:{'3,3':'Schloss','4,7':'Eggmühl','6,4':'Grosse Laaber'},
+  Bu:'LN0,0 LN0,1 LN0,11 FA2,9 LN3,4 GRZ3,5 GRZ5,3 GRZ5,4 FA4,8',
+  BL:'',
+  Fu:'LN5,11 LN6,10 LN6,11 LN7,9 LT8,2 LT8,3 HA8,4 LT8,5 LT8,6 LT8,7',
+  FL:'Gudin@6,10 Von Hügel@8,6',
+  obj:[{side:'B', hexes:'3,4 4,6', maj:true, vb:1, label:'성과 에크뮐 다수'},{side:'F', hexes:'3,4 4,6', maj:true, vb:2, label:'성과 에크뮐 다수'},
+       {side:'F', hexes:'6,6', vb:1, perm:true, label:'다리'}],
+  rules:['슐로스 성과 에크뮐 칸: 자기 턴 시작 때 다수를 차지하면 오스트리아는 승리깃발 1개, 프랑스는 2개.','다리는 프랑스의 영구 목표(턴 시작, 승리깃발 1개).','Grosse Laaber는 개울이다.','성: 마을과 같고, 그 칸의 유닛은 깃발 2개를 더 무시한다.'],
+  hist:'나폴레옹이 도착한 둘째 날. 뷔르템베르크 경보병이 그로세 라버 다리를 건너 에크뮐 마을과 성을 친다.'},
+ {id:'eggmuhl3', no:12, set:'ex3', name:'에크뮐 (2일째 프랑스 좌측)', date:'1809년 4월 22일', vb:9, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'로젠베르크'}, F:{cmd:6, cmdr:'다부'}, water:'stream',
+  T:{town:'0,0 2,6 4,9', hill:'1,5 1,8 2,11 2,12', fw:'3,10', forest:'1,2 2,2 2,3 3,2 3,4 4,2 4,3 4,7 4,8 5,2 6,1 7,0 7,3 8,4'},
+  names:{'0,1':'Obersanding','2,5':'Oberlaichling','4,10':'Unterlaiching'},
+  Bu:'LN0,2 GR0,4 FA0,5 GR0,6 LC0,9 LC0,12 LN1,0 LN1,3 LN1,4 LN1,6 FA1,8 LC1,10 LN2,0 GRZ2,2 GRZ2,3 GRZ2,6 LN2,11 FA3,10 LN4,7 LN4,8 LN4,9',
+  BL:'Dedovich@1,3 Rosenberg@0,8 Klenau@1,10',
+  Fu:'LN5,1 LN5,2 LN5,3 LN5,4 LT5,5 LN6,1 LN6,2 LN6,4 LN6,5 FA7,5 LN7,6 LN7,7 LN7,8 LT7,9 LC7,10 LC7,11 LC8,2 LC8,6 LN8,8 FA8,9 CU8,11 CU8,12',
+  FL:'Friant@6,2 Hilaire@6,5 Deroy@7,8 Nansouty@8,10',
+  obj:[{side:'B', hexes:'4,9', vb:1, label:'운터라이힝'},{side:'F', hexes:'4,9', vb:1, label:'운터라이힝'},
+       {side:'F', hexes:'2,6', vb:1, label:'오버라이힐링'},{side:'F', hexes:'0,0', vb:1, perm:true, label:'오버잔딩'}],
+  rules:['운터라이힝은 양쪽 모두의 목표(턴 시작, 승리깃발 1개).','오버라이힐링은 프랑스 목표(턴 시작, 승리깃발 1개).','오버잔딩은 프랑스의 영구 목표(턴 시작, 승리깃발 1개).'],
+  hist:'에크뮐 둘째 날, 다부가 숲을 지나 오스트리아 좌익의 마을들을 차례로 친다.'},
+ {id:'eggmuhl4', no:13, set:'ex3', name:'에크뮐 (2일째 프랑스 우측)', date:'1809년 4월 22일', vb:8, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'로젠베르크'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{town:'5,3 8,4', hill:'2,0 2,1 3,2 3,3', fw:'3,1', forest:'0,7 1,8 1,10 2,7 2,11 3,4 3,7 3,8 3,10 4,6 5,10 6,8'},
+  names:{'4,4':'Kraxenhöfen','8,5':'Eggmühl'},
+  Bu:'LC0,0 HA0,1 GRZ0,4 GRZ0,5 LC1,0 LC1,1 LN1,3 LN1,7 LN2,10 FA3,1 LN3,2 LN3,3 LN3,5 LN3,10 LN4,8 LN4,9',
+  BL:'Radivojevich@0,3 Vukassowich@0,8 Bieber@4,8',
+  Fu:'LN6,2 LN6,3 LN6,4 LN6,6 LN6,7 LT6,8 LN6,11 LN6,12 CU7,0 CU7,1 LT7,3 FA7,6 LN7,7 LT7,10 CU8,1 HA8,2 LT8,4 CU8,11',
+  FL:'St-Sulpice@6,2 Gudin@6,7 Morand@6,12 D\'Espagne@8,11',
+  obj:[], exit:{side:'F', row:0},
+  rules:['프랑스 유닛은 오스트리아 끝 열(맨 위 줄)을 통해 지도 밖으로 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.'],
+  hist:'나폴레옹 본대가 에크뮐에 도착해 오스트리아 우익을 정면으로 친다. 흉갑기병이 대기한다.'},
+ {id:'alteglofsheim', no:14, set:'ex3', name:'에크뮐 (알테글로프스하임)', date:'1809년 4월 22일', vb:5, first:'B', nat:'O',
+  B:{cmd:4, cmdr:'슈넬러'}, F:{cmd:4, cmdr:'낭수티'}, water:'stream',
+  T:{streamCharge:'8,5 7,5 6,6 6,7 6,8 6,9 5,9 5,10 5,11', town:'0,1 0,2 1,0 8,2',
+     hill:'2,7 2,10 2,11 3,0 3,1 3,3 3,6 4,6 8,6', forest:'0,6 4,0 4,10 4,12 5,3 6,12 7,8'},
+  names:{'1,1':'Alteglofsheim','8,1':'Hagelstadt'},
+  Bu:'LN0,1 CU0,7 LC0,9 LC0,10 CU1,3 CU2,5 LC2,10 LC2,11 HA3,1 CU3,5',
+  BL:'Schneller@1,3 Stutterheim@2,10',
+  Fu:'HA6,1 HA6,2 CU6,4 CU6,5 CU6,6 LC6,10 LC6,11 LC7,0 HC7,3 CU7,6 CU7,7 LC7,9 CU8,4',
+  FL:'Nansouty@6,5 St. Sulpice@7,6 Seydewitz@8,3',
+  obj:[], exit:{side:'F', row:0}, exit2:{side:'B', row:0, cls:'art'},
+  rules:['프랑스 유닛은 오스트리아 끝 열(맨 위 줄)을 통해 지도 밖으로 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.','오스트리아 포병도 오스트리아 끝 열을 통해 나갈 수 있고, 나가면 오스트리아 승리깃발 1개.','모든 강은 이동과 전투에 제한이 없는 개울이지만 돌격을 막는다: 기병 돌격 카드로 명령받은 기병이 개울에서 출발하거나 개울을 지나면 추가 주사위를 받지 못한다.'],
+  hist:'해질녘, 물러나는 오스트리아군을 엄호하려 오스트리아 흉갑기병이 낭수티의 프랑스 흉갑기병과 달빛 아래에서 부딪친다.'},
+ {id:'aspern', no:15, set:'ex3', name:'아스페른-에슬링 (1일 아스페른)', date:'1809년 5월 21일', vb:12, first:'B', nat:'O',
+  B:{cmd:5, cmdr:'카를 대공'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{town:'4,4 4,6 5,4 5,7', church:'6,3', marsh:'6,2 7,2 8,4', hill:'1,3 2,6 2,7 2,8 2,10 5,11', forest:'2,11 2,12 4,1 8,2'},
+  names:{'5,5':'Aspern','7,3':'Church'},
+  Bu:'LC0,2 LN0,5 LN0,7 LN0,8 LC0,9 LNCR0,10 HC1,0 FA1,2 LN1,4 LT1,5 FA1,6 FA1,7 LN1,11 LN2,1 MI2,2 LN2,3 CU2,9 LN3,0 LN3,1 MI4,1 LN5,1 GRZ6,0 LT7,0',
+  BL:'Bellegarde@0,3 Hohenzollern@0,6 Hiller@2,0 Vogelsang@3,0',
+  Fu:'LN4,4 FA4,5 LN4,6 FA5,8 LN6,3 LT6,4 LN6,6 LT6,7 CU6,9 FA7,11 LT8,3 LN8,5 LN8,6 LN8,7 LC8,9 LC8,10 GHC8,11 CU8,12',
+  FL:'Viviez@4,4 Leguay@5,6 Molitor@6,5 D\'Espagne@6,9 Legrand@7,5 Marulaz@7,10',
+  obj:[{side:'B', hexes:'4,4 4,6 5,4 5,7 6,3', vb:3, label:'아스페른 전체'},{side:'F', hexes:'4,4 4,6 5,4 5,7 6,3', vb:3, label:'아스페른 전체'}],
+  rules:['아스페른 마을 5칸(교회 포함)을 모두 차지한 쪽이 턴 시작 때 승리깃발 3개.','습지: 들어가면 멈추고 포병은 못 들어간다. 그 안에서는 주사위 1개 감소.'],
+  hist:'다뉴브를 건넌 나폴레옹의 교두보. 카를 대공이 아스페른 마을에 대병력을 쏟아붓는다. 마을 주인이 몇 번이나 바뀐다.'},
+ {id:'essling', no:16, set:'ex3', name:'아스페른-에슬링 (1일 에슬링)', date:'1809년 5월 21일', vb:9, first:'B', nat:'O',
+  B:{cmd:5, cmdr:'카를 대공'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{wfarm:'4,4', town:'4,5 5,6', wgarden:'7,8', hill:'2,1 2,2 2,4 2,5 2,7 2,8 3,8 3,9 4,10', forest:'3,0 5,2 6,8 8,10'},
+  names:{'3,4':'Granary','5,5':'Essling','8,9':'Long Garden'},
+  Bu:'LC0,0 HC0,1 CU0,4 LN1,1 LN1,2 MI1,3 LN1,4 FA1,5 LN1,6 LC1,10 LN2,3 LT2,4 LN2,10 HA2,11 LN3,10 LN4,11 FA4,12 LN5,11 LN6,12 LC7,11',
+  BL:'Dedovich@0,5 Rosenberg@1,11 Hohenlohe@3,11',
+  Fu:'LN4,4 LN4,5 FA5,3 LN5,6 FA5,7 HA6,0 LC6,1 LN6,3 LN6,5 LT6,6 CU7,0 LT7,6 LT7,8 LC7,7',
+  FL:'Valory@4,5 Lannes@6,4 Boudet@6,5 Fririon@7,8',
+  obj:[{side:'B', hexes:'4,4 4,5 5,6', vb:2, label:'에슬링 전체'},{side:'F', hexes:'4,4 4,5 5,6', vb:2, label:'에슬링 전체'},{side:'B', hexes:'7,8', vb:1, label:'롱 가든'}],
+  rules:['에슬링 마을 3칸을 모두 차지한 쪽이 턴 시작 때 승리깃발 2개.','롱 가든은 오스트리아 목표(턴 시작, 승리깃발 1개). 롱 가든은 벽 있는 정원(숲 + 깃발 1개 무시).','곡물창고(4,4)는 마을이고 깃발 1개를 더 무시한다.'],
+  hist:'에슬링의 곡물창고를 란의 병사들이 요새처럼 지킨다. 로젠베르크가 동쪽에서 마을을 친다.'},
+ {id:'stmichael', no:17, set:'ex3', name:'장크트 미하엘-레오벤', date:'1809년 5월 25일', vb:6, first:'F', nat:'O',
+  B:{cmd:5, cmdr:'옐라치치'}, F:{cmd:5, cmdr:'그르니에'}, water:'river',
+  T:{river:'0,12 2,11 3,10 4,10 5,10 6,11 7,10 8,10', bridge:'1,11', town:'0,7 0,10 3,3',
+     hill:'1,1 1,2 1,10 2,1 2,6 2,7 2,8 2,9 2,10 4,0 4,3 4,12 5,1 6,0', forest:'2,2 4,1 5,2 6,1'},
+  names:{'1,7':'Water Mill','1,9':'St. Michael','4,4':'St. Walburga','2,11':'Mur R.'},
+  Bu:'MI0,5 MI0,6 LC0,8 LN0,11 HA1,3 MI2,1 LN2,5 LN2,7 LN2,9 LN2,12 GRZ3,1 GRZ3,2',
+  BL:'Legisfeld@2,5 Ettinghausen@2,9',
+  Fu:'LN6,5 LN6,6 LN6,7 LN6,8 LN6,9 LN6,10 LN6,12 LN7,0 LN7,1 LN7,2 FA7,4 LC7,5 LN7,11 LT8,4 LC8,5 LT8,6 LT8,8',
+  FL:'Durutte@7,1 Seras@6,7 Valentin@8,6',
+  obj:[{side:'F', hexes:'1,11', vb:2, label:'다리'}],
+  baggage:{start:'0,0', target:'0,10', vb:2},
+  rules:['오스트리아 병참 마차: 표지가 0,0에서 시작해 오스트리아의 이동 단계마다 오스트리아 끝 열을 따라 한 칸씩 움직인다. 유닛이 있는 칸으로는 못 가지만 지형은 상관없다. 장크트 미하엘(0,10)에 닿으면 오스트리아 승리깃발 2개.','다리는 프랑스 목표(턴 시작, 승리깃발 2개).','Mur 강은 다리 외에는 들어갈 수 없다.'],
+  hist:'이탈리아에서 물러나던 옐라치치 사단이 장크트 미하엘에서 그르니에에게 붙잡힌다. 병참 마차가 빠져나가야 한다.'},
+ {id:'wagram1', no:18, set:'ex3', name:'바그람 (그로스-엔처스도르프)', date:'1809년 7월 5일', vb:6, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'노르트만'}, F:{cmd:5, cmdr:'마세나'}, water:'river',
+  T:{river:'6,0 7,0 8,0', town:'3,4 3,5 4,7 5,4', hill:'1,8 3,0 3,3 3,11 4,1 4,6 5,8', forest:'5,0 5,3 6,9'},
+  fwOn:'3,3 4,6',
+  names:{'2,5':'Gross-Enzersdorf','7,0':'Danube R.'},
+  Bu:'LN1,3 MI1,4 LN1,8 MI1,9 LN1,10 LN2,1 FA2,2 FA2,10 LN2,11 LN3,3 LC3,7 LT4,4 FA4,6 LN4,7 LN5,4',
+  BL:'Riese@1,2 Mayer@0,10 Vecsey@3,6',
+  Fu:'LN6,1 LN6,2 FA7,2 LN7,3 LT7,4 LT7,5 FA7,6 LT7,7 LT7,8 LT7,9 LN8,1 LN8,2 LN8,3 LN8,4 LC8,6 LC8,8 HA8,9 LC8,10',
+  FL:'Legrand@7,1 St Cyr@8,4 Lasalle@8,8',
+  obj:[{side:'F', hexes:'3,4 3,5', any:true, vb:1, perm:true, label:'그로스-엔처스도르프'}], scoutVb:'B',
+  rules:['오스트리아는 정찰 카드를 쓸 때마다 승리깃발 1개.','그로스-엔처스도르프는 프랑스의 영구 목표(턴 시작, 두 칸 중 한 곳, 승리깃발 1개).','3,3과 4,6 언덕에는 보루가 있다.','다뉴브 강은 들어갈 수 없다.'],
+  hist:'바그람 첫날, 마세나가 로바우 섬에서 다뉴브를 건너 그로스-엔처스도르프를 친다.'},
+ {id:'wagram2', no:19, set:'ex3', name:'바그람 (막도날의 방진)', date:'1809년 7월 6일', vb:7, first:'F', nat:'O',
+  B:{cmd:5, cmdr:'카를 대공'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{town:'3,2 3,10 6,0', forest:'1,3 6,2 7,1', hill:'4,9 5,9 6,11'},
+  names:{'3,3':'Süssenbrunn','4,11':'Aderklaa','5,1':'Breitenlee'},
+  Bu:'HA0,5 HC0,6 CU0,9 LN0,12 GR2,3 GR2,4 GR2,5 GR2,6 FA2,7 LC2,8 MI2,10 LN2,12 LN3,1 LN3,8 GR3,9 LN4,0 LN4,1',
+  BL:'Schwarzenberg@0,6 Prohaska@2,6 Henneberg@2,12 D\'Aspre@3,9 Vukassovich@4,0',
+  Fu:'LN5,3:mac LN5,4:mac LN5,5:mac LN6,3:mac LN6,6:mac LN7,3:mac LN7,4:mac LN7,5:mac FA7,6 FA7,7 FA7,8 LN7,9 LN7,10 LN7,11 HC8,1 LC8,2 LC8,8 HC8,9',
+  FL:'Broussier@5,3 Lamarque@5,5 Macdonald@7,4 Durutte@7,10 Nansouty@8,1 Lasalle@8,8',
+  obj:[{side:'F', hexes:'3,2', vb:1, label:'쥐센브룬'},{side:'F', hexes:'3,10', vb:1, label:'아데르클라'},{side:'F', hexes:'6,0', vb:1, label:'브라이텐레'}],
+  macdonald:true,
+  rules:['막도날 진형: "막" 표시가 붙은 프랑스 보병은 진형의 유닛이다. 하나에 명령하면 붙어 있는 진형 유닛이 모두 함께 명령받고 1칸만 움직인다. 진형에서 명령받는 수는 카드의 명령 수와 상관없이 그 턴 지휘카드 수(6)까지. 후퇴로 떨어지거나 방진을 짜면 진형에서 빠진다.','마을 칸은 각각 프랑스 목표(턴 시작, 칸마다 승리깃발 1개).'],
+  hist:'바그람 둘째 날, 나폴레옹이 막도날의 거대한 종대를 오스트리아 중앙으로 밀어 넣는다.'},
+ {id:'wagram3', no:20, set:'ex3', name:'바그람 (마르크그라프노이지들의 다부)', date:'1809년 7월 6일', vb:12, first:'F', nat:'O',
+  B:{cmd:4, cmdr:'로젠베르크'}, F:{cmd:6, cmdr:'다부'}, water:'stream',
+  T:{brookFree:'2,0 3,1 5,2 6,3 6,5 6,6 6,7 6,8 7,9 8,10', bridge:'4,2 6,4 6,9', town:'3,2 4,3 2,12', church:'4,5', tower:'2,6',
+     hill:'1,0 1,5 1,6 1,9 0,10 2,1 2,2 2,3 2,4 2,5 2,7 2,8 2,9 3,7 3,10', forest:'4,0 5,6 5,8 5,10 7,8'},
+  names:{'3,4':'Markgrafneusiedl','1,6':'Stone Tower','4,6':'Church','1,11':'Ober Siebenbrunn','5,2':'Russbach'},
+  Bu:'LC0,1 LN0,6 LT0,7 CU0,9 LC0,10 LN1,0 LN1,3 HA1,7 LC1,8 LC1,9 LN2,1 FA2,2 LN2,4 FA2,5 MI2,6 LN2,8 LN3,2 LN3,6 LN3,7 LN4,3 LT4,5',
+  BL:'Hessen Homberg@1,0 Riese@0,6 Nostitz@0,9 Mayer@3,7 Swinburn@4,3',
+  Fu:'LT5,0 LN6,0 FA6,1 LN6,2 LN6,4 LT6,6 LT6,7 LN6,8 LN6,9 LC6,10 LC6,11 LC6,12 LN7,0 LN7,1 FA7,2 LN7,3 LN7,4 FA7,5 LN7,6 FA7,7 LN7,8 HC7,10 HC7,11 LT8,4 CU8,11 HA8,12',
+  FL:'Gudin@6,4 Friant@6,8 Montbrun@6,11 Puthod@7,0 Morands@7,8 Grouchy@7,10',
+  obj:[{side:'B', hexes:'3,2 4,3 4,5', maj:true, vb:1, label:'마르크그라프노이지들 다수'},{side:'F', hexes:'3,2 4,3 4,5', maj:true, vb:3, label:'마르크그라프노이지들 다수'},
+       {side:'F', hexes:'2,6', vb:1, perm:true, label:'돌탑'},{side:'F', zone:'ridge', perUnit:true, vb:1, label:'능선 너머'}],
+  zones:{ridge:'rows:0-1 +2,1 +2,2 +2,3 +2,4 +2,5 +2,7 +2,8 +2,9 +3,7 +3,10'},
+  rules:['마르크그라프노이지들 마을 셋(교회 포함): 턴 시작 때 다수를 차지하면 오스트리아 승리깃발 1개, 프랑스 3개.','돌탑은 프랑스의 영구 목표(턴 시작, 승리깃발 1개). 탑은 마을과 같다.','언덕 칸과 그 뒤 오스트리아 끝 열까지(맨 위 두 줄)의 칸에 있는 프랑스 유닛마다 턴 시작 때 프랑스 승리깃발 1개.','Russbach는 이동과 전투에 제한이 없는 개울이다.'],
+  hist:'바그람 둘째 날, 다부가 러스바흐를 건너 마르크그라프노이지들의 오스트리아 좌익을 돈다. 바그람의 승부가 여기서 갈린다.'},
+ {id:'schleiz', no:1, set:'ex4', name:'슐라이츠', date:'1806년 10월 9일', vb:5, first:'F', nat:'K', iron:3,
+  B:{cmd:4, cmdr:'타우엔치엔'}, F:{cmd:5, cmdr:'베르나도트'}, water:'stream',
+  T:{town:'4,0 4,1 5,7', marsh:'6,2 6,3 6,4', hill:'2,4 2,6 2,7 3,2 3,3 6,6 7,5 7,6 7,8', forest:'2,2 2,9 2,12 3,8 3,9 3,10 4,6 4,12 5,2 5,10 6,0'},
+  names:{'3,0':'Schleiz','4,7':'Heinrichsruh','3,11':'Oschitz Woods'},
+  Bu:'LC0,1 GR1,1 GR1,2 LC1,8 LN2,6 FA2,7 LN2,8 FA3,3 LN3,8 LT3,9 LT3,10',
+  BL:'Shonberg@0,2 Bila@1,7 Zweiffel@2,3',
+  Fu:'LN4,3 LN4,4 LN6,7 LN6,8 LN6,9 LN6,10 LT6,11 LN7,1 LT7,2 LN7,3 LT7,4 HA7,5 HA7,6 FA7,8 LN8,1 LC8,6 LC8,7 LC8,8',
+  FL:'Drouet@7,1 Bernadotte@8,4 Tilly@7,7 Werle@6,9',
+  obj:[{side:'F', hexes:'2,9 2,12 3,8 3,9 3,10 4,12 5,10', cond:'noEnemy', vb:1, label:'오쉬츠 숲에 프로이센 없음'},
+       {side:'F', hexes:'4,0', vb:1, label:'슐라이츠'},{side:'F', hexes:'4,1', vb:1, label:'슐라이츠'}],
+  exit:{side:'B', row:0, per:2},
+  rules:['프로이센은 강철 같은 의지 카운터 3개로 시작한다.','프로이센 유닛은 프로이센 끝 열(맨 위 줄)을 통해 전장 밖으로 나갈 수 있고, 2개가 나갈 때마다 승리깃발 1개.','프랑스 턴 시작 때 오쉬츠 숲 7칸에 프로이센 유닛이 하나도 없으면 프랑스 승리깃발 1개(프로이센이 다시 들어오면 잃음).','슐라이츠 마을 칸은 각각 프랑스 목표(턴 시작, 칸마다 승리깃발 1개).'],
+  hist:'예나 전역의 첫 전투. 베르나도트 군단이 슐라이츠에서 타우엔치엔의 프로이센-작센 분견대와 부딪친다.'},
+ {id:'saalfeld', no:2, set:'ex4', name:'잘펠트', date:'1806년 10월 10일', vb:7, first:'F', nat:'K', iron:3,
+  B:{cmd:4, cmdr:'루트비히 페르디난트 공'}, F:{cmd:5, cmdr:'란'}, water:'stream',
+  T:{church:'0,11', town:'1,10 2,5 3,2 4,5 5,11', hill:'2,0 2,1 3,0 4,10 5,9 5,10', forest:'3,4 3,8 4,0 4,8 6,1 6,7 7,3 7,6'},
+  names:{'0,10':'Church','1,11':'Saalfeld','2,4':'Crosten','3,0':'Sandberg','4,2':'Aue Am Berg','4,6':'Beulwitz','4,11':'Garnsdorf'},
+  Bu:'LC0,2 LC0,8 LC0,9 LT1,5 HA1,7 LT2,0 HA2,1 LN2,3 LN2,6 LN2,7 LN2,8 FA2,10 LN2,11 LN2,12',
+  BL:'Ruhle@1,0 Ferdinand@1,8 Pelet@2,7',
+  Fu:'LT4,5 LT5,4 FA5,10 LT5,11 LN6,2 LN6,4 LN6,5 FA6,6 LN7,1 LN7,2 LN7,3 LN7,8 LN7,9 LC8,3 HA8,5 LC8,6 LC8,7',
+  FL:'Claparede@5,4 Reille@7,1 Treillard@7,7 Vedel@7,9',
+  obj:[{side:'F', hexes:'2,0', vb:1, label:'잔트베르크'},{side:'F', hexes:'2,1', vb:1, label:'잔트베르크'},{side:'F', hexes:'3,0', vb:1, label:'잔트베르크'}],
+  rules:['프로이센은 강철 같은 의지 카운터 3개로 시작한다.','잔트베르크 언덕 칸은 각각 프랑스 목표(턴 시작, 칸마다 승리깃발 1개).'],
+  hist:'프로이센의 루트비히 페르디난트 공이 잘레 강을 등지고 란 군단에 맞서다 전사한다. 작은 전투였지만 프로이센 지휘부에 큰 충격을 준다.'},
+ {id:'jena', no:3, set:'ex4', name:'예나 (이른 아침)', date:'1806년 10월 14일', vb:8, first:'F', nat:'K', iron:3,
+  B:{cmd:4, cmdr:'호엔로에'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{town:'2,4 3,6 3,7 4,2', hill:'2,2 4,5', forest:'1,0 1,10 2,1 2,10 3,9 4,9 4,12 5,0 5,1 5,8 5,9 6,1 6,8'},
+  names:{'3,4':'Lützeroda','4,7':'Closewitz','4,3':'Cospeda'},
+  Bu:'LC0,9 LNCR0,10 CU0,12 GR1,3 LN1,5 FA1,7 LN1,8 HA1,11 FA2,2 LN2,3 LN2,4 LN2,5 GR2,9 LT2,10 LT3,0 LC3,1 LN3,6 LN3,7',
+  BL:'Bila@2,0 Tauentzien@1,4 Grawert@3,6 Holtzendorff@0,12',
+  Fu:'LT5,4 LT5,9 LN6,2 LT6,3 FA6,4 LN6,5 LN6,6 LN6,7 LN6,8 LN6,9 LN6,10 LN7,3 GFA7,5 GHC7,6 YG7,7 LC7,10 LC7,11 LC8,1 LC8,2 CU8,10 HA8,11',
+  FL:'Gazan@6,2 Suchet@6,5 Hilaire@6,9 Treilhard@7,0 Guyot@8,10',
+  obj:[{side:'B', hexes:'2,4 3,6 3,7 4,2', maj:true, vb:1, label:'마을 다수'},{side:'F', hexes:'2,4 3,6 3,7 4,2', maj:true, vb:1, label:'마을 다수'}],
+  heldStart:[0],
+  rules:['프로이센은 강철 같은 의지 카운터 3개로 시작한다.','마을 칸 전체: 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 1개. 프로이센이 다수를 차지한 상태로 시작해 깃발 1개를 가진다.'],
+  hist:'안개 낀 예나의 아침, 나폴레옹이 란트그라펜베르크 고원에서 호엔로에의 전초선을 친다.'},
+ {id:'auerstadt', no:4, set:'ex4', name:'아우어슈테트 (오전 7시~정오)', date:'1806년 10월 14일', vb:10, first:'F', nat:'K', iron:2,
+  B:{cmd:4, cmdr:'브라운슈바이크 공'}, F:{cmd:6, cmdr:'다부'}, water:'stream',
+  T:{town:'0,8 1,3 4,6 5,5 4,10 4,3', hill:'5,0 5,1 5,7 5,8 5,11 6,5 6,7 6,8 6,11 7,2', forest:'2,10 2,11 3,1 4,1 4,12 5,3'},
+  names:{'1,4':'Rehausen','4,5':'Hassenhausen','1,8':'Gernstadt','4,11':'Speilberg'},
+  Bu:'HC0,0 HC0,2 GR0,3 FA0,4 GG0,6 LN0,7 LN0,8 FA0,9 HC0,10 CU0,12 LN1,0 LN1,1 LN1,2 LN1,3 LN1,5 LN1,6 LN1,10 LC3,6 HA3,7 GR4,6',
+  BL:'Wartensleben@0,1 Brunswick@0,6 Schmettau@0,7 Blücher@0,10',
+  Fu:'LN5,4 LN5,7 LN6,5 LN6,6 HA6,7 LT7,0 LT7,2 LC7,8 LT7,10 LN8,0 LN8,1 FA8,2 LN8,3 LC8,5 FA8,6 FA8,7 LN8,9 LN8,10 LN8,11',
+  FL:'Petit@5,4 Gudin@6,5 Gautier@5,7 Morand@7,1 Friant@7,9',
+  obj:[{side:'B', hexes:'4,6 5,5', maj:true, vb:2, label:'하센하우젠 다수'},{side:'F', hexes:'4,6 5,5', maj:true, vb:2, label:'하센하우젠 다수'}],
+  heldStart:[0], leaderVb:{side:'F', vb:2},
+  rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','하센하우젠 마을 두 칸: 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 2개. 프로이센이 다수를 차지한 상태로 시작한다.','프랑스가 프로이센 리더를 제거할 때마다 승리깃발 2개(영구).','풍차(4,3)는 마을이다.'],
+  hist:'예나와 같은 날, 다부의 3군단 26,000이 아우어슈테트에서 프로이센 주력 60,000을 막아 낸다. 브라운슈바이크 공이 치명상을 입는다.'},
+ {id:'halle1', no:5, set:'ex4', name:'할레 (아침)', date:'1806년 10월 17일', vb:4, first:'F', nat:'K', iron:2,
+  B:{cmd:4, cmdr:'폰 힌리히스'}, F:{cmd:5, cmdr:'뒤퐁'}, water:'brook',
+  T:{river:'0,2 1,2 2,3 2,4 2,5 1,5 1,7 1,8 0,9 3,3 3,4 3,6 3,7 3,8 3,9 2,10 1,10 0,11', bridge:'1,6 3,5', town:'2,7 8,1',
+     hill:'0,5 0,6 1,3 1,4', marsh:'2,11 3,10 5,9', forest:'1,11 2,0 2,2 3,1 3,2 4,10 4,11 5,0 6,2 6,9 8,3'},
+  names:{'2,8':'Torstrasse','4,1':'Dolau Wood','8,0':'Passendorf','1,10':'Saale R.'},
+  Bu:'HA0,5 LN0,6 LT4,3 HA4,4 LT4,7 LC5,8',
+  BL:'von Hinrichs@2,6',
+  Fu:'LT7,3 LN7,5 LN7,6 HC8,1 FA8,5 FA8,7 LT8,8 LT8,9 LC8,11',
+  FL:'Rouyer@7,3 d\'Harvesse@7,6',
+  obj:[{side:'F', hexes:'1,6', vb:1, label:'다리'},{side:'F', hexes:'3,5', vb:1, label:'다리'}],
+  rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','다리 칸은 각각 프랑스 목표(턴 시작, 칸마다 승리깃발 1개).','Saale 강은 개울이다(들어가도 멈추지 않는다).','습지: 들어가면 멈추고 포병은 못 들어간다. 그 안에서는 주사위 1개 감소.'],
+  hist:'예나 사흘 뒤, 베르나도트의 선봉 뒤퐁이 할레 앞 잘레 강 다리를 지키는 프로이센 예비군 전초를 친다.'},
+ {id:'halle2', no:6, set:'ex4', name:'할레 (오후)', date:'1806년 10월 17일', vb:8, first:'F', nat:'K', iron:0,
+  B:{cmd:4, cmdr:'뷔르템베르크의 오이겐 공'}, F:{cmd:5, cmdr:'베르나도트'}, water:'stream',
+  T:{river:'0,12 1,11 2,11 3,10 4,10 5,9 7,8 8,8 3,11 7,11 8,12', bridge:'6,9 6,12', town:'2,0 4,8 5,6 5,8 1,10', church:'7,7', wgarden:'5,3',
+     hill:'1,7 2,5 2,6 2,7 6,11 7,0 7,1 7,10 8,2 8,11', forest:'3,9 6,0 7,2'},
+  names:{'1,0':'Diemitz','4,7':'Halle','5,2':'Funckengarten','7,7':'Church','8,0':'Exit','8,1':'Exit','8,2':'Exit','8,3':'Exit','3,10':'Saale R.'},
+  Bu:'HC1,1 GR1,3 LN1,5 GR1,6 HA1,8 LC1,9 LT1,10 HA2,1 LN2,2 LN2,3 FA2,4 FA2,6 LN2,7 LT2,9 LC3,0 LN3,1',
+  BL:'Natzmer@1,2 Jung-Larisch@2,7 von Hinrichs@2,9',
+  Fu:'LN4,11 LT5,3 LT5,6 FA5,7 LT5,8 LN5,10 FA5,11 LT6,3 LN6,4 HA6,5 LN6,6 LN6,7 LN6,8 LC6,11 LN6,12 LC7,4 LC7,9 HA7,10 LC8,9',
+  FL:'Dupont@6,4 Rivaud@6,7 Drouet@5,10 Tilly@7,9',
+  obj:[], exit:{side:'B', hexes:['8,0','8,1','8,2','8,3']},
+  rules:['프로이센은 강철 같은 의지 카운터 없이 시작한다.','프로이센 유닛은 프랑스 끝 열의 Exit 칸(8,0~8,3)을 통해 지도 밖으로 나갈 수 있고, 나간 유닛마다 프로이센 승리깃발 1개.','Saale 강은 개울이다.','풍켄가르텐은 벽 있는 정원(숲 + 깃발 1개 무시)이다.'],
+  hist:'할레를 빼앗긴 프로이센 예비군이 오후에 반격하며 남서쪽으로 빠져나가려 한다.'},
+ {id:'altenzaun', no:7, set:'ex4', name:'알텐차운', date:'1806년 10월 26일', vb:5, first:'B', nat:'K', iron:4,
+  B:{cmd:5, cmdr:'요르크'}, F:{cmd:4, cmdr:'르그랑'}, water:'river',
+  T:{river:'0,10 1,10 2,11 3,10 4,11 5,10 6,10 7,10 8,11', town:'1,7 5,5', marsh:'5,0 5,1 5,2 6,2',
+     hill:'0,9 1,3 1,9 2,4 2,9 3,4 3,7 3,8 4,1 4,2', forest:'3,0 3,1 3,2 3,3 4,0 4,10'},
+  names:{'0,8':'Osterholz','5,6':'Altenzaun','3,10':'Elbe R.'},
+  Bu:'LT1,5 LT1,6 FA2,7 LT3,2 LN3,3 LN3,4 LT3,5 LT3,7 FA3,8',
+  BL:'Kinderligk@0,6 Bila@2,3 Ernst@2,5 Sobbe@2,8',
+  Fu:'LC5,3 LC6,5 LC6,9 LN7,1 LN7,3 LC7,7 LT7,8 LT7,9 LN8,1 LN8,2 FA8,4 LN8,5 LN8,9 FA8,10',
+  FL:'Ware@8,3 Leval@8,8',
+  obj:[], scoutVb:'B', exit:{side:'F', row:0},
+  rules:['프로이센은 강철 같은 의지 카운터 4개로 시작한다.','프로이센은 정찰 카드를 쓸 때마다 승리깃발 1개.','프랑스 유닛은 프로이센 끝 열(맨 위 줄)을 통해 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.','엘베 강은 들어갈 수 없다.'],
+  hist:'예나 이후 엘베 강으로 물러나던 블뤼허 군의 후위 요르크가 알텐차운에서 술트의 선봉을 막는다.'},
+ {id:'zehdenick', no:8, set:'ex4', name:'체데닉', date:'1806년 10월 26일', vb:4, first:'B', firstRoll:true, nat:'K', iron:2,
+  B:{cmd:4, cmdr:'시멜페니히'}, F:{cmd:4, cmdr:'라살'}, water:'stream',
+  T:{town:'5,6', forest:'1,4 1,5 2,8 3,2 3,9 4,2 4,3 4,9 4,11 5,9 6,1 6,2'},
+  names:{'4,7':'Wesendorf'},
+  Bu:'HC0,9 HC0,10 HC1,6 HA2,5 LC3,3 LC3,4 LC3,5 LT3,8',
+  BL:'Wobeser@0,8 Irwing@1,7 Schimmelpfenning@3,4',
+  Fu:'LC6,3 LC6,4 LC6,5 HC8,0 HC8,1 HC8,2 HA8,3 HC8,7 HC8,8 HC8,9',
+  FL:'Boussart@8,1 Lasalle@6,4 Grouchy@8,7',
+  obj:[], rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','먼저 이동: 게임을 시작할 때 양쪽이 주사위 4개를 굴려 칼이 더 많이 나온 쪽이 먼저 한다(이 도구가 자동으로 굴린다).'],
+  hist:'예나 이후 북쪽으로 물러나던 프로이센 기병을 라살의 경기병이 체데닉에서 따라잡는다. 기병끼리의 싸움.'},
+ {id:'prenzlau', no:9, set:'ex4', name:'프렌츨라우', date:'1806년 10월 28일', vb:6, first:'F', nat:'K', iron:2,
+  B:{cmd:5, cmdr:'호엔로에 공'}, F:{cmd:5, cmdr:'뮈라'}, water:'stream',
+  T:{town:'0,7 0,9 1,8 2,11 4,12 8,2', marsh:'1,9 2,9 3,8 4,8', hill:'0,4 1,4 4,4 5,3 6,3', forest:'4,0 7,2 7,3'},
+  names:{'0,8':'Prussian Exit','1,10':'Prenzlau','8,3':'Gollmitz'},
+  Bu:'LN2,3 HC2,4 LN2,5 LN2,6 GG2,7 HC3,0 LN3,1 HA3,6 CU3,7 GR3,9 FA3,10 GR3,11',
+  BL:'Augustus@2,1 Schwerin@2,8 Tschammer@2,10',
+  Fu:'HC6,4 HA6,9 LC6,10 HA6,11 HC7,0 HC7,5 HC7,6 HA7,7 HC7,8 LC7,11 HC8,1 LT8,6 LT8,7',
+  FL:'Boussart@6,4 C. Beaumont@7,0 Grouchy@7,8 Lasalle@6,10 Milhaud@7,11',
+  obj:[], exit:{side:'B', hexes:['0,8']}, sudden:[{side:'F', kind:'occupyRow', row:0, label:'프로이센 끝 열 도달'}],
+  rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','프로이센 유닛은 프로이센 끝 열의 Prussian Exit 칸(0,8)을 통해 나갈 수 있고, 나간 유닛마다 프로이센 승리깃발 1개.','프랑스 턴 시작 때 프로이센 끝 열(맨 위 줄)에 프랑스 유닛이 하나라도 있으면 프랑스가 즉시 승리한다.','습지: 들어가면 멈추고 포병은 못 들어간다.'],
+  hist:'예나에서 패한 호엔로에가 프렌츨라우로 빠져나가려 하지만 뮈라의 기병이 먼저 도착한다. 호엔로에는 항복한다.'},
+ {id:'waren', no:10, set:'ex4', name:'바렌-노센틴 (바렌)', date:'1806년 11월 1일', vb:4, first:'F', nat:'K', iron:2,
+  B:{cmd:4, cmdr:'요르크'}, F:{cmd:4, cmdr:'베르나도트'}, water:'stream',
+  T:{lake:'0,2 1,1 2,1 3,0 0,11 1,11 2,12', marsh:'3,2 3,3 4,3 2,10 2,11', town:'1,6 1,7 5,6 5,7', hill:'0,5 1,5 2,5', forest:'3,1'},
+  names:{'1,0':'Lake Jabelscher','2,7':'Jabel','5,5':'Waren','0,12':'Lake Loppiner'},
+  Bu:'LC0,7 LC0,8 LT1,4 LT1,7 LC1,8 LT2,3 LT2,4 HA2,5 HC4,8',
+  BL:'Yorck@0,6 Pletz@1,9 Schmude@4,8',
+  Fu:'LC6,9 LC6,10 LNCR7,0 LC7,2 LC7,3 HA7,4 LC7,5 LC7,6 FA8,0 LT8,1 LT8,2 LT8,3',
+  FL:'Savary@7,0 Margaron@7,3 Tilly@7,5 Guyot@6,9',
+  obj:[], rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','호수는 들어갈 수 없다.','습지: 들어가면 멈추고 포병은 못 들어간다.'],
+  hist:'블뤼허의 후퇴를 엄호하던 요르크가 바렌 근처 호수 사이 좁은 길목에서 베르나도트의 기병을 막는다.'},
+ {id:'nossentin', no:11, set:'ex4', name:'바렌-노센틴 (노센틴)', date:'1806년 11월 1일', vb:5, first:'B', nat:'K', iron:2,
+  B:{cmd:4, cmdr:'요르크'}, F:{cmd:4, cmdr:'베르나도트'}, water:'stream',
+  T:{lake:'0,0 0,1 0,2 1,0 1,1 1,2 2,0 2,1 2,2 3,0', marsh:'1,10 2,11 3,8 3,10 4,9', town:'2,5 2,6',
+     hill:'3,3 5,4 6,7 7,7', forest:'2,9 2,12 3,2 5,9 5,10 6,2 6,3'},
+  names:{'1,0':'Lake Fleesen','3,5':'Nossentin'},
+  Bu:'LC0,9 LC0,10 HC1,3 LT2,3 HA2,4 LT2,5 LT2,6 LT2,7 LT2,8',
+  BL:'Schmude@1,3 Yorck@1,6 Pletz@0,9',
+  Fu:'LT5,3 LT5,8 LT6,4 FA6,5 LN6,6 LN6,7 LN6,8 HA6,9 LC6,11 LN7,5 LC7,10 LC7,11 LC8,10',
+  FL:'Drouet@6,7 Tilly@6,11 Bernadotte@8,10',
+  obj:[], rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','플레젠 호수 칸은 모두 호수다(들어갈 수 없다).','습지: 들어가면 멈추고 포병은 못 들어간다.'],
+  hist:'바렌에서 물러난 요르크가 노센틴 마을에서 다시 한 번 베르나도트를 막아 선다.'},
+ {id:'lubeck', no:12, set:'ex4', name:'뤼베크 (북문)', date:'1806년 11월 6일', vb:7, first:'F', nat:'K', iron:4,
+  B:{cmd:4, cmdr:'블뤼허'}, F:{cmd:5, cmdr:'베르나도트'}, water:'river',
+  T:{river:'0,2 0,3 1,1 2,1 3,0 4,1 5,0 6,0', stream:'0,10 1,10 2,10 3,10 4,11 5,11', town:'0,4 0,9 2,3', castle:'1,11', church:'4,8', wgarden:'6,6',
+     hill:'5,2 5,3 5,4', forest:'5,1 5,10 7,4 7,5'},
+  fwOn:'3,2 2,11',
+  names:{'0,7':'North Gate','0,11':'Bellevue Bastion','4,7':'St. Gertrude Church','6,7':'Walled Garden','4,1':'Wakenitz R.','3,10':'Trave R.'},
+  Bu:'HA0,5 LC0,6 LT1,5 GR1,8 FA2,4 FA2,7 FA2,11 LN3,2 LT5,3 LN4,8 FA4,9',
+  BL:'Yorck@0,7 Duke of Brunswick@1,11 Oswald@5,3',
+  Fu:'LT6,6 LN7,0 LN7,1 FA7,2 FA7,3 LT7,4 LT7,5 LN7,8 LN7,9 LN7,10 LN8,2 LN8,4 LC8,5 LC8,6 HA8,7 LN8,10',
+  FL:'Drouet@7,1 Tilly@7,6 Rivaud@8,9',
+  obj:[{side:'F', hexes:'4,8', vb:1, label:'성 게르트루트 교회'}], exit:{side:'F', hexes:['0,5','0,6','0,7','0,8']}, noExitVb:{side:'B', vb:1},
+  rules:['프로이센은 강철 같은 의지 카운터 4개로 시작한다.','성 게르트루트 교회는 프랑스 목표(턴 시작, 승리깃발 1개).','프랑스 유닛은 프로이센 북문 칸(0,5~0,8)을 통해 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.','북문으로 나간 프랑스 유닛이 없는 동안 프로이센은 승리깃발 1개를 가진다.','바케니츠 강은 들어갈 수 없다. 트라베 강은 개울이다.','벨뷔 요새(1,11)는 성과 같다: 마을 + 깃발 2개 무시.'],
+  hist:'예나 이후 마지막 프로이센 야전군을 이끈 블뤼허가 중립 도시 뤼베크로 들어가 버틴다. 베르나도트·술트·뮈라가 북문을 강습한다.'},
+ {id:'blankenfelde', no:13, set:'ex4', name:'블랑켄펠데', date:'1813년 8월 23일', vb:5, first:'F', nat:'K', iron:3,
+  B:{cmd:5, cmdr:'타우엔치엔'}, F:{cmd:4, cmdr:'베르트랑'}, water:'stream',
+  T:{town:'1,0 1,5 2,7', forest:'3,2 3,4 3,10 4,2 4,7 4,10 5,0 5,8 6,3 6,4 6,6 7,7'},
+  names:{'0,1':'Diedersdorf','1,6':'Blankenfeld'},
+  Bu:'MLNCR0,7 MLNCR0,8 MLNCR1,3 MI1,10 LN2,5 RI2,8 FA2,9 MI2,10 MI2,11 RI3,2 FA3,3 RI3,4',
+  BL:'Mozhaisky@0,6 Lindenau@1,8 Dobschutz@2,3',
+  Fu:'LN6,5 LT6,9 LT6,10 LN7,1 LN7,2 LN7,3 FA7,4 GR7,8',
+  FL:'Moroni@7,3 Martel@7,8',
+  obj:[{side:'B', hexes:'1,0 1,5 2,7', cond:'noEnemy', vb:1, label:'프랑스가 마을을 못 가짐'},
+       {side:'F', hexes:'1,0', vb:1, label:'마을'},{side:'F', hexes:'1,5', vb:1, label:'마을'},{side:'F', hexes:'2,7', vb:1, label:'마을'}],
+  heldStart:[0],
+  rules:['프로이센은 강철 같은 의지 카운터 3개로 시작한다.','프로이센 턴 시작 때 프랑스가 마을을 하나도 차지하지 못하면 프로이센 승리깃발 1개. 그래서 프로이센은 깃발 1개로 시작한다.','마을 칸은 각각 프랑스 목표(턴 시작, 칸마다 승리깃발 1개).'],
+  hist:'베를린으로 진격하던 우디노 군의 한 갈래인 베르트랑이 블랑켄펠데에서 타우엔치엔의 란트베어 민병을 친다.'},
+ {id:'grossbeeren', no:14, set:'ex4', name:'그로스베렌', date:'1813년 8월 23일', vb:10, first:'F', nat:'K', iron:4,
+  B:{cmd:5, cmdr:'폰 뷜로'}, F:{cmd:5, cmdr:'우디노'}, water:'stream',
+  T:{town:'1,9 3,4 5,6 5,8 7,2', hill:'3,0 3,5 3,9 4,0 4,10 5,10 6,11', forest:'1,7 2,0 7,6 8,10 8,11'},
+  names:{'0,10':'Klein Beeren','2,4':'Windmill Hill','5,5':'Grossbeeren','7,1':'New Beeren'},
+  Bu:'LC0,1 LNCR0,2 GR0,3 MI0,5 MLNCR0,6 RI0,8 MLNCR0,9 LT1,0 MI1,1 MI1,2 LN1,3 RI1,4 LN1,5 FA1,6 LT1,7 LN1,8 RI1,9 RI1,10 LC1,11 FA2,1 FA2,2 MI2,12 LN3,10 FA3,11 LT4,11 RI4,12',
+  BL:'Hessen-Homburg@0,4 Kraft@1,5 Theuman@1,8 Borstell@2,11',
+  Fu:'LN4,6 LN4,7 FA5,0 FA5,1 LN5,2 LN5,3 LN5,7 GR6,3 LN6,5 FA6,6 LN7,7 LT7,8 LT7,9 LNCR8,3 LC8,4 HA8,5 FA8,8 LN8,9',
+  FL:'Durutte@4,6 Lecoq@6,1 Gablenz@7,4 Saur@6,8',
+  obj:[{side:'B', hexes:'5,6 3,4 3,5', maj:true, vb:2, label:'그로스베렌·풍차 언덕 다수'},{side:'F', hexes:'5,6 3,4 3,5', maj:true, vb:2, label:'그로스베렌·풍차 언덕 다수'}],
+  rules:['프로이센은 강철 같은 의지 카운터 4개로 시작한다.','그로스베렌 마을, 풍차 언덕(3,4), 그 옆 언덕(3,5): 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 2개.'],
+  hist:'베를린을 향한 우디노의 진격. 비가 쏟아지는 저녁, 뷜로가 명령을 어기고 그로스베렌의 레이니에 군단을 친다.'},
+ {id:'dennewitz', no:15, set:'ex4', name:'데네비츠', date:'1813년 9월 6일', vb:7, first:'B', nat:'K', iron:2,
+  B:{cmd:4, cmdr:'폰 뷜로'}, F:{cmd:4, cmdr:'네이'}, water:'stream',
+  T:{town:'5,2 6,6 7,10', hill:'2,1 3,1 3,4 3,6 3,11 4,7 5,1 5,5 6,0 6,4 6,9 6,10 7,4 8,9', forest:'2,9 4,1 4,8 4,11'},
+  names:{'4,3':'Golsdorf','7,6':'Dennewitz','7,11':'Rohrbeck'},
+  Bu:'HC0,1 LNCR0,2 LC0,3 GR0,5 CU0,6 FA0,7 FA0,9 MI0,10 MLNCR0,12 MLNCR1,0 HA1,1 RI1,2 MI1,3 FA1,4 LN1,5 LN1,6 LN1,7 LN1,10 MI1,11 LN2,4 LT2,8',
+  BL:'Oppen@0,0 Borstell@0,4 Tauentzien@0,11 Hessen-Homburg@1,5 Thueman@1,7',
+  Fu:'LN5,5 LN5,6 LN6,1 LN6,2 LC6,4 FA6,5 LN6,6 LN6,8 LT6,9 FA7,0 HC7,3 LN7,10 LN8,2 HA8,9 LC8,10',
+  FL:'Bertrand@4,6 Morand@7,1 Defrance@7,3 Reynier@7,8',
+  obj:[{side:'B', hexes:'5,2', vb:1, label:'골스도르프'},{side:'B', hexes:'6,6', vb:1, label:'데네비츠'},{side:'B', hexes:'7,10', vb:1, label:'로르베크'}],
+  exit:{side:'F', row:0},
+  rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','마을 칸은 각각 프로이센 목표(턴 시작, 칸마다 승리깃발 1개).','프랑스 유닛은 프로이센 끝 열(맨 위 줄)을 통해 나갈 수 있고, 나간 유닛마다 프랑스 승리깃발 1개.'],
+  hist:'우디노 대신 지휘를 맡은 네이가 다시 베를린으로 진격한다. 뷜로와 타우엔치엔이 데네비츠에서 측면을 쳐 프랑스군을 무너뜨린다.'},
+ {id:'laon1', no:16, set:'ex4', name:'랑 (프랑스 우익)', date:'1814년 3월 9~10일', vb:8, first:'B', nat:'K', iron:4,
+  B:{cmd:5, cmdr:'블뤼허'}, F:{cmd:4, cmdr:'마르몽'}, water:'stream',
+  T:{town:'2,0 3,9 4,10', hill:'1,9 1,10 2,8 4,3 4,4 6,0', rugged:'6,11 6,12 7,8 7,10 8,8 8,9', forest:'3,0 4,0 5,2 6,2'},
+  names:{'1,0':'Ardon','3,10':'Athies','7,9':'Festieux Defile'},
+  Bu:'LC0,1 HA0,2 CU0,3 LNCR0,7 HC0,8 MLNCR0,10 MI0,11 MI0,12 FA1,4 LN1,6 LN1,7 FA1,8 GR1,9 GR1,10 MLNCR2,1 LN2,3 RI2,4 LT2,5 LN2,6 LN3,0 RI3,1',
+  BL:'Ziethen@0,3 Yorck@0,9 Klest@1,5 Von Preussen@1,7 Von Horn@1,9',
+  Fu:'LN4,9 LN4,10 LN4,11 LT5,4 LN5,7 FA5,8 FA6,5 LN6,6 GFA7,0 YG7,1 LT7,4 GLC8,0 CU8,1',
+  FL:'Mortier@5,9 Fabvier@6,6 Nansouty@8,1',
+  obj:[{side:'B', hexes:'2,0 3,9 4,10', maj:true, vb:2, label:'마을 다수'},{side:'F', hexes:'2,0 3,9 4,10', maj:true, vb:2, label:'마을 다수'}],
+  rules:['프로이센은 강철 같은 의지 카운터 4개로 시작한다.','이 전장의 마을 칸: 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 2개.','페스티외 협로의 언덕은 요철 구릉(들어갈 수 없음)이다.'],
+  hist:'랑 둘째 날 밤, 블뤼허의 프로이센군이 아티의 마르몽 군단을 야습해 무너뜨린다.'},
+ {id:'laon2', no:17, set:'ex4', name:'랑 (프랑스 좌익)', date:'1814년 3월 9~10일', vb:9, first:'B', nat:'K', iron:4,
+  B:{cmd:5, cmdr:'블뤼허'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{town:'2,6 3,6 2,12 4,0 5,0', hill:'2,8 3,1 3,3 3,4 3,9 4,2 4,5 4,10 5,6 5,7 5,11 6,2 6,11', forest:'3,10 6,9'},
+  names:{'1,6':'Semilly','4,1':'Clacy','1,11':'Laon'},
+  Bu:'CU0,8 MI1,3 HC1,10 LT2,1 LN2,2 MI2,5 LN2,7 FA2,8 LN2,9 MLNCR2,11 RI3,1 LN3,2 FA3,3 LN3,4 RI3,9 LN3,10 FA3,11',
+  BL:'Winzingerode@2,3 Bülow@2,9 Oppen@1,10',
+  Fu:'LT6,1 LT6,5 LN7,1 LN7,2 FA7,3 LN7,4 LN7,5 OG7,8 OG7,9 OG7,10 YG7,11 HC8,3 HA8,5 LC8,6 LNCR8,11 HA8,12',
+  FL:'Bellune@7,1 Ney@6,4 Grouchy@8,4 Mortier@8,10',
+  obj:[{side:'B', hexes:'2,6 3,6 2,12 4,0 5,0', maj:true, vb:2, label:'마을 다수'},{side:'F', hexes:'2,6 3,6 2,12 4,0 5,0', maj:true, vb:2, label:'마을 다수'}],
+  rules:['프로이센은 강철 같은 의지 카운터 4개로 시작한다.','이 전장의 마을 칸: 자기 턴 시작 때 다수를 차지한 쪽이 승리깃발 2개.'],
+  hist:'랑 고지 위의 블뤼허를 나폴레옹이 서쪽에서 친다. 블뤼허가 병석에 누워 프로이센군은 결정적인 반격을 하지 못한다.'},
+ {id:'ligny', no:18, set:'ex4', name:'리니', date:'1815년 6월 16일', vb:11, first:'F', nat:'K', iron:5,
+  B:{cmd:5, cmdr:'블뤼허'}, F:{cmd:6, cmdr:'나폴레옹'}, water:'stream',
+  T:{fordCharge:'7,0 6,1 6,3 5,3 4,4 3,4 3,5 3,6 4,7 4,8 4,9 3,9 1,10 1,11', bridge:'6,2 2,10', town:'2,9 4,5 5,2 6,0', church:'2,11', mill:'2,3',
+     hill:'0,9 1,4 2,4 3,3 4,0 5,10 6,10', forest:'1,3 3,7 4,6 6,8 7,7'},
+  names:{'2,3':'Bry Windmill','3,8':'Ligny','2,12':'Church','5,4':'St. Amand','5,1':'La-Haye','5,0':'Wagnelee','4,7':'Ligny Brook'},
+  Bu:'HC0,6 LNCR0,7 MLNCR0,8 FA0,10 LC1,0 MI1,1 LN1,4 MI1,5 GR1,6 RI1,7 LN1,8 LN2,1 LN2,4 LN2,9 RI2,11 FA3,0 LN3,7 MI4,3 LN4,5 LT4,6 MI5,2',
+  BL:'Steinmetz@1,4 Roder@0,6 Blücher@2,3 Tippelskirch@2,1 Jagow@3,7',
+  Fu:'LN5,10 LT5,11 GFA6,8 FA6,9 LN6,10 FA6,11 LN6,12 LT7,2 LN7,3 LN7,4 LT7,5 LN7,6 FA7,7 YG7,8 OG7,9 OG7,10 LC8,2 YG8,3 FA8,4 LN8,6 HC8,11 LC8,12',
+  FL:'Pecheux@5,10 Gerard@7,3 Lefol@7,6 Berthezene@8,6 Milhaud@8,11',
+  obj:[{side:'B', hexes:'2,9 4,5 5,2 6,0 2,11 2,3', maj:true, vb:2, label:'마을·교회·풍차 다수'},{side:'F', hexes:'2,9 4,5 5,2 6,0 2,11 2,3', maj:true, vb:3, label:'마을·교회·풍차 다수'}],
+  heldStart:[0],
+  rules:['프로이센은 강철 같은 의지 카운터 5개로 시작한다.','마을·교회·풍차 칸 전체: 자기 턴 시작 때 다수를 차지하면 프로이센은 승리깃발 2개, 프랑스는 3개. 프로이센이 다수를 차지한 상태로 시작한다.','리니 개울: 들어가면 멈추지만(전투 후 전진은 됨) 전투 제한은 없다. 기병 돌격 카드로 개울에 들어가거나 넘은 기병은 추가 주사위를 받지 못한다(다리는 예외).'],
+  hist:'워털루 이틀 전, 나폴레옹이 리니 개울을 따라 늘어선 마을들에서 블뤼허의 프로이센군을 친다. 나폴레옹의 마지막 승리.'},
+ {id:'plancenoit', no:19, set:'ex4', name:'플랑스누아', date:'1815년 6월 18일', vb:9, first:'B', nat:'K', iron:2,
+  B:{cmd:5, cmdr:'블뤼허'}, F:{cmd:5, cmdr:'짐머·뒤엠'}, water:'stream',
+  T:{town:'3,8 4,7 4,10 5,7', church:'4,5', hill:'1,4 1,8 1,9 3,2 3,3 5,11 6,3', forest:'1,0 2,0 2,1 2,2 2,11 3,11 4,2 5,0 5,4 6,0 6,11'},
+  names:{'4,4':'Church','4,9':'Plancenoit'},
+  Bu:'LC0,0 LC0,1 LC0,2 MI0,3 RI0,4 LN0,6 RI0,7 LN0,8 RI0,9 MI0,10 RI1,1 LN1,2 RI1,3 FA1,4 LN1,5 LT1,6 LN1,7 FA1,8 LN1,9 LN1,10 LT1,11 LT2,12',
+  BL:'Blücher@0,5 Hacke@1,2 Pirch@1,5 Hiller@1,7 Ryssel@1,10',
+  Fu:'LN3,8 GFA4,8 LN4,10 YG5,5 FA5,10 FA6,3 LN7,0 LN7,1 LN7,2 LT7,3 YG7,8 YG7,9 LC8,0 LNCR8,2 OG8,5 OG8,6',
+  FL:'Simmer@3,8 Jeanin@7,3 Pelet@7,5 Duhesme@7,9',
+  obj:[{side:'F', hexes:'3,8 4,7 4,10 5,7 4,5', maj:true, vb:2, label:'마을·교회 다수'},
+       {side:'B', hexes:'3,8', vb:1, label:'플랑스누아'},{side:'B', hexes:'4,7', vb:1, label:'플랑스누아'},{side:'B', hexes:'4,10', vb:1, label:'플랑스누아'},{side:'B', hexes:'5,7', vb:1, label:'플랑스누아'},{side:'B', hexes:'4,5', vb:1, label:'교회'}],
+  heldStart:[0],
+  rules:['프로이센은 강철 같은 의지 카운터 2개로 시작한다.','마을 4칸과 교회: 프랑스 턴 시작 때 다수를 차지하면 프랑스 승리깃발 2개. 프랑스가 다수를 차지한 상태로 시작한다.','마을·교회 칸은 각각 프로이센 목표(턴 시작, 칸마다 승리깃발 1개).'],
+  hist:'워털루 오후, 블뤼허의 프로이센군이 나폴레옹의 오른쪽 플랑스누아로 쏟아져 들어온다. 청년근위대와 고참근위대가 마을을 지킨다.'},
+ {id:'wavre', no:20, set:'ex4', name:'와브르', date:'1815년 6월 18일', vb:8, first:'F', nat:'K', iron:3,
+  B:{cmd:5, cmdr:'틸만'}, F:{cmd:5, cmdr:'그루시'}, water:'river',
+  T:{river:'2,0 2,2 3,2 3,3 3,4 4,6 3,6 3,7 3,9 4,10 5,10', bridge:'2,1 4,5 3,8 5,11', town:'1,1 3,5 2,8 2,10 4,12', church:'4,9', mill:'4,4',
+     hill:'0,8 0,9 1,4 1,5 7,8 8,9', forest:'4,1 6,2 7,4 6,10 7,9'},
+  names:{'1,0':'Limal','3,6':'Bierge','1,9':'Wavre','4,11':'Bas Wavre','4,3':'Mill','5,9':'Church','3,2':'Dyle R.'},
+  Bu:'MI0,1 LC0,4 GR0,9 RI1,1 MI1,3 LN1,4 HA2,6 LN2,8 FA2,9 MI2,10 LNCR2,12 LN3,5 LN4,4 RI4,9 RI4,12',
+  BL:'Stengel@0,2 Stülpnagel@1,4 Kampfen@1,8 Borcke@4,12',
+  Fu:'LT5,0 LN6,1 LN7,0 LN7,2 LN7,3 LT7,5 FA7,6 FA7,7 LN7,8 LT7,9 LN7,10 HC7,11 LC8,0 LC8,1 LN8,3 LN8,4 LN8,6 LN8,7 LN8,8',
+  FL:'Gerard@6,1 Hulot@7,3 Lefol@7,8 Exelmans@7,11',
+  obj:[{side:'F', zone:'north', perUnit:true, vb:1, label:'딜 강 건너'}], scoutVb:'B',
+  zones:{north:'rows:0-2 -2,0 -2,2 +3,0 +3,1 +3,5 +3,8 +3,10 +3,11 +4,5 +4,11 +4,12 +5,11'},
+  rules:['프로이센은 강철 같은 의지 카운터 3개로 시작한다.','딜 강을 건넜거나 다리에 있는 프랑스 유닛마다 프랑스 승리깃발 1개(그 상태가 유지되는 동안).','프로이센은 정찰 카드를 쓸 때마다 승리깃발 1개.','딜 강은 들어갈 수 없다.'],
+  hist:'워털루와 같은 날, 그루시가 와브르의 딜 강 다리들을 친다. 틸만의 프로이센 군단은 하루 종일 버티며 그루시를 워털루에서 떼어 놓는다.'},
+);
+
 /* ===================== GEOMETRY ===================== */
 const ROWS = 9;
 const ncols = r => (r % 2 ? 12 : 13);
@@ -1476,9 +2026,16 @@ function rawT(k) { return state.terr[k] || 'clear'; }
 // 실제 효과 지형: 강은 시나리오 규칙에 따라 river(통과불가)/stream(정지)/brook(정지 없음)
 function effT(k, u) { const t = rawT(k); if (t === 'river') return state.water === 'river' ? 'river' : (state.water === 'brook' ? 'brook' : 'stream');
   if (t === 'streamInf') return u && st(u).cls === 'inf' ? 'clear' : 'stream';
+  // 확장3·4: 성·탑·풍차·벽 있는 농장은 마을, 벽 있는 정원은 숲, 제한 없는 개울은 개활지처럼 처리 (추가 깃발 무시는 flagIgnore가 rawT로 본다)
+  if (t === 'castle' || t === 'tower' || t === 'mill' || t === 'wfarm') return 'town';
+  if (t === 'wgarden') return 'forest';
+  if (t === 'brookFree' || t === 'streamCharge') return 'clear';
+  if (t === 'fordCharge') return 'ford';
   return t; }
 const isWater = t => t === 'stream' || t === 'brook';
 const isTown = t => t === 'town' || t === 'church';
+// 기병 돌격을 막는 개울 (알테글로프스하임·리니)
+const chargeBlock = k => ['streamCharge', 'fordCharge'].includes(rawT(k));
 // 보루: 2면(fw, 정면만), 4면(redoubt, 모든 방향), 어머니 러시아로 생긴 2면 보루(fwPlus)
 function fwKind(k) { const t = effT(k); if (t === 'redoubt') return 4; if (t === 'fw' || (state.fwPlus || []).includes(k)) return 2; return 0; }
 function umax(u) { return u.max || st(u).max; }
@@ -1540,11 +2097,19 @@ function newGame(scenId, mode) {
   const deck = [];
   CARD_DEFS.forEach(d => { for (let i = 0; i < d.cnt; i++) deck.push(d.k); });
   shuffle(deck);
-  const objs = (sc.obj || []).map(o => Object.assign({}, o, {hexes: typeof o.hexes === 'string' ? o.hexes.split(/\s+/) : o.hexes}));
+  const objs = (sc.obj || []).map(o => Object.assign({}, o, {hexes: typeof o.hexes === 'string' ? o.hexes.split(/\s+/) : (o.hexes || [])}));
+  // 지역 정의: 'rows:0-3 +3,5 -2,0' = 0~3행 전체에 3,5를 더하고 2,0을 뺀다
+  const zones = {};
+  for (const [name, spec] of Object.entries(sc.zones || {})) { const set = new Set();
+    spec.split(/\s+/).forEach(t => { const m = t.match(/^rows:(\d+)-(\d+)$/); if (m) { for (let r = +m[1]; r <= +m[2]; r++) for (let c = 0; c < ncols(r); c++) set.add(K(r, c)); }
+      else if (t[0] === '+') set.add(t.slice(1)); else if (t[0] === '-') set.delete(t.slice(1)); });
+    zones[name] = [...set]; }
+  objs.forEach(o => { if (o.zone) o.hexes = zones[o.zone]; });
   const census = side => { const c = {inf: 0, cav: 0, art: 0}; units.forEach(u => { if (u.side === side) c[STATS[u.t].cls]++; }); return c; };
   state = {
     v: 1, scenId, top: sc.nat || 'B', water: sc.water, terr, names: Object.assign({}, sc.names), objs, held: {},
-    guer: sc.guerrilla != null ? sc.guerrilla : null, flank: sc.flank ? +sc.flank.start.split(',')[1] : null, fwPlus: [],
+    guer: sc.guerrilla != null ? sc.guerrilla : null, flank: sc.flank ? +sc.flank.start.split(',')[1] : null, fwPlus: sc.fwOn ? sc.fwOn.split(/\s+/) : [],
+    iron: sc.iron != null ? sc.iron : null, massUsed: 0, bag: sc.baggage ? +sc.baggage.start.split(',')[1] : null,
     init: {B: census('B'), F: census('F')}, killed: {B: {inf: 0, cav: 0, art: 0}, F: {inf: 0, cav: 0, art: 0}}, exits: {B: 0, F: 0}, davKilled: 0, swissGone: 0, medF: 0,
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
     deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
@@ -1553,29 +2118,49 @@ function newGame(scenId, mode) {
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
   };
-  (sc.heldStart || []).forEach(i => { state.held[i] = true; });
+  (sc.heldStart || []).forEach(i => { state.held[i] = objVal(state.objs[i]); });
+  // 체데닉: 양쪽이 주사위 4개를 굴려 칼이 많은 쪽이 먼저
+  let first = sc.first;
+  if (sc.firstRoll) { for (let t = 0; t < 20; t++) { const roll = () => Array.from({length: 4}, () => FACES[rand6()]).filter(f => f === 'saber').length; const b = roll(), f = roll();
+    if (b !== f) { first = b > f ? 'B' : 'F'; log(`선공 정하기: 칼 ${SIDE_KO.B} ${b}개 · ${SIDE_KO.F} ${f}개 → ${SIDE_KO[first]} 먼저`, 'sys'); break; } } state.active = first; }
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[sc.first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
   refreshHeld();
-  beginTurn(sc.first);
+  beginTurn(first);
 }
 
 /* ===================== OBJECTIVES / BANNERS ===================== */
 // 목표 조건: 기본은 모든 칸 점유. maj 상대보다 많이, any 한 칸이라도, cond:'noEnemy' 상대 유닛이 없으면
+// min 몇 칸 이상, zone 지역 안 유닛 수, uncontested 무경쟁 칸도 센다, perUnit 유닛마다 깃발, allVb 모두 차지하면 깃발 더
 function objOK(o) {
   const mine = k => { const u = unitAt(k); return !!(u && u.side === o.side); };
   const theirs = k => { const u = unitAt(k); return !!(u && u.side !== o.side); };
+  if (o.zone) return objCount(o) >= (o.min || 1);
+  if (o.min) return objCount(o) >= o.min;
   if (o.cond === 'noEnemy') return !o.hexes.some(theirs);
   if (o.maj) return o.hexes.filter(mine).length > o.hexes.filter(theirs).length;
   if (o.any) return o.hexes.some(mine);
   return o.hexes.every(mine);
 }
-function refreshHeld() {
-  for (const i of Object.keys(state.held)) { const o = state.objs[i]; if (!o.perm && !objOK(o)) { delete state.held[i]; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 잃어 승리깃발 ${o.vb}개가 사라졌다.`, 'warn'); } }
-  // 즉시 목표: 턴과 상관없이 차지하면 바로 깃발
-  state.objs.forEach((o, i) => { if (o.instant && !state.held[i] && objOK(o)) { state.held[i] = true; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 차지 → 승리깃발 ${o.vb}개`, 'vb'); } });
+function objCount(o) {
+  const mine = k => { const u = unitAt(k); return !!(u && u.side === o.side); };
+  if (!o.uncontested) return o.hexes.filter(mine).length;
+  const near = (k, sd) => [k, ...nbrKeys(k)].some(n => { const u = unitAt(n); return u && (sd === o.side ? u.side === o.side : u.side !== o.side); });
+  return o.hexes.filter(k => mine(k) || (!unitAt(k) && near(k, o.side) && !near(k, 'enemy'))).length;
 }
-function bannerTotal(side) { let n = state.vb[side]; for (const i of Object.keys(state.held)) if (state.objs[i].side === side) n += state.objs[i].vb; return n; }
+function objVal(o) { if (o.perUnit) return objCount(o); if (o.allVb && o.hexes.every(k => { const u = unitAt(k); return u && u.side === o.side; })) return o.allVb; return o.vb; }
+const heldVal = i => state.held[i] === true ? state.objs[i].vb : (state.held[i] || 0);
+function refreshHeld() {
+  for (const i of Object.keys(state.held)) { const o = state.objs[i]; if (o.perm) continue;
+    if (!objOK(o)) { const v = heldVal(i); delete state.held[i]; log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 잃어 승리깃발 ${v}개가 사라졌다.`, 'warn'); continue; }
+    const v = objVal(o), h = heldVal(i); if (v < h) { state.held[i] = v; log(`${SIDE_KO[o.side]} ${o.label}: 승리깃발 ${h} → ${v}`, 'warn'); } }
+  // 즉시 목표: 턴과 상관없이 차지하면 바로 깃발
+  state.objs.forEach((o, i) => { if (o.instant && !state.held[i] && objOK(o)) { state.held[i] = objVal(o); log(`${SIDE_KO[o.side]}이 ${o.label}을(를) 차지 → 승리깃발 ${state.held[i]}개`, 'vb'); } });
+}
+function bannerTotal(side) { let n = state.vb[side]; for (const i of Object.keys(state.held)) if (state.objs[i].side === side) n += heldVal(i);
+  // 뤼베크: 북문으로 나간 프랑스 유닛이 없으면 프로이센이 깃발 1개를 가진다
+  const sc = SCENARIOS.find(x => x.id === state.scenId); if (sc.noExitVb && sc.noExitVb.side === side && !(state.exits || {})[other(side)]) n += sc.noExitVb.vb;
+  return n; }
 function award(side, n, why) {
   state.vb[side] += n; log(`${SIDE_KO[side]} 승리깃발 +${n} (${why})`, 'vb'); checkWin();
 }
@@ -1603,11 +2188,15 @@ function loseCmd(side, why, min) {
 /* ===================== TURN FLOW ===================== */
 function beginTurn(side) {
   state.active = side; state.phase = 'start'; state.cur = null; state.scout = false; state.tokens = null; state.rolled = false;
-  state.units.forEach(u => { u.ordered = false; u.viaLeader = false; u.rallied = false; u.moved = 0; u.battled = false; u.noBattleTerr = false; u.lockMove = false; u.bonusUsed = false; });
+  state.units.forEach(u => { u.ordered = false; u.viaLeader = false; u.viaMac = false; u.inMac = false; u.crossedCharge = false; u.rallied = false; u.moved = 0; u.battled = false; u.noBattleTerr = false; u.lockMove = false; u.bonusUsed = false; });
   state.leaders.forEach(l => { l.ordered = false; l.moved = 0; });
   // 목표 칸 점유 확인 (그 군의 턴 시작 때만 획득)
-  state.objs.forEach((o, i) => { if (o.side === side && !o.instant && !state.held[i] && objOK(o)) { state.held[i] = true; log(`${SIDE_KO[side]}이 ${o.label}을(를) 점유 → 승리깃발 ${o.vb}개`, 'vb'); } });
-  for (const sd of SCENARIOS.find(x => x.id === state.scenId).sudden || []) if (sd.kind === 'occupyAny' && sd.side === side && sd.hexes.some(k => { const u = unitAt(k); return u && u.side === side; })) declareWin(side, sd.label);
+  state.objs.forEach((o, i) => { if (o.side !== side || o.instant || !objOK(o)) return; const v = objVal(o), h = state.held[i] ? heldVal(i) : 0;
+    if (v > h || (o.perm && !state.held[i])) { state.held[i] = Math.max(v, h); log(`${SIDE_KO[side]}이 ${o.label}을(를) 점유 → 승리깃발 ${state.held[i]}개`, 'vb'); } });
+  for (const sd of SCENARIOS.find(x => x.id === state.scenId).sudden || []) {
+    if (sd.kind === 'occupyAny' && sd.side === side && sd.hexes.some(k => { const u = unitAt(k); return u && u.side === side; })) declareWin(side, sd.label);
+    if (sd.kind === 'occupyRow' && sd.side === side && state.units.some(u => u.side === side && u.r === sd.row)) declareWin(side, sd.label);
+  }
   checkWin();
 }
 function revealHand() {
@@ -1622,7 +2211,10 @@ function drawCards(side, n) {
     state.hands[side].push(state.deck.shift());
   }
 }
-function squaresOf(side) { return state.units.filter(u => u.side === side && u.square).length; }
+// 대규모 대대(오스트리아 전열보병)는 방진표 카드를 쓰지 않으므로 방진 수 제한·카드 감소에 세지 않는다
+function squaresOf(side) { return state.units.filter(u => u.side === side && u.square && !u.mass).length; }
+const massCap = () => { const sc = SCENARIOS.find(x => x.id === state.scenId); return sc.nat === 'O' ? sc.B.cmd : 0; };
+const canMass = u => st(u).mass && (state.massUsed || 0) < massCap();
 // 스페인 게릴라를 받는 쪽: 게릴라 규칙이 있는 시나리오에서 위쪽 진영
 const guerOn = () => state.guer != null;
 async function scoutForGuerrilla(side) {
@@ -1683,12 +2275,14 @@ function takeSquareCard(u) {
   state.sqCards[u.side].push({id: u.id, k});
 }
 function formSquare(u) {
-  u.square = true;
+  u.square = true; if (u.tag === 'mac') u.tag = null;
+  if (canMass(u)) { u.mass = true; state.massUsed = (state.massUsed || 0) + 1; log(`${unitLabel(u)} 대규모 대대 방진 (카드를 쓰지 않음, ${state.massUsed}/${massCap()})`, 'warn'); return; }
   if (isDuo()) { takeSquareCard(u); log(`${unitLabel(u)} 방진 → 손패 1장이 방진표로 (지휘능력 감소)`, 'warn'); }
   else log(`${unitLabel(u)} 방진 형성`, 'warn');
 }
 function releaseSquare(u) {
   u.square = false;
+  if (u.mass) { u.mass = false; state.massUsed = Math.max(0, (state.massUsed || 0) - 1); return; }
   if (!isDuo()) return;
   const arr = state.sqCards[u.side]; const i = arr.findIndex(x => x.id === u.id);
   if (i >= 0) { state.hands[u.side].push(arr[i].k); arr.splice(i, 1); log(`방진표의 카드가 ${SIDE_KO[u.side]} 손으로 돌아왔다`); }
@@ -1698,6 +2292,7 @@ function canFormSquare(u) {
   const sc = SCENARIOS.find(x => x.id === state.scenId);
   if (sc.maxSquares && sc.maxSquares[u.side] != null && squaresOf(u.side) >= sc.maxSquares[u.side]) return false;
   if (state.folly === state.turn && u.side === 'B') return false;
+  if (canMass(u)) return true;
   if (isDuo()) return state.sqCards[u.side].length < 4 && state.hands[u.side].length > 2;
   return squaresOf(u.side) < 4;
 }
@@ -1728,6 +2323,8 @@ function playCard(idx) {
     const goal = +fsc.target.split(',')[1]; state.flank--; log(`러시아 측면 부대가 한 칸 전진 (${8},${state.flank})`, 'sys');
     if (state.flank <= goal) { state.flank = null; award('B', fsc.vb, '측면 부대가 모룽엔 도착'); }
   }
+  const ssc = SCENARIOS.find(x => x.id === state.scenId);
+  if (ssc.scoutVb === side && (d.scout || (k === 'counter' && CARD_BY_KEY[eff] && CARD_BY_KEY[eff].scout))) award(side, 1, '정찰 카드');
   log(`${SIDE_KO[side]}: 「${d.n}」 사용${k === 'counter' ? ` → ${eff === 'none' ? '상대가 쓴 카드가 없어 아무 유닛 1개' : '「' + CARD_BY_KEY[eff].n + '」'}` : ''}`, 'card');
 }
 function effDef() { if (!state.cur) return null; return state.cur.eff === 'none' ? null : CARD_BY_KEY[state.cur.eff]; }
@@ -1771,7 +2368,7 @@ function fallbackActive() {
 }
 function orderedItems() {
   const side = state.active, out = [];
-  state.units.forEach(u => { if (u.side === side && u.ordered && !u.viaLeader && !u.rallied) out.push(u); });
+  state.units.forEach(u => { if (u.side === side && u.ordered && !u.viaLeader && !u.viaMac && !u.rallied) out.push(u); });
   state.leaders.forEach(l => { if (l.side === side && l.ordered) out.push(l); });
   return out;
 }
@@ -1804,8 +2401,20 @@ function tryOrder(ent, isL) {
   if (d && d.k === 'gm' && !isL && ent.square) return '대기동: 방진 보병은 명령할 수 없다.';
   return null;
 }
+// 막도날 진형: 막도날 리더가 있는 칸과 이어진 '진형' 보병 무리. 하나에 명령하면 무리 전체(지휘카드 수까지)가 함께 명령받고 1칸만 움직인다
+function macGroup(u) {
+  if (!u || u.tag !== 'mac' || u.square) return null;
+  const ok = x => x && x.side === u.side && x.tag === 'mac' && !x.square;
+  const seen = new Set([u.id]), q = [u], out = [];
+  while (q.length) { const x = q.shift(); out.push(x); nbrKeys(hexOf(x)).forEach(k => { const y = unitAt(k); if (ok(y) && !seen.has(y.id)) { seen.add(y.id); q.push(y); } }); }
+  if (!out.some(x => { const l = attLeader(x); return l && /macdonald/i.test(l.name); })) return null;
+  return out;
+}
 function setOrder(ent, isL, on) {
   ent.ordered = on;
+  const mg = !isL && macGroup(ent);
+  if (mg) { const cap = Math.max(1, state.cmd[ent.side]); mg.forEach((x, i) => { if (x === ent) { x.inMac = on; return; } if (on && i >= cap) return; if (on && x.ordered) return; if (!on && !x.viaMac) return; x.ordered = on; x.viaMac = on; x.inMac = on; });
+    if (on) log(`막도날 진형: ${mg.filter(x => x.ordered).length}개 유닛이 함께 명령받음 (1칸만 이동)`); }
   const d = effDef();
   if (isL && d && d.k === 'leadership') { const u = unitOfLeader(ent); if (u) { u.ordered = on; u.viaLeader = on; } }
 }
@@ -1829,6 +2438,8 @@ function moveAllow(u) {
   const s = st(u), d = effDef(), k = d ? d.k : '';
   if (u.square || u.lockMove) return 0;
   if (k === 'firehold' || k === 'coldsteel') return 0;
+  if (u.inMac) return 1;
+  if ((k === 'bayonet' || k === 'forcemarch') && s.cls === 'inf' && s.noFM) return 1;
   if (k === 'gm') return 4;
   if (k === 'bombard' && s.cls === 'art') return 3;
   if (k === 'bayonet' && s.cls === 'inf') return 2;
@@ -1840,10 +2451,11 @@ function moveAllow(u) {
 function passable(k, u) {
   const t = effT(k);
   if (t === 'river' || t === 'rugged' || t === 'lake') return false;
+  if (t === 'marsh' && u && st(u).cls === 'art') return false;
   if (t === 'quarry' && u && st(u).cls === 'art') return false;
   return true;
 }
-const stopsIn = (k, u) => { const t = effT(k, u); return ['forest', 'town', 'church', 'fw', 'redoubt', 'stream', 'quarry', 'frozen', 'ford'].includes(t); };
+const stopsIn = (k, u) => { const t = effT(k, u); return ['forest', 'town', 'church', 'fw', 'redoubt', 'stream', 'quarry', 'frozen', 'ford', 'marsh'].includes(t); };
 function pathOf(m, k) { const out = [k]; let c = k; while (m.prev.has(c)) { c = m.prev.get(c); out.unshift(c); } return out; }
 function reachUnit(u, allow) {
   const start = hexOf(u), res = new Map(); res.prev = new Map(); const q = [[start, 0]]; const seen = new Set([start]);
@@ -1878,7 +2490,8 @@ function reachLeader(l, allow) {
   }
   return res;
 }
-function doMoveUnit(u, k, steps) {
+function doMoveUnit(u, k, steps, path) {
+  if (path && path.some(chargeBlock)) u.crossedCharge = true;
   const from = hexOf(u); const l = attLeader(u); const d = effDef();
   const carry = l && (!l.ordered || (d && d.k === 'leadership' && u.viaLeader)) && !l.moved;
   u.r = P(k)[0]; u.c = P(k)[1]; u.moved = steps;
@@ -1931,7 +2544,7 @@ function losCheck(a, b, shooter) {
         if (fr && sh && st(sh).cls === 'art' && shooterOnHill && dist(a, k) === 1 && rawT(k) !== 'hill') { over = true; continue; }
         return true;
       }
-      if (t === 'forest' || t === 'town' || t === 'church' || t === 'rugged') return true;
+      if (['forest', 'town', 'church', 'rugged', 'castle', 'tower', 'mill', 'wfarm', 'wgarden'].includes(t)) return true;
       if (t === 'hill' && !(shooterOnHill && targetOnHill)) return true;
     }
     return false;
@@ -1952,6 +2565,7 @@ function terrMods(attCls, kind, aK, dK, attSide, att) {
   if (fwD && defU && (fwD === 4 || front(defU.side)) && !isTown(tD) && tD !== 'forest') add(attCls === 'inf' ? -1 : attCls === 'cav' ? -2 : 0, fwD === 4 ? '목표가 4면 보루' : '목표가 보루(정면)');
   if (isWater(tD) && kind === 'melee') add(-1, '목표가 개울');
   if (tD === 'frozen' && kind === 'melee') add(-1, '목표가 얼어붙은 호수');
+  if (tD === 'marsh' && kind === 'melee') add(-1, '목표가 습지');
   if (tD === 'quarry') add(attCls === 'inf' ? (kind === 'melee' ? -1 : 0) : attCls === 'cav' ? -2 : -1, '목표가 채석장');
   // 공격자 칸 지형 (밖으로)
   if (tA === 'forest' && !cos) add(attCls === 'cav' ? -2 : attCls === 'art' ? -1 : 0, '숲에서 공격');
@@ -1960,6 +2574,7 @@ function terrMods(attCls, kind, aK, dK, attSide, att) {
   if (fwA && !isTown(tA) && tA !== 'forest') add(attCls === 'cav' ? -2 : 0, '보루에서 공격');
   if (isWater(tA)) add(-1, '개울에서 공격');
   if (tA === 'frozen') add(-1, '얼어붙은 호수에서 공격');
+  if (tA === 'marsh') add(-1, '습지에서 공격');
   if (tA === 'quarry') add(attCls === 'inf' ? -1 : attCls === 'cav' ? -2 : 0, '채석장에서 공격');
   return mods;
 }
@@ -1975,11 +2590,14 @@ function diceFor(att, defK, kind, ctx = {}) {
   }
   const scn = SCENARIOS.find(x => x.id === state.scenId);
   if (kind === 'melee' && s.meleeVsInf && def && st(def).cls === 'inf') { if (scn.conscripts) parts.push([0, '신병: 보병 상대 +1 없음']); else { n += 1; parts.push([1, '프랑스 전열보병: 보병 상대 근접']); } }
+  // 프로이센 전열보병: 명령받아 이동하지 않고 근접공격하거나 반격하면 +1 (선제 공격은 제외)
+  if (kind === 'melee' && s.holdMelee && !ctx.firstStrike && (ctx.battleBack || (att.side === state.active && att.ordered && !att.moved))) { n += s.holdMelee; parts.push([s.holdMelee, ctx.battleBack ? '프로이센 전열: 반격' : '프로이센 전열: 제자리 근접']); }
   const townInvolved = isTown(effT(aK)) || isTown(effT(defK));
   const d = effDef();
   if (!ctx.battleBack && !ctx.firstStrike && att.side === state.active && att.ordered && d) {
     const k = d.k;
-    if (k === 'cavcharge' && s.cls === 'cav') { const b = s.guard ? 2 : 1; if (townInvolved) parts.push([0, '기병 돌격 보너스 (마을이라 무효)']); else { n += b; parts.push([b, '기병 돌격']); } }
+    if (k === 'cavcharge' && s.cls === 'cav') { const b = s.guard ? 2 : 1; if (townInvolved) parts.push([0, '기병 돌격 보너스 (마을이라 무효)']);
+      else if (att.crossedCharge || chargeBlock(aK)) parts.push([0, '기병 돌격 보너스 (개울이 막음)']); else { n += b; parts.push([b, '기병 돌격']); } }
     if (k === 'bayonet' && s.cls === 'inf' && s.guard && kind === 'melee') { n += 1; parts.push([1, '총검 돌격 (근위)']); }
     if (k === 'bombard' && s.cls === 'art' && att.moved === 0) { const b = s.guard ? 3 : 2; n += b; parts.push([b, '포격']); }
     if (k === 'firehold' && kind === 'fire') { n += 1; parts.push([1, '사격 후 대기']); }
@@ -2000,6 +2618,10 @@ function flagIgnore(def, attK, kind) {
   const fk = fwKind(dK);
   if (fk && s.cls !== 'cav' && attK) { const [ar] = P(attK), [dr] = P(dK); if (fk === 4 || (def.side === 'B' ? ar > dr : ar < dr)) { n++; why.push('보루'); } }
   if (effT(dK) === 'church') { n++; why.push('교회'); }
+  const rt = rawT(dK);
+  if (rt === 'castle') { n += 2; why.push('성 2'); }
+  if (rt === 'wfarm') { n++; why.push('벽 있는 농장'); }
+  if (rt === 'wgarden') { n++; why.push('벽 있는 정원'); }
   const sc = SCENARIOS.find(x => x.id === state.scenId);
   if (sc.almeida && def.side === 'B' && sc.almeida.includes(dK)) { n++; why.push('알메이다 요새'); }
   if (s.ign) { n += s.ign; why.push(`${s.ko} ${s.ign}`); }
@@ -2108,7 +2730,9 @@ async function takeHits(u, hits, bySide, chk) {
   }
   return {dead: false};
 }
-function killLeader(l, bySide) { FX.float(hexOf(l), '리더 전사', '#fff', '#7a1d16'); SFX.play('die'); state.leaders = state.leaders.filter(x => x !== l); log(`리더 ${l.name} 전사`, 'warn'); award(bySide, 1, `리더 ${l.name}`); }
+function killLeader(l, bySide) { FX.float(hexOf(l), '리더 전사', '#fff', '#7a1d16'); SFX.play('die'); state.leaders = state.leaders.filter(x => x !== l); log(`리더 ${l.name} 전사`, 'warn');
+  // 아우어슈테트: 프랑스가 프로이센 리더를 쓰러뜨리면 승리깃발 2개
+  const lv = scen().leaderVb; award(bySide, lv && lv.side === bySide ? lv.vb : 1, `리더 ${l.name}`); }
 async function eliminate(u, bySide, l, chk) {
   if (u.square) releaseSquare(u);
   state.units = state.units.filter(x => x !== u);
@@ -2185,14 +2809,22 @@ async function retreatUnit(u, steps, chk) {
 async function resolveFlags(u, flags, attK, kind, chk, bounce) {
   if (!flags || !state.units.includes(u)) return {retreated: false};
   const ign = bounce ? {n: 0, why: []} : flagIgnore(u, attK, kind);
-  const use = Math.min(flags, ign.n), rem = flags - use;
+  const use = Math.min(flags, ign.n); let rem = flags - use;
   if (use) log(`${unitLabel(u)} 깃발 ${use}개 무시 (${ign.why.join(', ')})`);
+  // 프로이센 강철 같은 의지: 무시하지 못한 깃발을 카운터 1개당 1개 더 무시
+  if (rem && !bounce && u.side === 'B' && state.iron > 0) {
+    const mx = Math.min(rem, state.iron);
+    const k = await ask({title: '강철 같은 의지?', who: u.side, body: `${unitLabel(u)}: 남은 깃발 ${rem}개. 강철 같은 의지 카운터(지금 ${state.iron}개)를 1개 쓸 때마다 깃발 1개를 무시한다. 쓴 카운터는 사라진다.`,
+      buttons: Array.from({length: mx}, (_, i) => ({l: `${mx - i}개 사용`, v: mx - i, p: i === 0 ? 1 : 0})).concat([{l: '쓰지 않음', v: 0}])});
+    if (k) { state.iron -= k; rem -= k; log(`${SIDE_KO[u.side]} 강철 같은 의지 ${k}개 사용 → 깃발 ${k}개 무시 (남은 카운터 ${state.iron}개)`, 'card'); }
+  }
   if (bounce) log(`추방 깃발 ${flags}개: 기병은 무시할 수 없다`);
   if (!rem) { if (use) FX.float(hexOf(u), '깃발 무시', '#f2e6b8', '#3a2f10'); return {retreated: false}; }
   FX.float(hexOf(u), `깃발 ${rem}`, '#fff', '#222'); SFX.play('flag');
   if (u.square) { log(`${unitLabel(u)} 방진은 후퇴할 수 없다 → 블록 ${rem}개 손실`, 'warn'); const res = await takeHits(u, rem, other(u.side), chk); return {retreated: false, dead: res.dead}; }
   const per = bounce ? 1 : (st(u).retreat || 1);
-  return await retreatUnit(u, rem * per, chk);
+  // 프로이센 전열보병: 첫 깃발은 1칸, 다음 깃발마다 2칸
+  return await retreatUnit(u, per === 'k' ? 1 + (rem - 1) * 2 : rem * per, chk);
 }
 async function declare(att, defK, kind) {
   const isL = kind === 'leader';
@@ -2249,6 +2881,8 @@ async function combat(att, defK, kind, opts) {
       await FX.lunge(def.id, defK, aStart, dS.cls);
       const f0 = await rollDice(d0.n, `선제 공격: ${unitLabel(def)} → ${unitLabel(att)}`);
       const r0 = hitsFrom(f0, aS.cls, 'melee', dS.noSaber);
+      // 선제 공격 카드를 쓴 창기병은 깃발 재굴림을 쓸 수 있다
+      if (dS.lancer && r0.flags && !aS.cuir) { const fr = await rollDice(r0.flags, `창기병 깃발 재굴림 (${r0.flags}개)`); const rr = hitsFrom(fr, aS.cls, 'melee', dS.noSaber); r0.hits += rr.hits; r0.flags = rr.flags; }
       diceNote(`명중 ${r0.hits} · 깃발 ${r0.flags}`);
       const chk0 = {checked: false};
       const res0 = await takeHits(att, r0.hits, def.side, chk0);
@@ -2877,13 +3511,14 @@ const NET = (() => {
 })();
 
 /* ===================== RENDER: BOARD ===================== */
-const NAT_COL = {F: '#26448c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c', S: '#b7870f', R: '#2f6b35', W: '#7a5231'};
+const NAT_COL = {F: '#2a4c9c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c', S: '#c0900f', R: '#2f6b35', W: '#7a5231', O: '#ebe6d8', K: '#3e454e'};
 // 바일렌의 스위스군: 프랑스 쪽은 영국 빨간 블록, 스페인 쪽은 포르투갈 갈색 블록
 const natCol = u => u.nat === 'W' ? (u.side === 'F' ? NAT_COL.B : NAT_COL.P) : NAT_COL[u.nat];
 const CLS_COL = {inf: '#5b8fd8', cav: '#e2bd2f', art: '#d2443a'};
 const SIDE_COL = {B: '#c4362c', F: '#2c56b0'};
 const T_FILL = {clear: '#ebe4cd', forest: '#a8bd83', hill: '#c9c88b', rugged: '#b2a487', town: '#e4d9bb', river: '#4b7aa8', stream: '#79a5cd', brook: '#8db6da', bridge: '#79a5cd', fw: '#d4cba7', quarry: '#e7d6a3',
-  church: '#e4d9bb', redoubt: '#d4cba7', lake: '#4b7aa8', frozen: '#c4dbea', ford: '#79a5cd', streamInf: '#8db6da'};
+  church: '#e4d9bb', redoubt: '#d4cba7', lake: '#4b7aa8', frozen: '#c4dbea', ford: '#79a5cd', streamInf: '#8db6da',
+  castle: '#d8ccae', tower: '#e4d9bb', mill: '#e4d9bb', wfarm: '#e0d3b2', wgarden: '#a8bd83', marsh: '#a9bf9a', brookFree: '#9cc0dd', streamCharge: '#9cc0dd', fordCharge: '#79a5cd'};
 // 시나리오에 따라 위쪽 진영 이름·색을 바꾼다 (영국·스페인·러시아)
 let lookFor = null;
 function syncLook() {
@@ -2913,7 +3548,7 @@ function renderBoard() {
   let moveSet = null, tgtMap = null;
   if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
   if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
-  let s = DEFS;
+  let s = DEFS + tokenDefs();
   s += `<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="#cdbf98"/>`;
   // bands
   const bandY = [6, H - PADY + 6];
@@ -2937,11 +3572,16 @@ function renderBoard() {
     const k = K(r, c), [cx, cy] = ctr(r, c); const raw = rawT(k), t = effT(k);
     const fill = raw === 'bridge' ? T_FILL.bridge : (T_FILL[t] || T_FILL.clear);
     s += `<polygon class="hex t-${t}" data-k="${k}" points="${hexPts(cx, cy, HS - 0.6)}" fill="${fill}"/>`;
-    const use = {forest: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', church: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
+    const use = {forest: 'd-forest', wgarden: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', church: 'd-town', wfarm: 'd-town', mill: 'd-town', tower: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
     if (use) deco += `<use href="#${use}" x="${cx}" y="${cy}"/>`;
-    if (['river', 'bridge', 'stream', 'brook', 'ford', 'streamInf', 'lake'].includes(raw)) deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
+    if (['river', 'bridge', 'stream', 'brook', 'ford', 'streamInf', 'lake', 'brookFree', 'streamCharge', 'fordCharge'].includes(raw)) deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
     if (raw === 'church') deco += `<path d="M${cx} ${cy - 22} v14 M${cx - 5} ${cy - 17} h10" stroke="#3a2f1e" stroke-width="2.4"/>`;
     if (raw === 'frozen') deco += `<path d="M${cx - 16} ${cy - 4} l10 6 M${cx + 2} ${cy - 10} l12 8 M${cx - 8} ${cy + 8} l14 4" stroke="#fff" stroke-width="1.6" opacity=".85"/>`;
+    if (raw === 'wfarm' || raw === 'wgarden') deco += `<polygon points="${hexPts(cx, cy, HS - 7)}" fill="none" stroke="#8a7a5c" stroke-width="3" stroke-dasharray="6 2"/>`;
+    if (raw === 'castle') deco += `<g fill="#7d7a72" stroke="#3d3a34" stroke-width="1"><rect x="${cx - 15}" y="${cy - 10}" width="30" height="18"/><rect x="${cx - 19}" y="${cy - 16}" width="9" height="24"/><rect x="${cx + 10}" y="${cy - 16}" width="9" height="24"/><path d="M${cx - 19} ${cy - 16} v-3 h3 v3 h3 v-3 h3 v3 M${cx + 10} ${cy - 16} v-3 h3 v3 h3 v-3 h3 v3" fill="none"/></g>`;
+    if (raw === 'tower') deco += `<rect x="${cx - 5}" y="${cy - 22}" width="10" height="18" fill="#8a857a" stroke="#3d3a34"/>`;
+    if (raw === 'mill') deco += `<g stroke="#3a2f1e" stroke-width="2"><path d="M${cx} ${cy - 14} l-9 -9 M${cx} ${cy - 14} l9 -9 M${cx} ${cy - 14} l-9 9 M${cx} ${cy - 14} l9 9"/></g>`;
+    if (raw === 'marsh') deco += `<g stroke="#4d6b52" stroke-width="1.4" fill="none"><path d="M${cx - 16} ${cy + 4} q4 -3 8 0 t8 0"/><path d="M${cx} ${cy - 6} q4 -3 8 0 t8 0"/><path d="M${cx - 8} ${cy + 12} q4 -3 8 0"/><path d="M${cx - 12} ${cy - 2} v-8 M${cx - 9} ${cy - 2} v-6 M${cx + 6} ${cy + 8} v-8 M${cx + 9} ${cy + 8} v-6"/></g>`;
     if (raw === 'redoubt') deco += `<polygon points="${hexPts(cx, cy, HS - 8)}" fill="none" stroke="#6b4627" stroke-width="4.5"/>`;
     if ((state.fwPlus || []).includes(k)) deco += `<use href="#d-fw" x="${cx}" y="${cy}"/>`;
     if (raw === 'bridge') deco += `<use href="#d-bridge" x="${cx}" y="${cy}"/>`;
@@ -2952,8 +3592,10 @@ function renderBoard() {
   s += `<line x1="${x1}" y1="${PADY - 4}" x2="${x1}" y2="${H - PADY + 4}" class="secline"/><line x1="${x2}" y1="${PADY - 4}" x2="${x2}" y2="${H - PADY + 4}" class="secline"/>`;
   s += `<g pointer-events="none">${names}</g>`;
   // objectives
-  state.objs.forEach((o, i) => o.hexes.forEach(k => { const [cx, cy] = ctr(...P(k)); const held = state.held[i];
+  state.objs.forEach((o, i) => (o.zone ? [] : o.hexes).forEach(k => { const [cx, cy] = ctr(...P(k)); const held = state.held[i];
     s += `<g pointer-events="none" transform="translate(${cx - 24},${cy - 30})"><path d="M0 0 V20" stroke="#3a2f1e" stroke-width="1.6"/><path d="M0 1 H17 L13 6 L17 11 H0 Z" fill="${SIDE_COL[o.side]}" stroke="#fff" stroke-width=".8" opacity="${held ? 1 : .75}"/>${held ? '<circle cx="20" cy="4" r="3.5" fill="#f2c14e" stroke="#3a2f1e" stroke-width=".8"/>' : ''}</g>`; }));
+  // 지역 목표(강 건너·능선 너머)는 깃발 대신 옅은 테두리로 표시
+  state.objs.forEach(o => { if (o.zone) o.hexes.forEach(k => { const [zx, zy] = ctr(...P(k)); s += `<polygon points="${hexPts(zx, zy, HS - 2)}" fill="none" stroke="${SIDE_COL[o.side]}" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55" pointer-events="none"/>`; }); });
   // overlays
   const over = (k, cls) => { const [cx, cy] = ctr(...P(k)); return `<polygon class="ov ${cls}" data-k="${k}" points="${hexPts(cx, cy, HS - 3)}"/>`; };
   if (moveSet) moveSet.forEach((n, k) => s += over(k, 'ov-move'));
@@ -2964,6 +3606,8 @@ function renderBoard() {
     if (state.phase === 'battle') state.units.forEach(u => { if (u.side === act && u !== selU && targetsFor(u).size) s += over(hexOf(u), 'ov-ready'); });
   }
   if (ui.picking) ui.picking.cands.forEach(k => s += over(k, 'ov-pick'));
+  // 장크트 미하엘 병참 마차 표지
+  if (state.bag != null) { const [bx, by] = ctr(0, state.bag); s += `<g pointer-events="none"><rect x="${bx - 17}" y="${by - 12}" width="34" height="20" rx="4" fill="#8a6a3a" stroke="#fff" stroke-width="1.4"/><circle cx="${bx - 9}" cy="${by + 9}" r="4" fill="#3a2f1e"/><circle cx="${bx + 9}" cy="${by + 9}" r="4" fill="#3a2f1e"/><text class="lname" x="${bx}" y="${by + 25}">병참 마차</text></g>`; }
   // 모룽엔 측면 부대 표지
   if (state.flank != null) { const [fx, fy] = ctr(8, state.flank); s += `<g pointer-events="none"><polygon points="${starPts(fx, fy - 4, 16, 7)}" fill="${SIDE_COL.B}" stroke="#fff" stroke-width="1.6"/><text class="lname" x="${fx}" y="${fy + 20}">측면 부대</text></g>`; }
   if (ui.edit && ui.editSel) s += over(ui.editSel, 'ov-sel');
@@ -2973,30 +3617,74 @@ function renderBoard() {
   svg.setAttribute('viewBox', `0 0 ${W.toFixed(0)} ${H.toFixed(0)}`);
   svg.innerHTML = s;
 }
+// 유닛 토큰: 나라색 금속판 위에 나토식 병과 기호, 정예 표식, 블록 눈금, 병과 띠
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const ch = v => Math.max(0, Math.min(255, Math.round(f > 0 ? v + (255 - v) * f : v * (1 + f))));
+  return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(ch).map(v => v.toString(16).padStart(2, '0')).join(''); };
+const lightNat = u => u.nat === 'O';
+function tokenDefs() {
+  let d = '<defs><filter id="tok-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2.2" stdDeviation="1.6" flood-color="#000" flood-opacity=".45"/></filter>'
+    + '<linearGradient id="tok-gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".45" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>'
+    + '<radialGradient id="ldr-gold" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#e3b84f"/><stop offset="1" stop-color="#8a6a1e"/></radialGradient>';
+  for (const [k, c] of Object.entries(NAT_COL)) d += `<linearGradient id="tok-${k}" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="${shade(c, .28)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -.38)}"/></linearGradient>`;
+  for (const sd of ['B', 'F']) { const c = SIDE_COL[sd]; d += `<radialGradient id="ldr-${sd}" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="${shade(c, .35)}"/><stop offset="1" stop-color="${shade(c, -.35)}"/></radialGradient>`; }
+  return d + '</defs>';
+}
+// 나토식 병과 기호: 보병 X, 기병 사선, 포병 점. 경보병·기마포병 등은 작은 표시를 더한다
+function natoSym(s, x, y, w, h, ink) {
+  let g = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.2" fill="#f6f1e2" stroke="${ink}" stroke-width="1"/>`;
+  const L = x + 1.5, R = x + w - 1.5, T = y + 1.5, Bt = y + h - 1.5, cxm = x + w / 2, cym = y + h / 2;
+  if (s.cls === 'inf') g += `<path d="M${L} ${T} L${R} ${Bt} M${R} ${T} L${L} ${Bt}" stroke="${ink}" stroke-width="1.3"/>`;
+  if (s.cls === 'cav') g += `<path d="M${L} ${Bt} L${R} ${T}" stroke="${ink}" stroke-width="1.5"/>`;
+  if (s.cls === 'art') g += `<circle cx="${cxm}" cy="${cym}" r="${h * .26}" fill="${ink}"/>`;
+  if (s.horse) g += `<path d="M${L} ${Bt} L${R} ${T}" stroke="${ink}" stroke-width="1"/>`;
+  if (s.light && s.cls === 'inf') g += `<path d="M${cxm - 3} ${Bt + 3.2} q3 -2.4 6 0" fill="none" stroke="${ink}" stroke-width="1.1"/>`;
+  return g;
+}
+// 정예 표식: 근위 금별, 척탄 불꽃 수류탄, 경보병 나팔, 흉갑 투구, 창기병 깃창, 코사크 초승달
+function rankBadge(s, x, y) {
+  if (s.guard) return `<polygon points="${starPts(x, y, 5.6, 2.4)}" fill="#f4cc4a" stroke="#5a4310" stroke-width=".7"/>`;
+  if (s.elite) return `<g transform="translate(${x},${y})"><circle cy="1.4" r="3.2" fill="#2a2a2a" stroke="#f4cc4a" stroke-width=".7"/><path d="M-1.6 -1.6 q1.6 -3.4 1 -5 q2.6 2 1.8 4.6" fill="#ff9a2e" stroke="#7a2d06" stroke-width=".5"/></g>`;
+  if (s.cossack) return `<path d="M${x + 3} ${y - 4} a4.6 4.6 0 1 0 0 8 a3.4 3.4 0 1 1 0 -8z" fill="#f4cc4a" stroke="#5a4310" stroke-width=".5"/>`;
+  if (s.lancer) return `<g transform="translate(${x},${y})"><path d="M-4 5 L4 -5" stroke="#3b2a12" stroke-width="1.1"/><path d="M4 -5 L-1 -4.2 L1.2 -1.6 Z" fill="#d23a2f" stroke="#fff" stroke-width=".4"/></g>`;
+  if (s.cuir) return `<path d="M${x - 4} ${y + 2.6} a4 4 0 0 1 8 0 z M${x - 4.6} ${y + 2.6} h9.2" fill="#c9ced6" stroke="#2c3138" stroke-width=".8"/>`;
+  if (s.light && s.cls === 'inf') return `<g transform="translate(${x},${y})" fill="none" stroke="#f4cc4a" stroke-width="1.1"><path d="M-4 1.5 q0 -4 4 -4 q4 0 4 4"/><path d="M4 1.5 l1.4 1.6"/></g>`;
+  return '';
+}
 function unitSvg(u, selected) {
-  const [cx, cy] = ctr(u.r, u.c); const s = st(u); const ws = 44, hs = 30, x = -ws / 2, y = -hs / 2 + 2;
-  let g = `<g class="unit${u.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(u)}" data-id="${u.id}" transform="translate(${cx},${cy})">`;
-  if (u.square) g += `<rect x="${x - 4}" y="${y - 4}" width="${ws + 8}" height="${hs + 8}" rx="3" fill="none" stroke="#ffd84a" stroke-width="2.6" stroke-dasharray="4 2"/>`;
-  g += `<rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="3" fill="${natCol(u)}" class="ubody"/>`;
-  g += `<rect x="${x}" y="${y}" width="${ws}" height="5" rx="2" fill="${CLS_COL[s.cls]}"/>`;
-  if (u.nat === 'A') g += `<path d="M${x + ws - 8} ${y + 5} L${x + ws} ${y + 5} L${x + ws} ${y + 13} Z" fill="#f0b23a"/>`;
-  g += `<text class="uab" x="0" y="${y + 17}">${s.ab}</text>`;
-  const mx = umax(u), pw = mx > 5 ? 4 : 5, gap = mx > 5 ? 1.5 : 2, tot = mx * pw + (mx - 1) * gap; let px = -tot / 2;
-  for (let i = 0; i < mx; i++) { g += `<rect x="${px}" y="${y + 21}" width="${pw}" height="${pw}" fill="${i < u.blocks ? '#fff' : 'none'}" stroke="#fff" stroke-width=".8"/>`; px += pw + gap; }
-  if (u.square) g += `<text class="sqtag" x="${x + ws + 1}" y="${y - 3}">방진</text>`;
+  const [cx, cy] = ctr(u.r, u.c); const s = st(u); const ws = 48, hs = 34, x = -ws / 2, y = -hs / 2 + 1;
+  const lightBody = lightNat(u), ink = lightBody ? '#2a2620' : '#1b1d22', txt = lightBody ? '#2a2620' : '#fff';
+  const nat = u.nat === 'W' ? (u.side === 'F' ? 'B' : 'P') : u.nat;
+  let g = `<g class="unit${u.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}${u.square ? ' sq' : ''}" data-k="${hexOf(u)}" data-id="${u.id}" transform="translate(${cx},${cy})">`;
+  if (u.square) g += `<rect x="${x - 4.5}" y="${y - 4.5}" width="${ws + 9}" height="${hs + 9}" rx="5" fill="none" stroke="#ffd84a" stroke-width="2.6" stroke-dasharray="5 2.5"/>`;
+  g += `<g filter="url(#tok-sh)"><rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="4" fill="url(#tok-${nat})" class="ubody"/></g>`;
+  g += `<rect x="${x + 1.2}" y="${y + 1.2}" width="${ws - 2.4}" height="${hs - 2.4}" rx="3" fill="url(#tok-gloss)" stroke="${lightBody ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.28)'}" stroke-width=".8" pointer-events="none"/>`;
+  // 병과 띠 (원작 스티커의 색 띠)
+  g += `<rect x="${x + 1.2}" y="${y + hs - 6}" width="${ws - 2.4}" height="4.6" rx="1.4" fill="${CLS_COL[s.cls]}"/><rect x="${x + 1.2}" y="${y + hs - 6}" width="${ws - 2.4}" height="1.2" fill="#fff" opacity=".35"/>`;
+  g += natoSym(s, x + 4, y + 4.5, 17, 12, ink);
+  g += `<text class="uab" x="${x + 34}" y="${y + 14}" fill="${txt}"${s.ab.length > 2 ? ' style="font-size:8.6px"' : ''}>${s.ab}</text>`;
+  const badge = rankBadge(s, x + ws - 1, y + 0.5); if (badge) g += badge;
+  // 블록 눈금
+  const mx = umax(u), pw = mx > 5 ? 3.6 : 4.6, gap = mx > 5 ? 1.4 : 1.8, tot = mx * pw + (mx - 1) * gap; let px = x + ws / 2 - tot / 2;
+  for (let i = 0; i < mx; i++) { const on = i < u.blocks; g += `<rect x="${px}" y="${y + 20.5}" width="${pw}" height="${pw + 1.2}" rx=".9" fill="${on ? (lightBody ? '#2a2620' : '#fbf6e6') : 'none'}" stroke="${lightBody ? '#2a2620' : '#fbf6e6'}" stroke-width=".8" opacity="${on ? 1 : .55}"/>`; px += pw + gap; }
+  if (u.max) g += `<text class="mk" x="${x + ws - 5}" y="${y + 26.5}" fill="${txt}">+1</text>`;
+  if (u.square) g += `<text class="sqtag" x="${x + ws + 1}" y="${y - 3}">${u.mass ? '대대' : '방진'}</text>`;
   if (u.side === state.active && u.ordered) {
-    if (u.moved) g += `<circle cx="${x + ws - 2}" cy="${y + hs - 2}" r="5" fill="#f2c14e"/><text class="mk" x="${x + ws - 2}" y="${y + hs + 1}">${u.moved}</text>`;
-    if (u.battled) g += `<circle cx="${x + 2}" cy="${y + hs - 2}" r="5" fill="#2a2a2a"/><text class="mk w" x="${x + 2}" y="${y + hs + 1}">✕</text>`;
+    if (u.moved) g += `<circle cx="${x + ws - 2}" cy="${y + hs - 2}" r="5.2" fill="#f2c14e" stroke="#3a2f10" stroke-width=".8"/><text class="mk" x="${x + ws - 2}" y="${y + hs + 1}">${u.moved}</text>`;
+    if (u.battled) g += `<circle cx="${x + 2}" cy="${y + hs - 2}" r="5.2" fill="#2a2a2a" stroke="#fff" stroke-width=".8"/><text class="mk w" x="${x + 2}" y="${y + hs + 1}">✕</text>`;
   }
   if (u.tag === 'dav') g += `<text class="sstag" x="0" y="${y - 4}">다부</text>`;
+  if (u.tag === 'mac') g += `<text class="sstag" x="0" y="${y - 4}">막도날</text>`;
   if (u.ssTurn === state.turn) g += `<text class="sstag" x="0" y="${y - 4}">보급부족</text>`;
   const l = attLeader(u);
-  if (l) g += `<polygon points="${starPts(x + 2, y + 1, 9, 4)}" fill="${SIDE_COL[l.side]}" stroke="${l.ordered ? '#f2c14e' : '#fff'}" stroke-width="${l.ordered ? 2.2 : 1.2}"/>`;
+  if (l) g += `<g transform="translate(${x + 1},${y + 1})"><circle r="7.2" fill="url(#ldr-gold)" stroke="${l.ordered ? '#fff' : '#5a4310'}" stroke-width="${l.ordered ? 1.6 : .8}"/><circle r="5.4" fill="url(#ldr-${l.side})"/><polygon points="${starPts(0, 0, 4.4, 1.9)}" fill="#fff"/></g>`;
   return g + '</g>';
 }
 function loneLeaderSvg(l, selected) {
   const [cx, cy] = ctr(l.r, l.c);
-  return `<g class="leader${l.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(l)}" data-id="${l.id}" transform="translate(${cx},${cy})"><polygon points="${starPts(0, -4, 14, 6)}" fill="${SIDE_COL[l.side]}" stroke="${l.ordered ? '#f2c14e' : '#fff'}" stroke-width="${l.ordered ? 2.6 : 1.5}"/><text class="lname" x="0" y="20">${esc(l.name)}</text></g>`;
+  return `<g class="leader${l.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(l)}" data-id="${l.id}" transform="translate(${cx},${cy - 4})">`
+    + `<g filter="url(#tok-sh)"><circle r="15" fill="url(#ldr-gold)" stroke="${l.ordered ? '#fff' : '#5a4310'}" stroke-width="${l.ordered ? 2.6 : 1}"/></g>`
+    + `<circle r="11.4" fill="url(#ldr-${l.side})" stroke="#3a2f10" stroke-width=".6"/><polygon points="${starPts(0, .4, 8.6, 3.6)}" fill="#fff"/>`
+    + `<text class="lname" x="0" y="25">${esc(l.name)}</text></g>`;
 }
 
 /* ===================== RENDER: SIDE PANEL ===================== */
@@ -3054,6 +3742,10 @@ function renderSide() {
   if (state.flank != null) extras.push(`러시아 측면 부대: 8,${state.flank} → 모룽엔(8,8)`);
   if (scen().mr) extras.push('전투 전 어머니 러시아 굴림 적용');
   if (state.cur && state.cur.eff === 'cancel') extras.push('<b>게릴라에게 카드가 취소됐다</b>');
+  if (state.iron != null) extras.push(`강철 같은 의지 <b>${state.iron}</b>개 (${SIDE_KO.B})`);
+  if (massCap()) extras.push(`대규모 대대 방진 ${state.massUsed || 0}/${massCap()}`);
+  if (state.bag != null) extras.push(`병참 마차: 0,${state.bag} → 장크트 미하엘(${scen().baggage.target})`);
+  if (scen().scoutVb) extras.push(`${SIDE_KO[scen().scoutVb]}은 정찰 카드마다 승리깃발 1개`);
   if (extras.length) s += `<section class="block"><p class="note" style="margin:0">${extras.join(' · ')}</p></section>`;
   // 현재 카드
   if (state.cur) {
@@ -3131,7 +3823,7 @@ function selInfo() {
     if (u.side === state.active && (state.phase === 'order' || state.phase === 'move') && u.square && u.ordered && !nbrKeys(k).some(n => { const e = unitAt(n); return e && e.side !== u.side && st(e).cls === 'cav'; })) btns.push(`<button class="btn small" data-a="unsquare">방진 해제</button>`);
     if (u.side === state.active && state.phase === 'move' && l && l.ordered && !l.moved) btns.push(`<button class="btn small" data-a="selleader">리더 ${esc(l.name)} 따로 이동</button>`);
     const sc = scen();
-    if (canExit(u)) btns.push(`<button class="btn small" data-a="exit">${sc.exitHex ? '다리로 퇴장' : '전장 밖으로 퇴장'} (${exitGain(u.side) ? '+1 깃발' : '깃발 없음'})</button>`);
+    if (canExit(u)) btns.push(`<button class="btn small" data-a="exit">${sc.exitHex ? '다리로 퇴장' : '전장 밖으로 퇴장'} (${exitGain(u) ? '+1 깃발' : '깃발 없음'})</button>`);
     if (btns.length) s += `<div class="sbtns">${btns.join('')}</div>`;
   }
   if (l && (!u)) s += `<div class="ui-row"><span class="chip" style="background:${SIDE_COL[l.side]}">리더</span><span>${esc(l.name)} · ${hexOf(l)}${l.ordered ? ' · 명령받음' : ''}</span></div><p class="note">리더는 3칸까지 이동. 혼자서는 전투할 수 없다.</p>`;
@@ -3139,7 +3831,7 @@ function selInfo() {
   return s + '</section>';
 }
 function editPanel() {
-  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장'], ['redoubt', '4면 보루'], ['church', '교회'], ['lake', '호수'], ['frozen', '얼어붙은 호수'], ['stream', '개울'], ['ford', '개울(정지만)']];
+  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장'], ['redoubt', '4면 보루'], ['church', '교회'], ['lake', '호수'], ['frozen', '얼어붙은 호수'], ['stream', '개울'], ['ford', '개울(정지만)'], ['castle', '성'], ['wfarm', '벽 있는 농장'], ['wgarden', '벽 있는 정원'], ['marsh', '습지'], ['mill', '풍차'], ['tower', '탑']];
   const types = side => Object.keys(STATS).filter(t => side === 'F' ? t.startsWith('F-') : !t.startsWith('F-'));
   const eu = ui.editSel ? unitAt(ui.editSel) : null, el = ui.editSel ? leaderAt(ui.editSel) : null;
   let s = `<section class="block edit"><h3>편집 모드</h3><p class="help">시나리오 배치가 책과 다르면 여기서 고친다. 지형이나 유닛을 고른 뒤 칸을 누르세요. 아무것도 고르지 않았을 때는 유닛을 누르고 빈 칸을 눌러 옮긴다.</p>
@@ -3232,7 +3924,7 @@ function boardClick(k) {
   }
   if (p === 'move') {
     if (selU && selU.side === side && selU.ordered && !selU.moved && !u && !(l && l.side !== side)) {
-      const m = reachUnit(selU, moveAllow(selU)); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveUnit(selU, k, m.get(k)); await animMove(selU, path); }); }
+      const m = reachUnit(selU, moveAllow(selU)); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveUnit(selU, k, m.get(k), path); await animMove(selU, path); }); }
     }
     if (selL && selL.side === side && selL.ordered && !selL.moved) {
       const d = effDef(); const m = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveLeader(selL, k, m.get(k)); render(); const g = document.querySelector(`[data-id="${selL.id}"]`); if (g) await FX.move(selL.id, path, 'cav'); else SFX.play('step', 'cav'); }); }
@@ -3314,7 +4006,7 @@ async function onAction(a, el) {
     case 'carddice': return act(rollCardDice);
     case 'tomove': return act(() => { state.phase = 'move'; ui.sel = null; log('이동 단계'); });
     case 'backorder': return act(() => { state.phase = 'order'; });
-    case 'tobattle': return act(() => { state.phase = 'battle'; ui.sel = null; log('전투 단계'); });
+    case 'tobattle': return act(() => { advanceBaggage(); state.phase = 'battle'; ui.sel = null; log('전투 단계'); });
     case 'endturn': ui.sel = null; if (isDuo()) return act(() => finishTurn()); if (state.hands[side].length <= 1) return act(() => finishTurn(state.hands[side].length ? 0 : null)); return act(() => { state.phase = 'end'; ui.cardSel = null; });
     case 'keep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; return finishTurn(i); });
     case 'orderleader': { const u = unitById(ui.sel.id); const l = u && attLeader(u); if (!l) return; if (l.ordered) return act(() => setOrder(l, true, false)); const err = tryOrder(l, true); if (err) return toast(err); return act(() => setOrder(l, true, true)); }
@@ -3363,7 +4055,7 @@ function init() {
   });
 }
 // 시나리오 묶음: 기본판 / 확장1 스페인군 / 확장2 러시아군
-const SETS = [['base', '기본판 15'], ['ex1', '확장1 스페인군 18'], ['ex2', '확장2 러시아군 20']];
+const SETS = [['base', '기본판 15'], ['ex1', '확장1 스페인군 18'], ['ex2', '확장2 러시아군 20'], ['ex3', '확장3 오스트리아군 20'], ['ex4', '확장4 프로이센군 20']];
 const curSet = () => ui.scenSet || 'base';
 const topName = sc => sc.sideName || TOP_LOOK[sc.nat || 'B'].ko;
 function setChips() { return `<div class="setchips" role="tablist">${SETS.map(([k, n]) => `<button class="chipbtn${curSet() === k ? ' on' : ''}" role="tab" aria-selected="${curSet() === k}" data-a="scenset" data-v="${k}">${n}</button>`).join('')}</div>`; }
@@ -3382,7 +4074,7 @@ function renderRefTables() {
     const mv = s => s.cls === 'inf' ? (s.mv2 ? '1+전투 / 2' : '1+전투') : s.cls === 'cav' ? `${s.mv}+전투` : s.foot ? '1(전투 불가)' : '1+전투 / 2';
     const etc = s => [s.ign ? `깃발 ${s.ign}개 무시` : '', s.noSaber ? '근접 칼 빗나감' : '', s.retreat ? `깃발당 ${s.retreat}칸 후퇴` : '', s.meleeVsInf ? '보병 상대 근접 +1' : '', s.light ? '숲에 들어가도 전투' : ''].filter(Boolean).join(', ');
     let h = '';
-    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)'], ['S', '스페인 (확장1)'], ['W', '스위스 (확장1 바일렌)'], ['R', '러시아 (확장2)']].forEach(([n, ko]) => {
+    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)'], ['S', '스페인 (확장1)'], ['W', '스위스 (확장1 바일렌)'], ['R', '러시아 (확장2)'], ['O', '오스트리아 (확장3)'], ['K', '프로이센 (확장4)']].forEach(([n, ko]) => {
       h += `<h4>${ko}</h4><div class="tw"><table><tr><th>유닛</th><th>블록</th><th>이동</th><th>사거리</th><th>사격(제자리)</th><th>사격(이동 후)</th><th>근접</th><th>기타</th></tr>`;
       Object.entries(STATS).filter(([k]) => k.startsWith(n + '-')).forEach(([k, s]) => {
         const fire = s.cls === 'inf' ? arr(s.fire) : s.cls === 'art' ? `거리 1~: ${arr(s.r2)} / 1블록 ${arr(s.r1)}` : '–';
@@ -3400,23 +4092,35 @@ function renderRefTables() {
 
 /* ===================== 전장 밖으로 퇴장 ===================== */
 // 시나리오의 퇴장 규칙: exitHex(쿠아 강 다리) 또는 exit {side, row|hex, free, cls, tag, cmdLossOther}
-function exitCfg() { const sc = scen(); return sc.exitHex ? {side: 'B', hex: sc.exitHex} : sc.exit || null; }
-function canExit(u) {
-  const c = exitCfg(); if (!c || state.phase !== 'move' || u.side !== c.side || u.side !== state.active || !u.ordered || u.moved >= moveAllow(u)) return false;
-  if (c.hex ? hexOf(u) !== c.hex : u.r !== c.row) return false;
-  if (c.cls && st(u).cls !== c.cls) return false;
-  if (c.tag && u.tag !== c.tag) return false;
-  return true;
+// 시나리오의 퇴장 규칙 목록: exitHex(쿠아 강 다리), exit, exit2. 각각 {side, row|hex|hexes, free, per, cls, tag, cmdLossOther}
+function exitCfgs() { const sc = scen(); return [sc.exitHex ? {side: 'B', hex: sc.exitHex} : null, sc.exit, sc.exit2].filter(Boolean); }
+function exitFor(u) {
+  if (state.phase !== 'move' || u.side !== state.active || !u.ordered || u.moved >= moveAllow(u)) return -1;
+  return exitCfgs().findIndex(c => u.side === c.side && (c.hexes ? c.hexes.includes(hexOf(u)) : c.hex ? hexOf(u) === c.hex : u.r === c.row) && (!c.cls || st(u).cls === c.cls) && (!c.tag || u.tag === c.tag));
 }
-function exitGain(side) { const c = exitCfg(); state.exits = state.exits || {B: 0, F: 0}; return state.exits[side] + 1 > (c.free || 0); }
+const canExit = u => exitFor(u) >= 0;
+function exitGain(u) {
+  const i = exitFor(u), c = exitCfgs()[i]; state.exitsBy = state.exitsBy || {}; const n = (state.exitsBy[i] || 0) + 1;
+  if (n <= (c.free || 0)) return false;
+  return c.per ? n % c.per === 0 : true;
+}
 function doExit(u) {
-  const c = exitCfg(), gain = exitGain(u.side), l = attLeader(u);
+  const i = exitFor(u), c = exitCfgs()[i], gain = exitGain(u), l = attLeader(u);
   state.units = state.units.filter(x => x !== u); if (l) state.leaders = state.leaders.filter(x => x !== l);
-  state.exits[u.side]++; state.exited = (state.exited || 0) + 1;
+  state.exits = state.exits || {B: 0, F: 0}; state.exits[u.side]++; state.exited = (state.exited || 0) + 1;
+  state.exitsBy[i] = (state.exitsBy[i] || 0) + 1;
   log(`${unitLabel(u)} 전장 밖으로 퇴장${l ? ` (리더 ${l.name} 동반)` : ''}`);
-  if (gain) award(u.side, 1, '전장 밖으로 퇴장'); else log(`퇴장 ${state.exits[u.side]}번째: 아직 깃발 없음`);
+  if (gain) award(u.side, 1, '전장 밖으로 퇴장'); else log(`퇴장 ${state.exitsBy[i]}번째: 이번에는 깃발 없음`);
   if (c.cmdLossOther) loseCmd(other(u.side), '다부의 보병이 빠져나감', 1);
   ui.sel = null;
+}
+// 병참 마차: 위쪽 진영의 이동 단계가 끝날 때마다 끝 열을 따라 목표 쪽으로 한 칸 (유닛이 있는 칸은 못 감)
+function advanceBaggage() {
+  const bg = scen().baggage; if (!bg || state.bag == null || state.active !== 'B') return;
+  const goal = +bg.target.split(',')[1], step = goal > state.bag ? 1 : -1, nx = state.bag + step;
+  if (unitAt(K(0, nx))) { log('병참 마차: 앞 칸에 유닛이 있어 멈췄다'); return; }
+  state.bag = nx; log(`병참 마차가 0,${nx}로 한 칸 이동`);
+  if (nx === goal) { state.bag = null; award('B', bg.vb, '병참 마차가 장크트 미하엘 도착'); }
 }
 
 init();

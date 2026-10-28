@@ -74,14 +74,45 @@ Object.assign(STATS, {
 });
 // 흉갑기병은 보병의 사격 명중 1개를 무시하고, 창기병의 깃발 재굴림을 받지 않는다
 STATS['F-CU'].cuir = true;
+// ---------- 확장3: 오스트리아 ---------- (보병 이동 후 사격은 절반 내림. mass = 대규모 대대 방진, noFM = 강행군·총검 돌격도 1칸)
+Object.assign(STATS, {
+  'O-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:5, mv:1, rng:2, fire:[5,4,3,2,1], fireMv:[2,2,1,1,0], melee:[5,4,3,2,1], retreat:2, mass:true, noFM:true},
+  'O-LT': {cls:'inf', ko:'경보병', ab:'예거', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1]},
+  'O-GRZ':{cls:'inf', ko:'국경수비병', ab:'그렌처', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1], noSaber:true, retreat:2},
+  'O-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[5,4,3,2], ign:1},
+  'O-MI': {cls:'inf', ko:'민병대', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], noSaber:true, retreat:3, noFM:true},
+  'O-LC': {cls:'cav', ko:'경기병', ab:'경기', max:4, mv:3, melee:[4,3,2,1]},
+  'O-LNCR':{cls:'cav', ko:'경창기병', ab:'창기', max:4, mv:3, melee:[4,3,2,1], lancer:true},
+  'O-HC': {cls:'cav', ko:'중기병', ab:'중기', max:4, mv:2, heavy:true, melee:[5,4,3,2]},
+  'O-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:4, mv:2, heavy:true, cuir:true, melee:[5,4,3,2], ign:1},
+  'O-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,3]},
+  'O-HA': {cls:'art', ko:'기마포병', ab:'기포', max:3, mv:2, horse:true, rng:4, r2:[3,2,1,1], r1:[2,1,1], m2:[3,2,1], melee:[3,3,2]},
+});
+// ---------- 확장4: 프로이센 ---------- (holdMelee = 이동하지 않고 근접공격·반격하면 +1, retreat 'k' = 첫 깃발 1칸, 다음 깃발마다 2칸)
+Object.assign(STATS, {
+  'K-LN': {cls:'inf', ko:'전열보병', ab:'전열', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], holdMelee:1, retreat:'k'},
+  'K-LT': {cls:'inf', ko:'경보병', ab:'경보', max:4, mv:1, mv2:true, light:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[4,3,2,1]},
+  'K-GR': {cls:'inf', ko:'척탄병', ab:'척탄', max:4, mv:1, elite:true, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[5,4,3,2], ign:1},
+  'K-GG': {cls:'inf', ko:'근위척탄병', ab:'근척', max:4, mv:1, guard:true, rng:2, fire:[5,4,3,2], fireMv:[3,2,2,1], melee:[5,4,3,2], ign:2},
+  'K-RI': {cls:'inf', ko:'예비군', ab:'예비', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], retreat:2},
+  'K-MI': {cls:'inf', ko:'란트베어', ab:'민병', max:4, mv:1, rng:2, fire:[4,3,2,1], fireMv:[2,1,1,0], melee:[4,3,2,1], noSaber:true, retreat:3},
+  'K-LC': {cls:'cav', ko:'경기병', ab:'경기', max:3, mv:3, melee:[3,2,1]},
+  'K-LNCR':{cls:'cav', ko:'경창기병', ab:'창기', max:3, mv:3, melee:[3,2,1], lancer:true},
+  'K-HC': {cls:'cav', ko:'중기병', ab:'중기', max:3, mv:2, heavy:true, melee:[4,3,2]},
+  'K-CU': {cls:'cav', ko:'흉갑기병', ab:'흉갑', max:3, mv:2, heavy:true, cuir:true, melee:[4,3,2], ign:1},
+  'K-MLNCR':{cls:'cav', ko:'란트베어 창기병', ab:'민창', max:3, mv:3, melee:[3,2,1], lancer:true, noSaber:true, retreat:3},
+  'K-FA': {cls:'art', ko:'도보포병', ab:'도포', max:3, mv:1, foot:true, rng:5, r2:[4,3,2,1,1], r1:[3,2,1,1], melee:[4,4,3]},
+  'K-HA': {cls:'art', ko:'기마포병', ab:'기포', max:3, mv:2, horse:true, rng:4, r2:[3,2,1,1], r1:[2,1,1], m2:[3,2,1], melee:[3,3,2]},
+});
 
 const NATION = {
   F:{ko:'프랑스', side:'F'}, B:{ko:'영국', side:'B'}, P:{ko:'포르투갈', side:'B'}, A:{ko:'동맹군', side:'B'},
-  S:{ko:'스페인', side:'B'}, R:{ko:'러시아', side:'B'}, W:{ko:'스위스'}
+  S:{ko:'스페인', side:'B'}, R:{ko:'러시아', side:'B'}, W:{ko:'스위스'}, O:{ko:'오스트리아', side:'B'}, K:{ko:'프로이센', side:'B'}
 };
 // 위쪽 진영 이름은 시나리오마다 다르다 (영국군·스페인군·러시아군). syncLook()이 바꾼다
 const SIDE_KO = {B:'영국군', F:'프랑스군'};
-const TOP_LOOK = {B:{ko:'영국군', band:'BRITISH', col:'#c4362c', short:'영국'}, S:{ko:'스페인군', band:'SPANISH', col:'#b7870f', short:'스페인'}, R:{ko:'러시아군', band:'RUSSIAN', col:'#2f7a3b', short:'러시아'}};
+const TOP_LOOK = {B:{ko:'영국군', band:'BRITISH', col:'#c4362c', short:'영국'}, S:{ko:'스페인군', band:'SPANISH', col:'#b7870f', short:'스페인'}, R:{ko:'러시아군', band:'RUSSIAN', col:'#2f7a3b', short:'러시아'},
+  O:{ko:'오스트리아군', band:'AUSTRIAN', col:'#8f8670', short:'오스트리아'}, K:{ko:'프로이센군', band:'PRUSSIAN', col:'#4b5560', short:'프로이센'}};
 
 // 지형: stop=들어가면 정지, noBattle=들어간 턴 전투 불가(경보병 예외 light), los=조준선 차단, sq=방진 가능
 const TERRAIN = {
@@ -101,6 +132,16 @@ const TERRAIN = {
   frozen: {ko:'얼어붙은 호수', stop:true, noSq:true},
   ford:   {ko:'개울(정지, 전투 영향 없음)', stop:true},
   streamInf:{ko:'개울(보병은 영향 없음)'},
+  // 확장3·4 지형
+  castle: {ko:'성 (마을 + 깃발 2 무시)', stop:true, noBattle:'all', los:true, noSq:true},
+  tower:  {ko:'탑 (마을)', stop:true, noBattle:'all', los:true, noSq:true},
+  mill:   {ko:'풍차 (마을)', stop:true, noBattle:'all', los:true, noSq:true},
+  wfarm:  {ko:'벽 있는 농장 (마을 + 깃발 1 무시)', stop:true, noBattle:'all', los:true, noSq:true},
+  wgarden:{ko:'벽 있는 정원 (숲 + 깃발 1 무시)', stop:true, noBattle:'light', los:true},
+  marsh:  {ko:'습지', stop:true, noSq:true, noArt:true},
+  brookFree:{ko:'개울 (제한 없음)'},
+  streamCharge:{ko:'개울 (돌격 보너스 막음)'},
+  fordCharge:{ko:'개울 (정지, 돌격 보너스 막음)', stop:true},
 };
 
 /* -------- 지휘카드 70장 -------- */

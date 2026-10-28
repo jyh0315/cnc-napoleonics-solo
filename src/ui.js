@@ -1,11 +1,12 @@
 /* ===================== RENDER: BOARD ===================== */
-const NAT_COL = {F: '#26448c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c', S: '#b7870f', R: '#2f6b35', W: '#7a5231'};
+const NAT_COL = {F: '#2a4c9c', B: '#b3302a', P: '#7a5231', A: '#8f6a2c', S: '#c0900f', R: '#2f6b35', W: '#7a5231', O: '#ebe6d8', K: '#3e454e'};
 // 바일렌의 스위스군: 프랑스 쪽은 영국 빨간 블록, 스페인 쪽은 포르투갈 갈색 블록
 const natCol = u => u.nat === 'W' ? (u.side === 'F' ? NAT_COL.B : NAT_COL.P) : NAT_COL[u.nat];
 const CLS_COL = {inf: '#5b8fd8', cav: '#e2bd2f', art: '#d2443a'};
 const SIDE_COL = {B: '#c4362c', F: '#2c56b0'};
 const T_FILL = {clear: '#ebe4cd', forest: '#a8bd83', hill: '#c9c88b', rugged: '#b2a487', town: '#e4d9bb', river: '#4b7aa8', stream: '#79a5cd', brook: '#8db6da', bridge: '#79a5cd', fw: '#d4cba7', quarry: '#e7d6a3',
-  church: '#e4d9bb', redoubt: '#d4cba7', lake: '#4b7aa8', frozen: '#c4dbea', ford: '#79a5cd', streamInf: '#8db6da'};
+  church: '#e4d9bb', redoubt: '#d4cba7', lake: '#4b7aa8', frozen: '#c4dbea', ford: '#79a5cd', streamInf: '#8db6da',
+  castle: '#d8ccae', tower: '#e4d9bb', mill: '#e4d9bb', wfarm: '#e0d3b2', wgarden: '#a8bd83', marsh: '#a9bf9a', brookFree: '#9cc0dd', streamCharge: '#9cc0dd', fordCharge: '#79a5cd'};
 // 시나리오에 따라 위쪽 진영 이름·색을 바꾼다 (영국·스페인·러시아)
 let lookFor = null;
 function syncLook() {
@@ -35,7 +36,7 @@ function renderBoard() {
   let moveSet = null, tgtMap = null;
   if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
   if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
-  let s = DEFS;
+  let s = DEFS + tokenDefs();
   s += `<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="#cdbf98"/>`;
   // bands
   const bandY = [6, H - PADY + 6];
@@ -59,11 +60,16 @@ function renderBoard() {
     const k = K(r, c), [cx, cy] = ctr(r, c); const raw = rawT(k), t = effT(k);
     const fill = raw === 'bridge' ? T_FILL.bridge : (T_FILL[t] || T_FILL.clear);
     s += `<polygon class="hex t-${t}" data-k="${k}" points="${hexPts(cx, cy, HS - 0.6)}" fill="${fill}"/>`;
-    const use = {forest: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', church: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
+    const use = {forest: 'd-forest', wgarden: 'd-forest', hill: 'd-hill', rugged: 'd-rugged', town: 'd-town', church: 'd-town', wfarm: 'd-town', mill: 'd-town', tower: 'd-town', quarry: 'd-quarry', fw: 'd-hill'}[raw];
     if (use) deco += `<use href="#${use}" x="${cx}" y="${cy}"/>`;
-    if (['river', 'bridge', 'stream', 'brook', 'ford', 'streamInf', 'lake'].includes(raw)) deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
+    if (['river', 'bridge', 'stream', 'brook', 'ford', 'streamInf', 'lake', 'brookFree', 'streamCharge', 'fordCharge'].includes(raw)) deco += `<use href="#d-water" x="${cx}" y="${cy}"/>`;
     if (raw === 'church') deco += `<path d="M${cx} ${cy - 22} v14 M${cx - 5} ${cy - 17} h10" stroke="#3a2f1e" stroke-width="2.4"/>`;
     if (raw === 'frozen') deco += `<path d="M${cx - 16} ${cy - 4} l10 6 M${cx + 2} ${cy - 10} l12 8 M${cx - 8} ${cy + 8} l14 4" stroke="#fff" stroke-width="1.6" opacity=".85"/>`;
+    if (raw === 'wfarm' || raw === 'wgarden') deco += `<polygon points="${hexPts(cx, cy, HS - 7)}" fill="none" stroke="#8a7a5c" stroke-width="3" stroke-dasharray="6 2"/>`;
+    if (raw === 'castle') deco += `<g fill="#7d7a72" stroke="#3d3a34" stroke-width="1"><rect x="${cx - 15}" y="${cy - 10}" width="30" height="18"/><rect x="${cx - 19}" y="${cy - 16}" width="9" height="24"/><rect x="${cx + 10}" y="${cy - 16}" width="9" height="24"/><path d="M${cx - 19} ${cy - 16} v-3 h3 v3 h3 v-3 h3 v3 M${cx + 10} ${cy - 16} v-3 h3 v3 h3 v-3 h3 v3" fill="none"/></g>`;
+    if (raw === 'tower') deco += `<rect x="${cx - 5}" y="${cy - 22}" width="10" height="18" fill="#8a857a" stroke="#3d3a34"/>`;
+    if (raw === 'mill') deco += `<g stroke="#3a2f1e" stroke-width="2"><path d="M${cx} ${cy - 14} l-9 -9 M${cx} ${cy - 14} l9 -9 M${cx} ${cy - 14} l-9 9 M${cx} ${cy - 14} l9 9"/></g>`;
+    if (raw === 'marsh') deco += `<g stroke="#4d6b52" stroke-width="1.4" fill="none"><path d="M${cx - 16} ${cy + 4} q4 -3 8 0 t8 0"/><path d="M${cx} ${cy - 6} q4 -3 8 0 t8 0"/><path d="M${cx - 8} ${cy + 12} q4 -3 8 0"/><path d="M${cx - 12} ${cy - 2} v-8 M${cx - 9} ${cy - 2} v-6 M${cx + 6} ${cy + 8} v-8 M${cx + 9} ${cy + 8} v-6"/></g>`;
     if (raw === 'redoubt') deco += `<polygon points="${hexPts(cx, cy, HS - 8)}" fill="none" stroke="#6b4627" stroke-width="4.5"/>`;
     if ((state.fwPlus || []).includes(k)) deco += `<use href="#d-fw" x="${cx}" y="${cy}"/>`;
     if (raw === 'bridge') deco += `<use href="#d-bridge" x="${cx}" y="${cy}"/>`;
@@ -74,8 +80,10 @@ function renderBoard() {
   s += `<line x1="${x1}" y1="${PADY - 4}" x2="${x1}" y2="${H - PADY + 4}" class="secline"/><line x1="${x2}" y1="${PADY - 4}" x2="${x2}" y2="${H - PADY + 4}" class="secline"/>`;
   s += `<g pointer-events="none">${names}</g>`;
   // objectives
-  state.objs.forEach((o, i) => o.hexes.forEach(k => { const [cx, cy] = ctr(...P(k)); const held = state.held[i];
+  state.objs.forEach((o, i) => (o.zone ? [] : o.hexes).forEach(k => { const [cx, cy] = ctr(...P(k)); const held = state.held[i];
     s += `<g pointer-events="none" transform="translate(${cx - 24},${cy - 30})"><path d="M0 0 V20" stroke="#3a2f1e" stroke-width="1.6"/><path d="M0 1 H17 L13 6 L17 11 H0 Z" fill="${SIDE_COL[o.side]}" stroke="#fff" stroke-width=".8" opacity="${held ? 1 : .75}"/>${held ? '<circle cx="20" cy="4" r="3.5" fill="#f2c14e" stroke="#3a2f1e" stroke-width=".8"/>' : ''}</g>`; }));
+  // 지역 목표(강 건너·능선 너머)는 깃발 대신 옅은 테두리로 표시
+  state.objs.forEach(o => { if (o.zone) o.hexes.forEach(k => { const [zx, zy] = ctr(...P(k)); s += `<polygon points="${hexPts(zx, zy, HS - 2)}" fill="none" stroke="${SIDE_COL[o.side]}" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55" pointer-events="none"/>`; }); });
   // overlays
   const over = (k, cls) => { const [cx, cy] = ctr(...P(k)); return `<polygon class="ov ${cls}" data-k="${k}" points="${hexPts(cx, cy, HS - 3)}"/>`; };
   if (moveSet) moveSet.forEach((n, k) => s += over(k, 'ov-move'));
@@ -86,6 +94,8 @@ function renderBoard() {
     if (state.phase === 'battle') state.units.forEach(u => { if (u.side === act && u !== selU && targetsFor(u).size) s += over(hexOf(u), 'ov-ready'); });
   }
   if (ui.picking) ui.picking.cands.forEach(k => s += over(k, 'ov-pick'));
+  // 장크트 미하엘 병참 마차 표지
+  if (state.bag != null) { const [bx, by] = ctr(0, state.bag); s += `<g pointer-events="none"><rect x="${bx - 17}" y="${by - 12}" width="34" height="20" rx="4" fill="#8a6a3a" stroke="#fff" stroke-width="1.4"/><circle cx="${bx - 9}" cy="${by + 9}" r="4" fill="#3a2f1e"/><circle cx="${bx + 9}" cy="${by + 9}" r="4" fill="#3a2f1e"/><text class="lname" x="${bx}" y="${by + 25}">병참 마차</text></g>`; }
   // 모룽엔 측면 부대 표지
   if (state.flank != null) { const [fx, fy] = ctr(8, state.flank); s += `<g pointer-events="none"><polygon points="${starPts(fx, fy - 4, 16, 7)}" fill="${SIDE_COL.B}" stroke="#fff" stroke-width="1.6"/><text class="lname" x="${fx}" y="${fy + 20}">측면 부대</text></g>`; }
   if (ui.edit && ui.editSel) s += over(ui.editSel, 'ov-sel');
@@ -95,30 +105,74 @@ function renderBoard() {
   svg.setAttribute('viewBox', `0 0 ${W.toFixed(0)} ${H.toFixed(0)}`);
   svg.innerHTML = s;
 }
+// 유닛 토큰: 나라색 금속판 위에 나토식 병과 기호, 정예 표식, 블록 눈금, 병과 띠
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const ch = v => Math.max(0, Math.min(255, Math.round(f > 0 ? v + (255 - v) * f : v * (1 + f))));
+  return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(ch).map(v => v.toString(16).padStart(2, '0')).join(''); };
+const lightNat = u => u.nat === 'O';
+function tokenDefs() {
+  let d = '<defs><filter id="tok-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2.2" stdDeviation="1.6" flood-color="#000" flood-opacity=".45"/></filter>'
+    + '<linearGradient id="tok-gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".45" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>'
+    + '<radialGradient id="ldr-gold" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#e3b84f"/><stop offset="1" stop-color="#8a6a1e"/></radialGradient>';
+  for (const [k, c] of Object.entries(NAT_COL)) d += `<linearGradient id="tok-${k}" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="${shade(c, .28)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -.38)}"/></linearGradient>`;
+  for (const sd of ['B', 'F']) { const c = SIDE_COL[sd]; d += `<radialGradient id="ldr-${sd}" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="${shade(c, .35)}"/><stop offset="1" stop-color="${shade(c, -.35)}"/></radialGradient>`; }
+  return d + '</defs>';
+}
+// 나토식 병과 기호: 보병 X, 기병 사선, 포병 점. 경보병·기마포병 등은 작은 표시를 더한다
+function natoSym(s, x, y, w, h, ink) {
+  let g = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.2" fill="#f6f1e2" stroke="${ink}" stroke-width="1"/>`;
+  const L = x + 1.5, R = x + w - 1.5, T = y + 1.5, Bt = y + h - 1.5, cxm = x + w / 2, cym = y + h / 2;
+  if (s.cls === 'inf') g += `<path d="M${L} ${T} L${R} ${Bt} M${R} ${T} L${L} ${Bt}" stroke="${ink}" stroke-width="1.3"/>`;
+  if (s.cls === 'cav') g += `<path d="M${L} ${Bt} L${R} ${T}" stroke="${ink}" stroke-width="1.5"/>`;
+  if (s.cls === 'art') g += `<circle cx="${cxm}" cy="${cym}" r="${h * .26}" fill="${ink}"/>`;
+  if (s.horse) g += `<path d="M${L} ${Bt} L${R} ${T}" stroke="${ink}" stroke-width="1"/>`;
+  if (s.light && s.cls === 'inf') g += `<path d="M${cxm - 3} ${Bt + 3.2} q3 -2.4 6 0" fill="none" stroke="${ink}" stroke-width="1.1"/>`;
+  return g;
+}
+// 정예 표식: 근위 금별, 척탄 불꽃 수류탄, 경보병 나팔, 흉갑 투구, 창기병 깃창, 코사크 초승달
+function rankBadge(s, x, y) {
+  if (s.guard) return `<polygon points="${starPts(x, y, 5.6, 2.4)}" fill="#f4cc4a" stroke="#5a4310" stroke-width=".7"/>`;
+  if (s.elite) return `<g transform="translate(${x},${y})"><circle cy="1.4" r="3.2" fill="#2a2a2a" stroke="#f4cc4a" stroke-width=".7"/><path d="M-1.6 -1.6 q1.6 -3.4 1 -5 q2.6 2 1.8 4.6" fill="#ff9a2e" stroke="#7a2d06" stroke-width=".5"/></g>`;
+  if (s.cossack) return `<path d="M${x + 3} ${y - 4} a4.6 4.6 0 1 0 0 8 a3.4 3.4 0 1 1 0 -8z" fill="#f4cc4a" stroke="#5a4310" stroke-width=".5"/>`;
+  if (s.lancer) return `<g transform="translate(${x},${y})"><path d="M-4 5 L4 -5" stroke="#3b2a12" stroke-width="1.1"/><path d="M4 -5 L-1 -4.2 L1.2 -1.6 Z" fill="#d23a2f" stroke="#fff" stroke-width=".4"/></g>`;
+  if (s.cuir) return `<path d="M${x - 4} ${y + 2.6} a4 4 0 0 1 8 0 z M${x - 4.6} ${y + 2.6} h9.2" fill="#c9ced6" stroke="#2c3138" stroke-width=".8"/>`;
+  if (s.light && s.cls === 'inf') return `<g transform="translate(${x},${y})" fill="none" stroke="#f4cc4a" stroke-width="1.1"><path d="M-4 1.5 q0 -4 4 -4 q4 0 4 4"/><path d="M4 1.5 l1.4 1.6"/></g>`;
+  return '';
+}
 function unitSvg(u, selected) {
-  const [cx, cy] = ctr(u.r, u.c); const s = st(u); const ws = 44, hs = 30, x = -ws / 2, y = -hs / 2 + 2;
-  let g = `<g class="unit${u.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(u)}" data-id="${u.id}" transform="translate(${cx},${cy})">`;
-  if (u.square) g += `<rect x="${x - 4}" y="${y - 4}" width="${ws + 8}" height="${hs + 8}" rx="3" fill="none" stroke="#ffd84a" stroke-width="2.6" stroke-dasharray="4 2"/>`;
-  g += `<rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="3" fill="${natCol(u)}" class="ubody"/>`;
-  g += `<rect x="${x}" y="${y}" width="${ws}" height="5" rx="2" fill="${CLS_COL[s.cls]}"/>`;
-  if (u.nat === 'A') g += `<path d="M${x + ws - 8} ${y + 5} L${x + ws} ${y + 5} L${x + ws} ${y + 13} Z" fill="#f0b23a"/>`;
-  g += `<text class="uab" x="0" y="${y + 17}">${s.ab}</text>`;
-  const mx = umax(u), pw = mx > 5 ? 4 : 5, gap = mx > 5 ? 1.5 : 2, tot = mx * pw + (mx - 1) * gap; let px = -tot / 2;
-  for (let i = 0; i < mx; i++) { g += `<rect x="${px}" y="${y + 21}" width="${pw}" height="${pw}" fill="${i < u.blocks ? '#fff' : 'none'}" stroke="#fff" stroke-width=".8"/>`; px += pw + gap; }
-  if (u.square) g += `<text class="sqtag" x="${x + ws + 1}" y="${y - 3}">방진</text>`;
+  const [cx, cy] = ctr(u.r, u.c); const s = st(u); const ws = 48, hs = 34, x = -ws / 2, y = -hs / 2 + 1;
+  const lightBody = lightNat(u), ink = lightBody ? '#2a2620' : '#1b1d22', txt = lightBody ? '#2a2620' : '#fff';
+  const nat = u.nat === 'W' ? (u.side === 'F' ? 'B' : 'P') : u.nat;
+  let g = `<g class="unit${u.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}${u.square ? ' sq' : ''}" data-k="${hexOf(u)}" data-id="${u.id}" transform="translate(${cx},${cy})">`;
+  if (u.square) g += `<rect x="${x - 4.5}" y="${y - 4.5}" width="${ws + 9}" height="${hs + 9}" rx="5" fill="none" stroke="#ffd84a" stroke-width="2.6" stroke-dasharray="5 2.5"/>`;
+  g += `<g filter="url(#tok-sh)"><rect x="${x}" y="${y}" width="${ws}" height="${hs}" rx="4" fill="url(#tok-${nat})" class="ubody"/></g>`;
+  g += `<rect x="${x + 1.2}" y="${y + 1.2}" width="${ws - 2.4}" height="${hs - 2.4}" rx="3" fill="url(#tok-gloss)" stroke="${lightBody ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.28)'}" stroke-width=".8" pointer-events="none"/>`;
+  // 병과 띠 (원작 스티커의 색 띠)
+  g += `<rect x="${x + 1.2}" y="${y + hs - 6}" width="${ws - 2.4}" height="4.6" rx="1.4" fill="${CLS_COL[s.cls]}"/><rect x="${x + 1.2}" y="${y + hs - 6}" width="${ws - 2.4}" height="1.2" fill="#fff" opacity=".35"/>`;
+  g += natoSym(s, x + 4, y + 4.5, 17, 12, ink);
+  g += `<text class="uab" x="${x + 34}" y="${y + 14}" fill="${txt}"${s.ab.length > 2 ? ' style="font-size:8.6px"' : ''}>${s.ab}</text>`;
+  const badge = rankBadge(s, x + ws - 1, y + 0.5); if (badge) g += badge;
+  // 블록 눈금
+  const mx = umax(u), pw = mx > 5 ? 3.6 : 4.6, gap = mx > 5 ? 1.4 : 1.8, tot = mx * pw + (mx - 1) * gap; let px = x + ws / 2 - tot / 2;
+  for (let i = 0; i < mx; i++) { const on = i < u.blocks; g += `<rect x="${px}" y="${y + 20.5}" width="${pw}" height="${pw + 1.2}" rx=".9" fill="${on ? (lightBody ? '#2a2620' : '#fbf6e6') : 'none'}" stroke="${lightBody ? '#2a2620' : '#fbf6e6'}" stroke-width=".8" opacity="${on ? 1 : .55}"/>`; px += pw + gap; }
+  if (u.max) g += `<text class="mk" x="${x + ws - 5}" y="${y + 26.5}" fill="${txt}">+1</text>`;
+  if (u.square) g += `<text class="sqtag" x="${x + ws + 1}" y="${y - 3}">${u.mass ? '대대' : '방진'}</text>`;
   if (u.side === state.active && u.ordered) {
-    if (u.moved) g += `<circle cx="${x + ws - 2}" cy="${y + hs - 2}" r="5" fill="#f2c14e"/><text class="mk" x="${x + ws - 2}" y="${y + hs + 1}">${u.moved}</text>`;
-    if (u.battled) g += `<circle cx="${x + 2}" cy="${y + hs - 2}" r="5" fill="#2a2a2a"/><text class="mk w" x="${x + 2}" y="${y + hs + 1}">✕</text>`;
+    if (u.moved) g += `<circle cx="${x + ws - 2}" cy="${y + hs - 2}" r="5.2" fill="#f2c14e" stroke="#3a2f10" stroke-width=".8"/><text class="mk" x="${x + ws - 2}" y="${y + hs + 1}">${u.moved}</text>`;
+    if (u.battled) g += `<circle cx="${x + 2}" cy="${y + hs - 2}" r="5.2" fill="#2a2a2a" stroke="#fff" stroke-width=".8"/><text class="mk w" x="${x + 2}" y="${y + hs + 1}">✕</text>`;
   }
   if (u.tag === 'dav') g += `<text class="sstag" x="0" y="${y - 4}">다부</text>`;
+  if (u.tag === 'mac') g += `<text class="sstag" x="0" y="${y - 4}">막도날</text>`;
   if (u.ssTurn === state.turn) g += `<text class="sstag" x="0" y="${y - 4}">보급부족</text>`;
   const l = attLeader(u);
-  if (l) g += `<polygon points="${starPts(x + 2, y + 1, 9, 4)}" fill="${SIDE_COL[l.side]}" stroke="${l.ordered ? '#f2c14e' : '#fff'}" stroke-width="${l.ordered ? 2.2 : 1.2}"/>`;
+  if (l) g += `<g transform="translate(${x + 1},${y + 1})"><circle r="7.2" fill="url(#ldr-gold)" stroke="${l.ordered ? '#fff' : '#5a4310'}" stroke-width="${l.ordered ? 1.6 : .8}"/><circle r="5.4" fill="url(#ldr-${l.side})"/><polygon points="${starPts(0, 0, 4.4, 1.9)}" fill="#fff"/></g>`;
   return g + '</g>';
 }
 function loneLeaderSvg(l, selected) {
   const [cx, cy] = ctr(l.r, l.c);
-  return `<g class="leader${l.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(l)}" data-id="${l.id}" transform="translate(${cx},${cy})"><polygon points="${starPts(0, -4, 14, 6)}" fill="${SIDE_COL[l.side]}" stroke="${l.ordered ? '#f2c14e' : '#fff'}" stroke-width="${l.ordered ? 2.6 : 1.5}"/><text class="lname" x="0" y="20">${esc(l.name)}</text></g>`;
+  return `<g class="leader${l.ordered ? ' ordered' : ''}${selected ? ' selected' : ''}" data-k="${hexOf(l)}" data-id="${l.id}" transform="translate(${cx},${cy - 4})">`
+    + `<g filter="url(#tok-sh)"><circle r="15" fill="url(#ldr-gold)" stroke="${l.ordered ? '#fff' : '#5a4310'}" stroke-width="${l.ordered ? 2.6 : 1}"/></g>`
+    + `<circle r="11.4" fill="url(#ldr-${l.side})" stroke="#3a2f10" stroke-width=".6"/><polygon points="${starPts(0, .4, 8.6, 3.6)}" fill="#fff"/>`
+    + `<text class="lname" x="0" y="25">${esc(l.name)}</text></g>`;
 }
 
 /* ===================== RENDER: SIDE PANEL ===================== */
@@ -176,6 +230,10 @@ function renderSide() {
   if (state.flank != null) extras.push(`러시아 측면 부대: 8,${state.flank} → 모룽엔(8,8)`);
   if (scen().mr) extras.push('전투 전 어머니 러시아 굴림 적용');
   if (state.cur && state.cur.eff === 'cancel') extras.push('<b>게릴라에게 카드가 취소됐다</b>');
+  if (state.iron != null) extras.push(`강철 같은 의지 <b>${state.iron}</b>개 (${SIDE_KO.B})`);
+  if (massCap()) extras.push(`대규모 대대 방진 ${state.massUsed || 0}/${massCap()}`);
+  if (state.bag != null) extras.push(`병참 마차: 0,${state.bag} → 장크트 미하엘(${scen().baggage.target})`);
+  if (scen().scoutVb) extras.push(`${SIDE_KO[scen().scoutVb]}은 정찰 카드마다 승리깃발 1개`);
   if (extras.length) s += `<section class="block"><p class="note" style="margin:0">${extras.join(' · ')}</p></section>`;
   // 현재 카드
   if (state.cur) {
@@ -253,7 +311,7 @@ function selInfo() {
     if (u.side === state.active && (state.phase === 'order' || state.phase === 'move') && u.square && u.ordered && !nbrKeys(k).some(n => { const e = unitAt(n); return e && e.side !== u.side && st(e).cls === 'cav'; })) btns.push(`<button class="btn small" data-a="unsquare">방진 해제</button>`);
     if (u.side === state.active && state.phase === 'move' && l && l.ordered && !l.moved) btns.push(`<button class="btn small" data-a="selleader">리더 ${esc(l.name)} 따로 이동</button>`);
     const sc = scen();
-    if (canExit(u)) btns.push(`<button class="btn small" data-a="exit">${sc.exitHex ? '다리로 퇴장' : '전장 밖으로 퇴장'} (${exitGain(u.side) ? '+1 깃발' : '깃발 없음'})</button>`);
+    if (canExit(u)) btns.push(`<button class="btn small" data-a="exit">${sc.exitHex ? '다리로 퇴장' : '전장 밖으로 퇴장'} (${exitGain(u) ? '+1 깃발' : '깃발 없음'})</button>`);
     if (btns.length) s += `<div class="sbtns">${btns.join('')}</div>`;
   }
   if (l && (!u)) s += `<div class="ui-row"><span class="chip" style="background:${SIDE_COL[l.side]}">리더</span><span>${esc(l.name)} · ${hexOf(l)}${l.ordered ? ' · 명령받음' : ''}</span></div><p class="note">리더는 3칸까지 이동. 혼자서는 전투할 수 없다.</p>`;
@@ -261,7 +319,7 @@ function selInfo() {
   return s + '</section>';
 }
 function editPanel() {
-  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장'], ['redoubt', '4면 보루'], ['church', '교회'], ['lake', '호수'], ['frozen', '얼어붙은 호수'], ['stream', '개울'], ['ford', '개울(정지만)']];
+  const terrBtns = [['clear', '개활지'], ['forest', '숲'], ['hill', '언덕'], ['rugged', '요철 구릉'], ['town', '마을'], ['river', '강'], ['bridge', '다리'], ['fw', '보루'], ['quarry', '채석장'], ['redoubt', '4면 보루'], ['church', '교회'], ['lake', '호수'], ['frozen', '얼어붙은 호수'], ['stream', '개울'], ['ford', '개울(정지만)'], ['castle', '성'], ['wfarm', '벽 있는 농장'], ['wgarden', '벽 있는 정원'], ['marsh', '습지'], ['mill', '풍차'], ['tower', '탑']];
   const types = side => Object.keys(STATS).filter(t => side === 'F' ? t.startsWith('F-') : !t.startsWith('F-'));
   const eu = ui.editSel ? unitAt(ui.editSel) : null, el = ui.editSel ? leaderAt(ui.editSel) : null;
   let s = `<section class="block edit"><h3>편집 모드</h3><p class="help">시나리오 배치가 책과 다르면 여기서 고친다. 지형이나 유닛을 고른 뒤 칸을 누르세요. 아무것도 고르지 않았을 때는 유닛을 누르고 빈 칸을 눌러 옮긴다.</p>
@@ -354,7 +412,7 @@ function boardClick(k) {
   }
   if (p === 'move') {
     if (selU && selU.side === side && selU.ordered && !selU.moved && !u && !(l && l.side !== side)) {
-      const m = reachUnit(selU, moveAllow(selU)); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveUnit(selU, k, m.get(k)); await animMove(selU, path); }); }
+      const m = reachUnit(selU, moveAllow(selU)); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveUnit(selU, k, m.get(k), path); await animMove(selU, path); }); }
     }
     if (selL && selL.side === side && selL.ordered && !selL.moved) {
       const d = effDef(); const m = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); if (m.has(k)) { const path = pathOf(m, k); return act(async () => { doMoveLeader(selL, k, m.get(k)); render(); const g = document.querySelector(`[data-id="${selL.id}"]`); if (g) await FX.move(selL.id, path, 'cav'); else SFX.play('step', 'cav'); }); }
@@ -436,7 +494,7 @@ async function onAction(a, el) {
     case 'carddice': return act(rollCardDice);
     case 'tomove': return act(() => { state.phase = 'move'; ui.sel = null; log('이동 단계'); });
     case 'backorder': return act(() => { state.phase = 'order'; });
-    case 'tobattle': return act(() => { state.phase = 'battle'; ui.sel = null; log('전투 단계'); });
+    case 'tobattle': return act(() => { advanceBaggage(); state.phase = 'battle'; ui.sel = null; log('전투 단계'); });
     case 'endturn': ui.sel = null; if (isDuo()) return act(() => finishTurn()); if (state.hands[side].length <= 1) return act(() => finishTurn(state.hands[side].length ? 0 : null)); return act(() => { state.phase = 'end'; ui.cardSel = null; });
     case 'keep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; return finishTurn(i); });
     case 'orderleader': { const u = unitById(ui.sel.id); const l = u && attLeader(u); if (!l) return; if (l.ordered) return act(() => setOrder(l, true, false)); const err = tryOrder(l, true); if (err) return toast(err); return act(() => setOrder(l, true, true)); }
@@ -485,7 +543,7 @@ function init() {
   });
 }
 // 시나리오 묶음: 기본판 / 확장1 스페인군 / 확장2 러시아군
-const SETS = [['base', '기본판 15'], ['ex1', '확장1 스페인군 18'], ['ex2', '확장2 러시아군 20']];
+const SETS = [['base', '기본판 15'], ['ex1', '확장1 스페인군 18'], ['ex2', '확장2 러시아군 20'], ['ex3', '확장3 오스트리아군 20'], ['ex4', '확장4 프로이센군 20']];
 const curSet = () => ui.scenSet || 'base';
 const topName = sc => sc.sideName || TOP_LOOK[sc.nat || 'B'].ko;
 function setChips() { return `<div class="setchips" role="tablist">${SETS.map(([k, n]) => `<button class="chipbtn${curSet() === k ? ' on' : ''}" role="tab" aria-selected="${curSet() === k}" data-a="scenset" data-v="${k}">${n}</button>`).join('')}</div>`; }
@@ -504,7 +562,7 @@ function renderRefTables() {
     const mv = s => s.cls === 'inf' ? (s.mv2 ? '1+전투 / 2' : '1+전투') : s.cls === 'cav' ? `${s.mv}+전투` : s.foot ? '1(전투 불가)' : '1+전투 / 2';
     const etc = s => [s.ign ? `깃발 ${s.ign}개 무시` : '', s.noSaber ? '근접 칼 빗나감' : '', s.retreat ? `깃발당 ${s.retreat}칸 후퇴` : '', s.meleeVsInf ? '보병 상대 근접 +1' : '', s.light ? '숲에 들어가도 전투' : ''].filter(Boolean).join(', ');
     let h = '';
-    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)'], ['S', '스페인 (확장1)'], ['W', '스위스 (확장1 바일렌)'], ['R', '러시아 (확장2)']].forEach(([n, ko]) => {
+    [['F', '프랑스'], ['B', '영국'], ['P', '포르투갈 (카트르 브라·워털루의 동맹군 포함)'], ['S', '스페인 (확장1)'], ['W', '스위스 (확장1 바일렌)'], ['R', '러시아 (확장2)'], ['O', '오스트리아 (확장3)'], ['K', '프로이센 (확장4)']].forEach(([n, ko]) => {
       h += `<h4>${ko}</h4><div class="tw"><table><tr><th>유닛</th><th>블록</th><th>이동</th><th>사거리</th><th>사격(제자리)</th><th>사격(이동 후)</th><th>근접</th><th>기타</th></tr>`;
       Object.entries(STATS).filter(([k]) => k.startsWith(n + '-')).forEach(([k, s]) => {
         const fire = s.cls === 'inf' ? arr(s.fire) : s.cls === 'art' ? `거리 1~: ${arr(s.r2)} / 1블록 ${arr(s.r1)}` : '–';
@@ -522,21 +580,33 @@ function renderRefTables() {
 
 /* ===================== 전장 밖으로 퇴장 ===================== */
 // 시나리오의 퇴장 규칙: exitHex(쿠아 강 다리) 또는 exit {side, row|hex, free, cls, tag, cmdLossOther}
-function exitCfg() { const sc = scen(); return sc.exitHex ? {side: 'B', hex: sc.exitHex} : sc.exit || null; }
-function canExit(u) {
-  const c = exitCfg(); if (!c || state.phase !== 'move' || u.side !== c.side || u.side !== state.active || !u.ordered || u.moved >= moveAllow(u)) return false;
-  if (c.hex ? hexOf(u) !== c.hex : u.r !== c.row) return false;
-  if (c.cls && st(u).cls !== c.cls) return false;
-  if (c.tag && u.tag !== c.tag) return false;
-  return true;
+// 시나리오의 퇴장 규칙 목록: exitHex(쿠아 강 다리), exit, exit2. 각각 {side, row|hex|hexes, free, per, cls, tag, cmdLossOther}
+function exitCfgs() { const sc = scen(); return [sc.exitHex ? {side: 'B', hex: sc.exitHex} : null, sc.exit, sc.exit2].filter(Boolean); }
+function exitFor(u) {
+  if (state.phase !== 'move' || u.side !== state.active || !u.ordered || u.moved >= moveAllow(u)) return -1;
+  return exitCfgs().findIndex(c => u.side === c.side && (c.hexes ? c.hexes.includes(hexOf(u)) : c.hex ? hexOf(u) === c.hex : u.r === c.row) && (!c.cls || st(u).cls === c.cls) && (!c.tag || u.tag === c.tag));
 }
-function exitGain(side) { const c = exitCfg(); state.exits = state.exits || {B: 0, F: 0}; return state.exits[side] + 1 > (c.free || 0); }
+const canExit = u => exitFor(u) >= 0;
+function exitGain(u) {
+  const i = exitFor(u), c = exitCfgs()[i]; state.exitsBy = state.exitsBy || {}; const n = (state.exitsBy[i] || 0) + 1;
+  if (n <= (c.free || 0)) return false;
+  return c.per ? n % c.per === 0 : true;
+}
 function doExit(u) {
-  const c = exitCfg(), gain = exitGain(u.side), l = attLeader(u);
+  const i = exitFor(u), c = exitCfgs()[i], gain = exitGain(u), l = attLeader(u);
   state.units = state.units.filter(x => x !== u); if (l) state.leaders = state.leaders.filter(x => x !== l);
-  state.exits[u.side]++; state.exited = (state.exited || 0) + 1;
+  state.exits = state.exits || {B: 0, F: 0}; state.exits[u.side]++; state.exited = (state.exited || 0) + 1;
+  state.exitsBy[i] = (state.exitsBy[i] || 0) + 1;
   log(`${unitLabel(u)} 전장 밖으로 퇴장${l ? ` (리더 ${l.name} 동반)` : ''}`);
-  if (gain) award(u.side, 1, '전장 밖으로 퇴장'); else log(`퇴장 ${state.exits[u.side]}번째: 아직 깃발 없음`);
+  if (gain) award(u.side, 1, '전장 밖으로 퇴장'); else log(`퇴장 ${state.exitsBy[i]}번째: 이번에는 깃발 없음`);
   if (c.cmdLossOther) loseCmd(other(u.side), '다부의 보병이 빠져나감', 1);
   ui.sel = null;
+}
+// 병참 마차: 위쪽 진영의 이동 단계가 끝날 때마다 끝 열을 따라 목표 쪽으로 한 칸 (유닛이 있는 칸은 못 감)
+function advanceBaggage() {
+  const bg = scen().baggage; if (!bg || state.bag == null || state.active !== 'B') return;
+  const goal = +bg.target.split(',')[1], step = goal > state.bag ? 1 : -1, nx = state.bag + step;
+  if (unitAt(K(0, nx))) { log('병참 마차: 앞 칸에 유닛이 있어 멈췄다'); return; }
+  state.bag = nx; log(`병참 마차가 0,${nx}로 한 칸 이동`);
+  if (nx === goal) { state.bag = null; award('B', bg.vb, '병참 마차가 장크트 미하엘 도착'); }
 }
