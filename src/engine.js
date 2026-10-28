@@ -99,8 +99,11 @@ function parseLeaders(str, side) {
 function loadOverrides() { try { return JSON.parse(localStorage.getItem('cnc-solo-overrides') || '{}'); } catch (e) { return {}; } }
 function saveOverrides(o) { try { localStorage.setItem('cnc-solo-overrides', JSON.stringify(o)); } catch (e) {} }
 
-function isDuo() { return state && state.mode === 'online'; }
-function newGame(scenId, mode) {
+// 온라인 2인과 AI 대전은 원래의 2인 규칙(손패 = 지휘카드 수)을 쓴다
+function isDuo() { return state && (state.mode === 'online' || state.mode === 'ai'); }
+const isAI = () => !!(state && state.mode === 'ai');
+const aiTurn = () => isAI() && state.active === state.aiSide;
+function newGame(scenId, mode, aiSide) {
   mode = mode || 'solo';
   const sc = SCENARIOS.find(s => s.id === scenId);
   const ov = loadOverrides()[scenId];
@@ -130,8 +133,8 @@ function newGame(scenId, mode) {
     iron: sc.iron != null ? sc.iron : null, massUsed: 0, bag: sc.baggage ? +sc.baggage.start.split(',')[1] : null,
     init: {B: census('B'), F: census('F')}, killed: {B: {inf: 0, cav: 0, art: 0}, F: {inf: 0, cav: 0, art: 0}}, exits: {B: 0, F: 0}, davKilled: 0, swissGone: 0, medF: 0,
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
-    deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
-    mode, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
+    deck, discard: [], hands: mode !== 'solo' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
+    mode, aiSide: mode === 'ai' ? (aiSide || 'F') : null, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
     active: sc.first, turn: 1, phase: 'start', cur: null, lastEff: {B: null, F: null},
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
@@ -142,7 +145,7 @@ function newGame(scenId, mode) {
   if (sc.firstRoll) { for (let t = 0; t < 20; t++) { const roll = () => Array.from({length: 4}, () => FACES[rand6()]).filter(f => f === 'saber').length; const b = roll(), f = roll();
     if (b !== f) { first = b > f ? 'B' : 'F'; log(`선공 정하기: 칼 ${SIDE_KO.B} ${b}개 · ${SIDE_KO.F} ${f}개 → ${SIDE_KO[first]} 먼저`, 'sys'); break; } } state.active = first; }
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : mode === 'ai' ? `AI 대전 · AI = ${SIDE_KO[aiSide || 'F']}` : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
   refreshHeld();
   beginTurn(first);
 }

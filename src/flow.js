@@ -5,8 +5,12 @@ const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-mo
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const scen = () => SCENARIOS.find(s => s.id === state.scenId);
 function localAsk(o) { return new Promise(res => { ui.prompt = Object.assign({}, o, {resolve: v => { ui.prompt = null; res(v); render(); }}); render(); }); }
-function ask(o) { return NET.remote(o.who) ? NET.ask('ask', o) : localAsk(o); }
+// AI 대전: AI 진영의 결정(그리고 AI 차례에 누구의 것도 아닌 질문)은 AI가 답한다
+const aiAnswers = who => isAI() && (who ? who === state.aiSide : state.active === state.aiSide);
+const humanTurn = () => NET.myTurn && !aiTurn();
+function ask(o) { if (aiAnswers(o.who)) return AI.ask(o); return NET.remote(o.who) ? NET.ask('ask', o) : localAsk(o); }
 function pickHex(msg, cands, extra, who) {
+  if (aiAnswers(who)) return AI.pick(msg, cands, extra, who);
   if (NET.remote(who)) return NET.ask('pick', {msg, cands, extra: extra || null, who});
   return localPick(msg, cands, extra, who);
 }
@@ -24,7 +28,7 @@ async function rollDice(n, label) {
 function diceNote(t) { if (ui.dice) ui.dice.note = t; NET.emit('note', t); }
 function toast(m) { ui.toast = m; render(); clearTimeout(toast._t); toast._t = setTimeout(() => { ui.toast = null; render(); }, 2600); }
 function pushUndo() { undoStack.push(JSON.stringify(state)); if (undoStack.length > 80) undoStack.shift(); }
-function undo() { if (ui.busy || !undoStack.length || !NET.myTurn) return; state = JSON.parse(undoStack.pop()); ui.busy = true; NET.push(); ui.busy = false; ui.sel = null; ui.cardSel = null; ui.dice = null; save(); render(); toast('한 단계 되돌렸다.'); }
+function undo() { if (ui.busy || ui.aiRunning || !undoStack.length || !humanTurn()) return; state = JSON.parse(undoStack.pop()); ui.busy = true; NET.push(); ui.busy = false; ui.sel = null; ui.cardSel = null; ui.dice = null; save(); render(); toast('한 단계 되돌렸다.'); }
 async function act(fn, noUndo) {
   if (ui.busy) return; if (!noUndo) pushUndo(); ui.busy = true;
   try { await fn(); } catch (e) { if (e instanceof CancelErr) { undoStack.pop(); } else { console.error(e); toast('오류: ' + e.message); } }

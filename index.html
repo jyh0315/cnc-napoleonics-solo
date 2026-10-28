@@ -62,6 +62,8 @@ button{font:inherit;color:inherit}
 .who{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:4px;padding:1px 8px;margin-bottom:6px}
 .who.side-B{background:var(--br)} .who.side-F{background:var(--fr)}
 .modesel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.modesel.m3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:620px){.modesel.m3{grid-template-columns:1fr}}
 .ph3{font-family:var(--f-display);font-size:15px;margin:14px 0 6px}
 .sidesel{display:flex;gap:6px;margin-bottom:4px}
 .sidesel button{flex:1;padding:8px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:700;cursor:pointer}
@@ -539,7 +541,7 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
   </section>
   <section id="tab-solo" class="tabpane" hidden>
     <div class="doc">
-  <h2>진행법: 솔로, 2인, 온라인</h2>
+  <h2>진행법: 솔로, AI 대전, 온라인</h2>
   <p class="lede"><b>솔로</b>는 리처드 보그의 Power of Three 규칙, <b>온라인 2인</b>은 각자 자기 기기에서 원래 규칙으로 대전한다. 아래는 먼저 솔로 규칙이다. 리처드 보그의 솔로 규칙(2021년 2월 1일판)이다. 혼자 양쪽을 모두 지휘하되, 턴 끝에 카드 1장을 들고 넘어가서 다음 턴을 계획할 수 있고, 새로 받는 2장이 계획을 흔들어 안개 같은 불확실성을 만든다.</p>
 
   <h3>준비</h3>
@@ -625,6 +627,15 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--surface-2);paddi
     <li>방어측이 고르는 질문(방진, 퇴각 및 재편성, 반격, 후퇴 칸)에는 <b>어느 군의 결정인지</b> 색 표시가 붙고, 그 진영을 맡은 사람의 화면에 뜬다.</li>
   </ul>
 
+
+  <h3>AI 대전</h3>
+  <p><b>새 게임 → AI 대전</b>에서 내 진영을 고르고 시나리오를 누르면 컴퓨터가 반대편을 맡는다. 시나리오 탭의 <b>AI와 대전</b> 버튼으로도 시작할 수 있다.</p>
+  <ul>
+    <li>규칙은 위의 2인 규칙과 같다. 내 손패만 보이고, AI의 손패는 장수만 보인다.</li>
+    <li>AI 차례에는 패널에 "AI 생각 중"이 뜨고, AI가 카드를 고르고 명령·이동·전투하는 과정이 지도와 기록에 그대로 나온다. 내 유닛이 공격받으면 방진·반격·후퇴 칸 같은 결정은 내가 고른다.</li>
+    <li>AI는 카드마다 명령할 수 있는 유닛의 가치를 따져 카드를 고르고, 도착할 칸의 공격 기대값·지형·목표 칸·위험을 따져 움직이며, 기대 명중이 큰 공격부터 한다.</li>
+    <li>내 차례에는 되돌리기를 쓸 수 있지만, AI가 둔 수는 되돌릴 수 없다.</li>
+  </ul>
 
   <h3>온라인 2인 (각자 자기 기기)</h3>
   <p>두 사람이 각자 휴대폰이나 컴퓨터에서 접속해 한 진영씩 맡는다. 서버로 Firebase를 쓰므로 저장소의 <code>firebase-config.js</code>에 설정을 넣어 GitHub Pages에 올린 버전에서만 켜진다(README의 "온라인 대전 설정").</p>
@@ -2081,8 +2092,11 @@ function parseLeaders(str, side) {
 function loadOverrides() { try { return JSON.parse(localStorage.getItem('cnc-solo-overrides') || '{}'); } catch (e) { return {}; } }
 function saveOverrides(o) { try { localStorage.setItem('cnc-solo-overrides', JSON.stringify(o)); } catch (e) {} }
 
-function isDuo() { return state && state.mode === 'online'; }
-function newGame(scenId, mode) {
+// 온라인 2인과 AI 대전은 원래의 2인 규칙(손패 = 지휘카드 수)을 쓴다
+function isDuo() { return state && (state.mode === 'online' || state.mode === 'ai'); }
+const isAI = () => !!(state && state.mode === 'ai');
+const aiTurn = () => isAI() && state.active === state.aiSide;
+function newGame(scenId, mode, aiSide) {
   mode = mode || 'solo';
   const sc = SCENARIOS.find(s => s.id === scenId);
   const ov = loadOverrides()[scenId];
@@ -2112,8 +2126,8 @@ function newGame(scenId, mode) {
     iron: sc.iron != null ? sc.iron : null, massUsed: 0, bag: sc.baggage ? +sc.baggage.start.split(',')[1] : null,
     init: {B: census('B'), F: census('F')}, killed: {B: {inf: 0, cav: 0, art: 0}, F: {inf: 0, cav: 0, art: 0}}, exits: {B: 0, F: 0}, davKilled: 0, swissGone: 0, medF: 0,
     units, leaders, vb: {B: 0, F: 0}, target: sc.vb, cmd: {B: sc.B.cmd, F: sc.F.cmd},
-    deck, discard: [], hands: mode === 'online' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
-    mode, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
+    deck, discard: [], hands: mode !== 'solo' ? {B: deck.splice(0, sc.B.cmd), F: deck.splice(0, sc.F.cmd)} : {B: deck.splice(0, 3), F: deck.splice(0, 3)},
+    mode, aiSide: mode === 'ai' ? (aiSide || 'F') : null, sqCards: {B: [], F: []}, fsRefill: [], scoutPick: null,
     active: sc.first, turn: 1, phase: 'start', cur: null, lastEff: {B: null, F: null},
     scout: false, elanShuffle: false, tokens: null, rolled: false, garcia: 0, exited: 0,
     log: [], winner: null, overridden: !!ov,
@@ -2124,7 +2138,7 @@ function newGame(scenId, mode) {
   if (sc.firstRoll) { for (let t = 0; t < 20; t++) { const roll = () => Array.from({length: 4}, () => FACES[rand6()]).filter(f => f === 'saber').length; const b = roll(), f = roll();
     if (b !== f) { first = b > f ? 'B' : 'F'; log(`선공 정하기: 칼 ${SIDE_KO.B} ${b}개 · ${SIDE_KO.F} ${f}개 → ${SIDE_KO[first]} 먼저`, 'sys'); break; } } state.active = first; }
   if (mode !== 'solo') state.units.filter(u => u.square).forEach(u => takeSquareCard(u));
-  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
+  log(`${sc.no}. ${sc.name} 시작 (${mode === 'online' ? '온라인 2인' : mode === 'ai' ? `AI 대전 · AI = ${SIDE_KO[aiSide || 'F']}` : '솔로'}). ${SIDE_KO[first]} 먼저 진행.`, 'sys');
   refreshHeld();
   beginTurn(first);
 }
@@ -2675,8 +2689,12 @@ const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-mo
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const scen = () => SCENARIOS.find(s => s.id === state.scenId);
 function localAsk(o) { return new Promise(res => { ui.prompt = Object.assign({}, o, {resolve: v => { ui.prompt = null; res(v); render(); }}); render(); }); }
-function ask(o) { return NET.remote(o.who) ? NET.ask('ask', o) : localAsk(o); }
+// AI 대전: AI 진영의 결정(그리고 AI 차례에 누구의 것도 아닌 질문)은 AI가 답한다
+const aiAnswers = who => isAI() && (who ? who === state.aiSide : state.active === state.aiSide);
+const humanTurn = () => NET.myTurn && !aiTurn();
+function ask(o) { if (aiAnswers(o.who)) return AI.ask(o); return NET.remote(o.who) ? NET.ask('ask', o) : localAsk(o); }
 function pickHex(msg, cands, extra, who) {
+  if (aiAnswers(who)) return AI.pick(msg, cands, extra, who);
   if (NET.remote(who)) return NET.ask('pick', {msg, cands, extra: extra || null, who});
   return localPick(msg, cands, extra, who);
 }
@@ -2694,7 +2712,7 @@ async function rollDice(n, label) {
 function diceNote(t) { if (ui.dice) ui.dice.note = t; NET.emit('note', t); }
 function toast(m) { ui.toast = m; render(); clearTimeout(toast._t); toast._t = setTimeout(() => { ui.toast = null; render(); }, 2600); }
 function pushUndo() { undoStack.push(JSON.stringify(state)); if (undoStack.length > 80) undoStack.shift(); }
-function undo() { if (ui.busy || !undoStack.length || !NET.myTurn) return; state = JSON.parse(undoStack.pop()); ui.busy = true; NET.push(); ui.busy = false; ui.sel = null; ui.cardSel = null; ui.dice = null; save(); render(); toast('한 단계 되돌렸다.'); }
+function undo() { if (ui.busy || ui.aiRunning || !undoStack.length || !humanTurn()) return; state = JSON.parse(undoStack.pop()); ui.busy = true; NET.push(); ui.busy = false; ui.sel = null; ui.cardSel = null; ui.dice = null; save(); render(); toast('한 단계 되돌렸다.'); }
 async function act(fn, noUndo) {
   if (ui.busy) return; if (!noUndo) pushUndo(); ui.busy = true;
   try { await fn(); } catch (e) { if (e instanceof CancelErr) { undoStack.pop(); } else { console.error(e); toast('오류: ' + e.message); } }
@@ -3546,8 +3564,8 @@ function renderBoard() {
   const d = effDef(); const act = state.active;
   const sel = ui.sel; const selU = sel && sel.type === 'u' ? unitById(sel.id) : null; const selL = sel && sel.type === 'l' ? leaderById(sel.id) : null;
   let moveSet = null, tgtMap = null;
-  if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
-  if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
+  if (!ui.edit && !ui.picking && humanTurn() && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
+  if (!ui.edit && !ui.picking && humanTurn() && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
   let s = DEFS + tokenDefs();
   s += `<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="#cdbf98"/>`;
   // bands
@@ -3600,7 +3618,7 @@ function renderBoard() {
   const over = (k, cls) => { const [cx, cy] = ctr(...P(k)); return `<polygon class="ov ${cls}" data-k="${k}" points="${hexPts(cx, cy, HS - 3)}"/>`; };
   if (moveSet) moveSet.forEach((n, k) => s += over(k, 'ov-move'));
   if (tgtMap) tgtMap.forEach((kind, k) => s += over(k, kind === 'fire' ? 'ov-fire' : 'ov-melee'));
-  if (!ui.edit && !ui.picking && !ui.busy && !state.winner && NET.myTurn) {
+  if (!ui.edit && !ui.picking && !ui.busy && !state.winner && humanTurn()) {
     if (state.phase === 'order' && !(d && (d.k === 'rally'))) state.units.forEach(u => { if (u.side === act && !u.ordered && !tryOrder(u, false)) s += over(hexOf(u), 'ov-elig'); });
     if (state.phase === 'order' && d && d.k === 'rally' && state.tokens) state.units.forEach(u => { if (u.side === act && u.blocks < umax(u) && state.tokens[st(u).cls] > 0) s += over(hexOf(u), 'ov-elig'); });
     if (state.phase === 'battle') state.units.forEach(u => { if (u.side === act && u !== selU && targetsFor(u).size) s += over(hexOf(u), 'ov-ready'); });
@@ -3732,8 +3750,8 @@ function renderSide() {
   if (ui.waiting) s += `<div class="prompt wait" role="status">${whoTag(ui.waiting.who)}<p>상대가 결정하는 중: <b>${esc(String(ui.waiting.title).replace(/<[^>]+>/g, ''))}</b></p><p class="note">상대 화면에 질문이 떠 있다. 연결이 끊겼다면 대신 정할 수 있다.</p><div class="pbtns"><button class="btn small" data-a="takeover">내가 대신 정하기</button></div></div>`;
   // 차례
   const idx = PHASES.findIndex(x => x[0] === p);
-  const mine = NET.myTurn;
-  s += `<section class="turn side-${side}"><div class="turn-top"><span class="tnum">${state.turn}턴</span><span class="tside">${SIDE_KO[side]} 차례${NET.on ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">상대 진행 중</em>') : ''}</span><span class="tcmd">${state.mode === 'online' ? '온라인' : isDuo() ? '2인' : '솔로'} · 지휘능력 ${cmdNow()}</span></div>
+  const mine = humanTurn();
+  s += `<section class="turn side-${side}"><div class="turn-top"><span class="tnum">${state.turn}턴</span><span class="tside">${SIDE_KO[side]} 차례${isAI() ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">AI 생각 중</em>') : ''}${NET.on ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">상대 진행 중</em>') : ''}</span><span class="tcmd">${state.mode === 'online' ? '온라인' : isAI() ? 'AI 대전' : '솔로'} · 지휘능력 ${cmdNow()}</span></div>
     <ol class="phases">${PHASES.filter(x => (x[0] !== 'pre' || p === 'pre') && (x[0] !== 'scout' || p === 'scout') && !(x[0] === 'end' && isDuo())).map(([k, n]) => { const i = PHASES.findIndex(y => y[0] === k); return `<li class="${k === p ? 'now' : i < idx ? 'done' : ''}">${n}</li>`; }).join('')}</ol>
     <p class="help">${mine ? phaseHelp() : `${SIDE_KO[side]}(상대)가 진행하고 있다. 상대의 이동과 전투가 이 화면에도 그대로 보인다. 내 유닛이 공격받으면 방진·반격·후퇴 같은 결정을 여기서 고른다.`}</p><div class="actions">${mine ? phaseButtons() : (state.winner ? phaseButtons() : '')}</div></section>`;
   // 확장 표시: 게릴라 카운터, 측면 부대
@@ -3755,15 +3773,15 @@ function renderSide() {
     s += `</section>`;
   }
   // 손패
-  const vside = NET.on ? NET.me : side, vh = state.hands[vside];
-  const showHand = NET.on ? true : p !== 'start';
+  const vside = NET.on ? NET.me : isAI() ? other(state.aiSide) : side, vh = state.hands[vside];
+  const showHand = NET.on || isAI() ? true : p !== 'start';
   if (mine && p === 'scout' && state.scoutPick) s += `<section class="block"><h3>정찰: 1장 고르기</h3><div class="hand">${state.scoutPick.map((k, i) => cardHtml(k, {sel: ui.cardSel === i, attr: `data-a="scoutsel" data-i="${i}"`})).join('')}</div></section>`;
-  s += `<section class="block"><h3>${NET.on ? '내 손패' : SIDE_KO[side] + ' 손패'} <small>${vh.length}장</small></h3>`;
+  s += `<section class="block"><h3>${NET.on || isAI() ? '내 손패' : SIDE_KO[side] + ' 손패'} <small>${vh.length}장</small></h3>`;
   const onlyFS = vh.every(k => k === 'firststrike');
   if (!showHand) s += `<div class="facedown">${vh.map(() => '<span class="fd"></span>').join('')}</div>`;
   else s += `<div class="hand">${vh.map((k, i) => {
     const d = CARD_BY_KEY[k]; let dis = true, attr = `data-a="card" data-i="${i}"`;
-    if (!mine || (NET.on && p === 'start')) dis = true;
+    if (!mine || ((NET.on || isAI()) && p === 'start')) dis = true;
     else if (p === 'pre') dis = !d.pre; else if (p === 'card' || p === 'end') dis = false;
     if (p === 'card' && isDuo() && k === 'firststrike' && !onlyFS) dis = true;
     return cardHtml(k, {sel: ui.cardSel === i && (p === 'card' || p === 'end'), dis, attr});
@@ -3852,10 +3870,10 @@ function renderBar() {
   const el = document.getElementById('bar'); if (!el || !state) return;
   const sc = scen();
   const pips = side => { const n = bannerTotal(side), t = state.target; let s = ''; for (let i = 0; i < t; i++) s += `<i class="${i < state.vb[side] ? 'on' : i < n ? 'obj' : ''}"></i>`; return s; };
-  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
+  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : isAI() ? 'AI 대전' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
    <div class="vbs"><div class="vb side-B"><span>${SIDE_KO.B}</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
    ${NET.on ? `<div class="netbox side-${NET.me}"><span>방 <b class="code">${NET.room}</b></span><span>나: ${SIDE_KO[NET.me]}</span><span class="dot ${NET.opp ? 'ok' : ''}">${NET.opp ? '상대 접속 중' : '상대 기다리는 중'}</span><button class="btn small" data-a="copylink">초대 링크 복사</button><button class="btn small ghost" data-a="leave">방 나가기</button></div>` : ''}
-   <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && NET.myTurn ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
+   <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && !ui.aiRunning && humanTurn() ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
 }
 function renderOverlay() {
   const el = document.getElementById('overlay'); if (!el) return;
@@ -3867,10 +3885,11 @@ function renderOverlay() {
 }
 function newGameDialog() {
   const m = ui.newMode || 'solo';
-  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
-  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
+  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['ai', 'AI 대전', '컴퓨터와 대전 (2인 규칙)'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
+  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel m3" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
   const list = act => `${setChips()}<div class="plist">${SCENARIOS.filter(x => (x.set || 'base') === curSet()).map(x => { const tn = topName(x); return `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${x.first === 'B' ? tn : '프랑스군'} · 카드 ${tn.replace(/군$/, '')} ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`; }).join('')}</div>`;
-  if (m !== 'online') s += list('start');
+  if (m === 'ai') s += `<h3 class="ph3">내 진영</h3><div class="sidesel" role="radiogroup" aria-label="내 진영">${['B', 'F'].map(sd => `<button role="radio" class="side-${sd}" aria-checked="${(ui.mySide || 'B') === sd}" data-a="myside" data-v="${sd}">${sd === 'B' ? '위쪽 (영국·스페인·러시아·오스트리아·프로이센)' : '프랑스군'}</button>`).join('')}</div><p class="note">진영을 고른 뒤 시나리오를 누르면 AI가 반대편을 맡는다. 손패와 방진표는 원래 2인 규칙대로다.</p>${list('start')}`;
+  else if (m !== 'online') s += list('start');
   else if (!NET.available()) s += `<div class="callout"><p><b>온라인 대전은 Firebase 설정이 있어야 켜진다.</b></p><p>${location.protocol.startsWith('http') && !/claude/.test(location.host) ? '저장소의 <code>firebase-config.js</code>에 Firebase 웹 앱 설정을 넣고 다시 올려라. 방법은 README의 "온라인 대전 설정"에 있다.' : '이 미리보기 페이지는 외부 서버 연결이 막혀 있다. GitHub Pages에 올린 버전에서 <code>firebase-config.js</code>를 채우면 쓸 수 있다.'}</p></div>`;
   else {
     s += `${ui.netErr ? `<p class="neterr" role="alert">${esc(ui.netErr)}</p>` : ''}${ui.netBusy ? '<p class="note">연결 중…</p>' : ''}
@@ -3884,6 +3903,7 @@ function render() {
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false'));
   document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.id !== 'tab-' + ui.tab);
   renderBar(); renderBoard(); renderSide(); renderChat(); renderOverlay();
+  if (state && aiTurn() && !state.winner && !ui.aiRunning && !ui.newGame) { clearTimeout(render._ai); render._ai = setTimeout(() => AI.run(), 500); }
 }
 function renderChat() {
   const el = document.getElementById('chat'); if (!el) return;
@@ -3904,7 +3924,7 @@ function boardClick(k) {
   if (ui.edit) return editClick(k);
   const u = unitAt(k), l = leaderAt(k); const p = state.phase, side = state.active;
   const selU = ui.sel && ui.sel.type === 'u' ? unitById(ui.sel.id) : null; const selL = ui.sel && ui.sel.type === 'l' ? leaderById(ui.sel.id) : null;
-  if (state.winner || !NET.myTurn) { ui.sel = u ? {type: 'u', id: u.id} : l ? {type: 'l', id: l.id} : null; return render(); }
+  if (state.winner || (!humanTurn() && !ui.aiActing)) { ui.sel = u ? {type: 'u', id: u.id} : l ? {type: 'l', id: l.id} : null; return render(); }
   if (p === 'order') {
     const d = effDef();
     if (u && u.side === side && d && d.k === 'rally' && state.tokens) {
@@ -3954,10 +3974,10 @@ function editClick(k) {
   }
   ui.editSel = (u || l) ? k : null; render();
 }
-const FREE_ACTIONS = new Set(['scenset', 'pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
+const FREE_ACTIONS = new Set(['scenset', 'pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline', 'goai']);
 async function onAction(a, el) {
   const side = state && state.active;
-  if (NET.on && !NET.myTurn && !FREE_ACTIONS.has(a)) return;
+  if (!humanTurn() && !ui.aiActing && !FREE_ACTIONS.has(a)) return;
   switch (a) {
     case 'pbtn': { const pr = ui.prompt; if (!pr) return; const b = pr.buttons[+el.dataset.i];
       if (pr.toggles) { const tg = {}; pr.toggles.forEach(t => { const c = document.getElementById('tg-' + t.id); tg[t.id] = c && c.checked; }); pr.resolve({v: b.v, toggles: tg}); } else pr.resolve(b.v); return; }
@@ -3988,7 +4008,7 @@ async function onAction(a, el) {
     case 'anim': FX.toggle(); return render();
     case 'scoutsel': ui.cardSel = ui.cardSel === +el.dataset.i ? null : +el.dataset.i; return render();
     case 'scoutkeep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; chooseScout(i); });
-    case 'start': if (NET.on) NET.leave(); ui.newGame = false; ui.winSeen = false; ui.sel = null; ui.dice = null; ui.cardSel = null; ui.edit = false; undoStack.length = 0; newGame(el.dataset.v, ui.newMode || 'solo'); ui.tab = 'game'; save(); window.scrollTo({top: 0}); return render();
+    case 'start': if (NET.on) NET.leave(); ui.newGame = false; ui.winSeen = false; ui.sel = null; ui.dice = null; ui.cardSel = null; ui.edit = false; undoStack.length = 0; newGame(el.dataset.v, ui.newMode || 'solo', ui.newMode === 'ai' ? other(ui.mySide || 'B') : null); ui.tab = 'game'; save(); window.scrollTo({top: 0}); return render();
     case 'reveal': return act(() => { revealHand(); ui.cardSel = null; });
     case 'card': {
       const i = +el.dataset.i, k = state.hands[side][i];
@@ -4024,6 +4044,7 @@ async function onAction(a, el) {
     case 'saveov': { const o = loadOverrides(); o[state.scenId] = {terr: state.terr, units: state.units.map(u => ({...u, ordered: false, moved: 0, battled: false})), leaders: state.leaders.map(l => ({...l, ordered: false, moved: 0}))}; saveOverrides(o); state.overridden = true; toast('이 브라우저에 기본 배치로 저장했다.'); return render(); }
     case 'clearov': { const o = loadOverrides(); delete o[state.scenId]; saveOverrides(o); toast('책 배치로 되돌렸다. 새 게임부터 적용된다.'); return render(); }
     case 'tab': ui.tab = el.dataset.tab; render(); window.scrollTo({top: 0}); return;
+    case 'goai': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'ai'; ui.scenSet = ui.scenSet || 'base'; render(); window.scrollTo({top: 0}); return;
     case 'goonline': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'online'; render(); window.scrollTo({top: 0}); return;
     case 'goscen': if (NET.on) NET.leave(); ui.tab = 'game'; ui.newGame = false; undoStack.length = 0; ui.sel = null; ui.dice = null; ui.winSeen = false; ui.newMode = el.dataset.m || 'solo'; newGame(el.dataset.v, ui.newMode); save(); render(); window.scrollTo({top: 0}); return;
   }
@@ -4065,7 +4086,7 @@ function renderScenarioList() {
    <p class="shist">${sc.hist}</p>
    <dl class="snotes"><div><dt>${topName(sc)}</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
    <ul class="srules">${sc.rules.map(r => `<li>${r}</li>`).join('')}</ul>
-   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
+   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goai">AI와 대전</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
 }
 function renderRefTables() {
   const el = document.getElementById('unittables');
@@ -4122,6 +4143,192 @@ function advanceBaggage() {
   state.bag = nx; log(`병참 마차가 0,${nx}로 한 칸 이동`);
   if (nx === goal) { state.bag = null; award('B', bg.vb, '병참 마차가 장크트 미하엘 도착'); }
 }
+
+/* ===================== AI 대전 =====================
+   규칙 엔진을 그대로 쓰고, 사람이 누르는 버튼·칸 클릭을 AI가 대신 누른다.
+   판단은 기대값 휴리스틱: 카드는 명령할 수 있는 유닛의 가치 합, 이동은 도착 칸의 공격 기대값·지형·목표·위험,
+   전투는 기대 명중과 전멸 가능성이 큰 순서. 방어 질문(방진·반격·후퇴 칸 등)도 AI가 고른다. */
+const AI = (() => {
+  let DELAY = 380;
+  const hitP = (defCls, kind, noSaber) => (defCls === 'inf' ? 2 / 6 : 1 / 6) + (kind === 'melee' && !noSaber ? 1 / 6 : 0);
+  const enemies = side => state.units.filter(u => u.side !== side);
+  const nearestEnemy = (k, side) => enemies(side).reduce((m, e) => Math.min(m, dist(k, hexOf(e))), 99);
+  // 한 번의 공격이 주는 기대 가치: 기대 명중(전멸이면 깃발 가치 추가) + 깃발 압박 - 근접 반격 위험
+  function attackValue(att, k, kind) {
+    const def = unitAt(k);
+    if (!def) return kind === 'leader' ? 2.5 : 0;
+    const d = diceFor(att, k, kind).n; if (!d) return 0;
+    const eh = d * hitP(st(def).cls, kind, st(att).noSaber);
+    let v = eh * 3 + d / 6 * 1.2;
+    if (eh >= def.blocks * 0.75) v += 8;
+    if (attLeader(def)) v += 0.8;
+    if (kind === 'melee') { const bb = diceFor(def, hexOf(att), 'melee', {battleBack: true}).n * hitP(st(att).cls, 'melee', st(def).noSaber); v -= Math.max(0, bb - eh * 0.4) * 2.2; }
+    return v;
+  }
+  function bestTarget(u) {
+    let best = null;
+    targetsFor(u).forEach((kind, k) => { const v = attackValue(u, k, kind); if (!best || v > best.v) best = {k, kind, v}; });
+    return best;
+  }
+  // 우리 진영 목표 칸 (차지하면 깃발)
+  function objHexes(side) { const s = new Set(); state.objs.forEach(o => { if (o.side === side && o.cond !== 'noEnemy') o.hexes.forEach(k => s.add(k)); }); return s; }
+  // 병과별 지형 선호: 보병은 숲·마을·언덕에 기대고, 기병·포병은 숲·마을을 피한다
+  const TERR_DEF = {inf: {forest: 1.6, town: 2.6, church: 2.8, hill: 1.1, fw: 1.8, redoubt: 2.2}, cav: {forest: -2.5, town: -3, church: -3, hill: .2, marsh: -1.5, frozen: -1.5}, art: {forest: -1.5, town: -1, hill: 1.4, fw: 2, redoubt: 2.4}};
+  // 이 칸에 서 있을 때의 가치
+  function hexValue(u, k, steps, objs) {
+    const save = {r: u.r, c: u.c, moved: u.moved, nb: u.noBattleTerr};
+    const [r, c] = P(k); u.r = r; u.c = c; u.moved = steps;
+    const t = effT(k); u.noBattleTerr = steps > 0 && (isTown(t) || (t === 'forest' && !st(u).light && !st(u).cossack));
+    const bt = bestTarget(u);
+    const adj = adjEnemyUnits(u);
+    const threat = adj.reduce((m, e) => m + diceFor(e, k, 'melee').n * hitP(st(u).cls, 'melee', st(e).noSaber), 0);
+    const near = nearestEnemy(k, u.side);
+    u.r = save.r; u.c = save.c; u.moved = save.moved; u.noBattleTerr = save.nb;
+    const s = st(u); let v = 0;
+    if (bt) v += bt.v;
+    const tv = TERR_DEF[s.cls][t] || 0; v += tv > 0 ? tv * (near <= 3 ? 1 : .35) : tv;
+    if (objs.has(k)) v += 7;
+    v -= threat * (s.cls === 'art' ? 2.2 : 1.1) / Math.max(1, u.blocks);
+    if (!bt) v -= near * (s.cls === 'art' ? .15 : .45);
+    if (s.cls === 'art' && steps > 0 && s.foot) v -= 1.5;
+    return v;
+  }
+  // 유닛이 이번 턴에 할 일이 있는 정도 (카드 고르기·명령 순서)
+  function unitPriority(u) {
+    const k = hexOf(u), near = nearestEnemy(k, u.side), s = st(u);
+    let v = 1;
+    if (near <= 1) v += 3; else if (near <= (s.rng || (s.cls === 'cav' ? 4 : 2))) v += 2.2; else if (near <= 4) v += 1;
+    if (u.blocks < umax(u) && near <= 2) v -= .6;
+    if (objHexes(u.side).size && [...objHexes(u.side)].some(o => dist(o, k) <= 2)) v += 1;
+    return v;
+  }
+  // 카드 하나를 썼다고 가정하고 명령 가능한 유닛 가치의 합을 계산한다 (상태는 되돌린다)
+  function cardScore(idx) {
+    const snap = JSON.stringify(state); const side = state.active; const k = state.hands[side][idx];
+    let score = 0;
+    try {
+      const muted = SFX.on; playCard(idx);
+      const d = effDef();
+      if (k === 'firststrike') score = -5;
+      else if (d && d.k === 'shortsupply') score = .4;
+      else if (d && d.k === 'rally') score = state.units.filter(u => u.side === side && u.blocks < umax(u)).reduce((m, u) => m + (umax(u) - u.blocks), 0) * .55;
+      else {
+        const us = state.units.filter(u => u.side === side).sort((a, b) => unitPriority(b) - unitPriority(a));
+        let n = 0;
+        for (const u of us) { if (d && d.k === 'elan') { score += unitPriority(u) * .35; if (++n >= cmdNow()) break; continue; }
+          if (!tryOrder(u, false)) { setOrder(u, false, true); score += unitPriority(u); } }
+        if (d && ['bayonet', 'cavcharge', 'bombard', 'coldsteel', 'firehold'].includes(d.k)) score *= 1.15;
+        if (d && d.scout) score += .6;
+      }
+      void muted;
+    } catch (e) { score = 0; }
+    state = JSON.parse(snap);
+    return score;
+  }
+  const sleep2 = ms => new Promise(r => setTimeout(r, ms));
+  async function idle() { for (let i = 0; i < 4000 && ui.busy; i++) await sleep2(10); }
+  async function doAct(fn) { ui.aiActing = true; try { await fn(); } finally { ui.aiActing = false; } await idle(); render(); await sleep2(DELAY); }
+
+  async function playCardStep() {
+    // cardScore가 상태를 통째로 되돌리므로 손패는 매번 state에서 다시 읽는다
+    const n = state.hands[state.active].length;
+    let best = 0, bv = -1e9;
+    for (let i = 0; i < n; i++) { const v = cardScore(i); if (v > bv) { bv = v; best = i; } }
+    log(`AI: 「${CARD_BY_KEY[state.hands[state.active][best]].n}」을(를) 고름`, 'sys');
+    ui.cardSel = best; await doAct(() => onAction('play'));
+  }
+  async function orderStep() {
+    const side = state.active, d = effDef();
+    if (d && (d.k === 'elan' || d.k === 'rally') && !state.rolled) await doAct(() => onAction('carddice'));
+    if (d && d.k === 'rally') {
+      for (const u of state.units.filter(u => u.side === side && u.blocks < umax(u)).sort((a, b) => (b.blocks / umax(b)) - (a.blocks / umax(a)))) await doAct(() => boardClick(hexOf(u)));
+    } else {
+      for (const u of state.units.filter(u => u.side === side).sort((a, b) => unitPriority(b) - unitPriority(a))) {
+        if (!u.ordered && !tryOrder(u, false)) await doAct(() => boardClick(hexOf(u)));
+      }
+    }
+    await doAct(() => onAction('tomove'));
+  }
+  async function moveStep() {
+    const side = state.active, objs = objHexes(side);
+    // 적에게서 먼 유닛부터 움직여 길을 막지 않게 한다
+    const us = state.units.filter(u => u.side === side && u.ordered && !u.moved).sort((a, b) => nearestEnemy(hexOf(b), side) - nearestEnemy(hexOf(a), side));
+    for (const u of us) {
+      if (!state.units.includes(u) || u.moved) continue;
+      if (typeof canExit === 'function' && canExit(u) && exitGain(u)) { ui.sel = {type: 'u', id: u.id}; await doAct(() => onAction('exit')); continue; }
+      const m = reachUnit(u, moveAllow(u));
+      let bestK = null, bv = hexValue(u, hexOf(u), 0, objs) + .3;
+      m.forEach((steps, k) => { const v = hexValue(u, k, steps, objs); if (v > bv) { bv = v; bestK = k; } });
+      if (bestK) { ui.sel = {type: 'u', id: u.id}; await doAct(() => boardClick(bestK)); }
+    }
+    ui.sel = null;
+    await doAct(() => onAction('tobattle'));
+  }
+  async function battleStep() {
+    const side = state.active;
+    for (let guard = 0; guard < 40 && !state.winner; guard++) {
+      let best = null;
+      state.units.filter(u => u.side === side).forEach(u => { const t = bestTarget(u); if (t && t.v > .2 && (!best || t.v > best.v)) best = {u, ...t}; });
+      if (!best) break;
+      ui.sel = {type: 'u', id: best.u.id};
+      const before = best.u.battled;
+      await doAct(() => boardClick(best.k));
+      if (state.units.includes(best.u) && !best.u.battled && before === best.u.battled) best.u.battled = true; // 공격이 취소된 경우 다시 고르지 않게
+    }
+    ui.sel = null;
+    if (!state.winner && state.phase === 'battle') await doAct(() => onAction('endturn'));
+  }
+
+  // 질문 답하기
+  async function ask(o) {
+    await sleep2(DELAY * .6);
+    const t = o.title || '';
+    const by = l => o.buttons.find(b => b.l.includes(l));
+    let b = o.buttons.find(x => x.p) || o.buttons[0];
+    if (t.includes('전투 선언')) { const tg = {}; (o.toggles || []).forEach(x => { tg[x.id] = true; }); log('AI: 공격 개시', 'sys'); return {v: 'go', toggles: tg}; }
+    if (t.includes('정찰: 게릴라')) b = state.guer < 2 ? o.buttons[0] : o.buttons[1];
+    if (t.includes('위치확보') || t.includes('돌파')) b = o.buttons[0];
+    if (t.includes('어머니 러시아')) b = o.buttons[0];
+    if (!b) b = o.buttons[0];
+    log(`AI의 결정: ${t} → ${b.l}`, 'sys');
+    return o.toggles ? {v: b.v, toggles: {}} : b.v;
+  }
+  async function pick(msg, cands, extra, who) {
+    await sleep2(DELAY * .5);
+    const side = who || state.active;
+    const arr = [...cands]; if (!arr.length) return extra ? extra.value : null;
+    const danger = k => nbrKeys(k).map(unitAt).filter(x => x && x.side !== side).length;
+    const friends = k => nbrKeys(k).map(unitAt).filter(x => x && x.side === side).length;
+    if (/후퇴/.test(msg)) return arr.sort((a, b) => (danger(a) - danger(b)) || (friends(b) - friends(a)))[0];
+    if (/추가 근접공격/.test(msg)) { const sorted = arr.map(k => ({k, u: unitAt(k)})).sort((a, b) => (a.u ? a.u.blocks : 0) - (b.u ? b.u.blocks : 0)); return sorted[0].k; }
+    if (/한 칸 더/.test(msg)) { const safe = arr.filter(k => danger(k) <= 1); return safe.length && extra ? extra.value : (arr.sort((a, b) => danger(a) - danger(b))[0]); }
+    if (/블록을 1개 더할|코사크|보루/.test(msg)) return arr.sort((a, b) => nearestEnemy(a, side) - nearestEnemy(b, side))[0];
+    if (/보급 부족/.test(msg) && /대상 유닛/.test(msg)) { const en = arr.filter(k => { const u = unitAt(k); return u && u.side !== side; }); return (en.length ? en : arr).sort((a, b) => nearestEnemy(b, other(side)) - nearestEnemy(a, other(side)))[0]; }
+    if (/선제 공격/.test(msg)) return arr[0];
+    return arr[0];
+  }
+
+  async function run() {
+    if (ui.aiRunning || !aiTurn() || state.winner) return;
+    ui.aiRunning = true; render();
+    try {
+      for (let guard = 0; guard < 200 && aiTurn() && !state.winner && !ui.newGame; guard++) {
+        await idle();
+        const ph = state.phase;
+        if (ph === 'start') await doAct(() => onAction('reveal'));
+        else if (ph === 'card') await playCardStep();
+        else if (ph === 'order') await orderStep();
+        else if (ph === 'move') await moveStep();
+        else if (ph === 'battle') await battleStep();
+        else if (ph === 'scout') { ui.cardSel = 0; await doAct(() => onAction('scoutkeep')); }
+        else if (ph === 'end') { ui.cardSel = 0; await doAct(() => onAction('keep')); }
+        else if (ph === 'pre') { const i = state.hands[state.active].findIndex(k => CARD_BY_KEY[k].pre); await doAct(() => onAction('card', {dataset: {i}})); }
+      }
+    } catch (e) { console.error(e); toast('AI 오류: ' + e.message); }
+    finally { ui.aiRunning = false; ui.aiActing = false; undoStack.length = 0; save(); render(); }
+  }
+  return {run, ask, pick, cardScore, hexValue, attackValue, setDelay: ms => { DELAY = ms; }};
+})();
 
 init();
 </script>

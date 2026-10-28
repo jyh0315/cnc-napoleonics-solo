@@ -34,8 +34,8 @@ function renderBoard() {
   const d = effDef(); const act = state.active;
   const sel = ui.sel; const selU = sel && sel.type === 'u' ? unitById(sel.id) : null; const selL = sel && sel.type === 'l' ? leaderById(sel.id) : null;
   let moveSet = null, tgtMap = null;
-  if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
-  if (!ui.edit && !ui.picking && NET.myTurn && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
+  if (!ui.edit && !ui.picking && humanTurn() && state.phase === 'move') { if (selU && selU.ordered && !selU.moved && selU.side === act) moveSet = reachUnit(selU, moveAllow(selU)); if (selL && selL.ordered && !selL.moved && selL.side === act) moveSet = reachLeader(selL, d && d.k === 'gm' ? 4 : 3); }
+  if (!ui.edit && !ui.picking && humanTurn() && state.phase === 'battle' && selU && selU.side === act) tgtMap = targetsFor(selU);
   let s = DEFS + tokenDefs();
   s += `<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="#cdbf98"/>`;
   // bands
@@ -88,7 +88,7 @@ function renderBoard() {
   const over = (k, cls) => { const [cx, cy] = ctr(...P(k)); return `<polygon class="ov ${cls}" data-k="${k}" points="${hexPts(cx, cy, HS - 3)}"/>`; };
   if (moveSet) moveSet.forEach((n, k) => s += over(k, 'ov-move'));
   if (tgtMap) tgtMap.forEach((kind, k) => s += over(k, kind === 'fire' ? 'ov-fire' : 'ov-melee'));
-  if (!ui.edit && !ui.picking && !ui.busy && !state.winner && NET.myTurn) {
+  if (!ui.edit && !ui.picking && !ui.busy && !state.winner && humanTurn()) {
     if (state.phase === 'order' && !(d && (d.k === 'rally'))) state.units.forEach(u => { if (u.side === act && !u.ordered && !tryOrder(u, false)) s += over(hexOf(u), 'ov-elig'); });
     if (state.phase === 'order' && d && d.k === 'rally' && state.tokens) state.units.forEach(u => { if (u.side === act && u.blocks < umax(u) && state.tokens[st(u).cls] > 0) s += over(hexOf(u), 'ov-elig'); });
     if (state.phase === 'battle') state.units.forEach(u => { if (u.side === act && u !== selU && targetsFor(u).size) s += over(hexOf(u), 'ov-ready'); });
@@ -220,8 +220,8 @@ function renderSide() {
   if (ui.waiting) s += `<div class="prompt wait" role="status">${whoTag(ui.waiting.who)}<p>상대가 결정하는 중: <b>${esc(String(ui.waiting.title).replace(/<[^>]+>/g, ''))}</b></p><p class="note">상대 화면에 질문이 떠 있다. 연결이 끊겼다면 대신 정할 수 있다.</p><div class="pbtns"><button class="btn small" data-a="takeover">내가 대신 정하기</button></div></div>`;
   // 차례
   const idx = PHASES.findIndex(x => x[0] === p);
-  const mine = NET.myTurn;
-  s += `<section class="turn side-${side}"><div class="turn-top"><span class="tnum">${state.turn}턴</span><span class="tside">${SIDE_KO[side]} 차례${NET.on ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">상대 진행 중</em>') : ''}</span><span class="tcmd">${state.mode === 'online' ? '온라인' : isDuo() ? '2인' : '솔로'} · 지휘능력 ${cmdNow()}</span></div>
+  const mine = humanTurn();
+  s += `<section class="turn side-${side}"><div class="turn-top"><span class="tnum">${state.turn}턴</span><span class="tside">${SIDE_KO[side]} 차례${isAI() ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">AI 생각 중</em>') : ''}${NET.on ? (mine ? ' <em class="mine">내 차례</em>' : ' <em class="theirs">상대 진행 중</em>') : ''}</span><span class="tcmd">${state.mode === 'online' ? '온라인' : isAI() ? 'AI 대전' : '솔로'} · 지휘능력 ${cmdNow()}</span></div>
     <ol class="phases">${PHASES.filter(x => (x[0] !== 'pre' || p === 'pre') && (x[0] !== 'scout' || p === 'scout') && !(x[0] === 'end' && isDuo())).map(([k, n]) => { const i = PHASES.findIndex(y => y[0] === k); return `<li class="${k === p ? 'now' : i < idx ? 'done' : ''}">${n}</li>`; }).join('')}</ol>
     <p class="help">${mine ? phaseHelp() : `${SIDE_KO[side]}(상대)가 진행하고 있다. 상대의 이동과 전투가 이 화면에도 그대로 보인다. 내 유닛이 공격받으면 방진·반격·후퇴 같은 결정을 여기서 고른다.`}</p><div class="actions">${mine ? phaseButtons() : (state.winner ? phaseButtons() : '')}</div></section>`;
   // 확장 표시: 게릴라 카운터, 측면 부대
@@ -243,15 +243,15 @@ function renderSide() {
     s += `</section>`;
   }
   // 손패
-  const vside = NET.on ? NET.me : side, vh = state.hands[vside];
-  const showHand = NET.on ? true : p !== 'start';
+  const vside = NET.on ? NET.me : isAI() ? other(state.aiSide) : side, vh = state.hands[vside];
+  const showHand = NET.on || isAI() ? true : p !== 'start';
   if (mine && p === 'scout' && state.scoutPick) s += `<section class="block"><h3>정찰: 1장 고르기</h3><div class="hand">${state.scoutPick.map((k, i) => cardHtml(k, {sel: ui.cardSel === i, attr: `data-a="scoutsel" data-i="${i}"`})).join('')}</div></section>`;
-  s += `<section class="block"><h3>${NET.on ? '내 손패' : SIDE_KO[side] + ' 손패'} <small>${vh.length}장</small></h3>`;
+  s += `<section class="block"><h3>${NET.on || isAI() ? '내 손패' : SIDE_KO[side] + ' 손패'} <small>${vh.length}장</small></h3>`;
   const onlyFS = vh.every(k => k === 'firststrike');
   if (!showHand) s += `<div class="facedown">${vh.map(() => '<span class="fd"></span>').join('')}</div>`;
   else s += `<div class="hand">${vh.map((k, i) => {
     const d = CARD_BY_KEY[k]; let dis = true, attr = `data-a="card" data-i="${i}"`;
-    if (!mine || (NET.on && p === 'start')) dis = true;
+    if (!mine || ((NET.on || isAI()) && p === 'start')) dis = true;
     else if (p === 'pre') dis = !d.pre; else if (p === 'card' || p === 'end') dis = false;
     if (p === 'card' && isDuo() && k === 'firststrike' && !onlyFS) dis = true;
     return cardHtml(k, {sel: ui.cardSel === i && (p === 'card' || p === 'end'), dis, attr});
@@ -340,10 +340,10 @@ function renderBar() {
   const el = document.getElementById('bar'); if (!el || !state) return;
   const sc = scen();
   const pips = side => { const n = bannerTotal(side), t = state.target; let s = ''; for (let i = 0; i < t; i++) s += `<i class="${i < state.vb[side] ? 'on' : i < n ? 'obj' : ''}"></i>`; return s; };
-  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
+  el.innerHTML = `<div class="scn"><span class="scn-no">${sc.no}</span><div><b>${sc.name}</b><small><span class="mode">${state.mode === 'online' ? '온라인 2인' : isAI() ? 'AI 대전' : '솔로'}</span> ${sc.date} · 승리깃발 ${state.target}개${state.overridden ? ' · 수정한 배치' : ''}</small></div></div>
    <div class="vbs"><div class="vb side-B"><span>${SIDE_KO.B}</span><span class="pips">${pips('B')}</span><b>${bannerTotal('B')}</b></div><div class="vb side-F"><span>프랑스군</span><span class="pips">${pips('F')}</span><b>${bannerTotal('F')}</b></div></div>
    ${NET.on ? `<div class="netbox side-${NET.me}"><span>방 <b class="code">${NET.room}</b></span><span>나: ${SIDE_KO[NET.me]}</span><span class="dot ${NET.opp ? 'ok' : ''}">${NET.opp ? '상대 접속 중' : '상대 기다리는 중'}</span><button class="btn small" data-a="copylink">초대 링크 복사</button><button class="btn small ghost" data-a="leave">방 나가기</button></div>` : ''}
-   <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && NET.myTurn ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
+   <div class="barbtns"><button class="btn ghost" data-a="undo" ${undoStack.length && !ui.busy && !ui.aiRunning && humanTurn() ? '' : 'disabled'}>되돌리기</button>${NET.on ? '' : `<button class="btn ghost${ui.edit ? ' on' : ''}" data-a="edit">편집</button>`}<button class="btn ghost" data-a="newgame">새 게임</button><button class="btn ghost icon${SFX.on ? ' on' : ''}" data-a="sfx" aria-pressed="${SFX.on}" title="효과음">${SFX.on ? '소리 켬' : '소리 끔'}</button><button class="btn ghost icon${FX.on ? ' on' : ''}" data-a="anim" aria-pressed="${FX.on}" title="애니메이션">${FX.on ? '움직임 켬' : '움직임 끔'}</button></div>`;
 }
 function renderOverlay() {
   const el = document.getElementById('overlay'); if (!el) return;
@@ -355,10 +355,11 @@ function renderOverlay() {
 }
 function newGameDialog() {
   const m = ui.newMode || 'solo';
-  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
-  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
+  const modes = [['solo', '솔로', 'Power of Three · 혼자 양쪽 지휘'], ['ai', 'AI 대전', '컴퓨터와 대전 (2인 규칙)'], ['online', '온라인 2인', '각자 자기 기기에서 Firebase로 대전']];
+  let s = `<div class="win"><div class="picker"><h2>새 게임</h2><div class="modesel m3" role="radiogroup" aria-label="모드">${modes.map(([v, n, d]) => `<button role="radio" aria-checked="${m === v}" data-a="newmode" data-v="${v}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`;
   const list = act => `${setChips()}<div class="plist">${SCENARIOS.filter(x => (x.set || 'base') === curSet()).map(x => { const tn = topName(x); return `<button class="pitem" data-a="${act}" data-v="${x.id}" ${ui.netBusy ? 'disabled' : ''}><span class="pno">${x.no}</span><span><b>${x.name}</b><small>${x.date} · 승리깃발 ${x.vb} · 먼저: ${x.first === 'B' ? tn : '프랑스군'} · 카드 ${tn.replace(/군$/, '')} ${x.B.cmd}·프랑스 ${x.F.cmd}</small></span></button>`; }).join('')}</div>`;
-  if (m !== 'online') s += list('start');
+  if (m === 'ai') s += `<h3 class="ph3">내 진영</h3><div class="sidesel" role="radiogroup" aria-label="내 진영">${['B', 'F'].map(sd => `<button role="radio" class="side-${sd}" aria-checked="${(ui.mySide || 'B') === sd}" data-a="myside" data-v="${sd}">${sd === 'B' ? '위쪽 (영국·스페인·러시아·오스트리아·프로이센)' : '프랑스군'}</button>`).join('')}</div><p class="note">진영을 고른 뒤 시나리오를 누르면 AI가 반대편을 맡는다. 손패와 방진표는 원래 2인 규칙대로다.</p>${list('start')}`;
+  else if (m !== 'online') s += list('start');
   else if (!NET.available()) s += `<div class="callout"><p><b>온라인 대전은 Firebase 설정이 있어야 켜진다.</b></p><p>${location.protocol.startsWith('http') && !/claude/.test(location.host) ? '저장소의 <code>firebase-config.js</code>에 Firebase 웹 앱 설정을 넣고 다시 올려라. 방법은 README의 "온라인 대전 설정"에 있다.' : '이 미리보기 페이지는 외부 서버 연결이 막혀 있다. GitHub Pages에 올린 버전에서 <code>firebase-config.js</code>를 채우면 쓸 수 있다.'}</p></div>`;
   else {
     s += `${ui.netErr ? `<p class="neterr" role="alert">${esc(ui.netErr)}</p>` : ''}${ui.netBusy ? '<p class="note">연결 중…</p>' : ''}
@@ -372,6 +373,7 @@ function render() {
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false'));
   document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.id !== 'tab-' + ui.tab);
   renderBar(); renderBoard(); renderSide(); renderChat(); renderOverlay();
+  if (state && aiTurn() && !state.winner && !ui.aiRunning && !ui.newGame) { clearTimeout(render._ai); render._ai = setTimeout(() => AI.run(), 500); }
 }
 function renderChat() {
   const el = document.getElementById('chat'); if (!el) return;
@@ -392,7 +394,7 @@ function boardClick(k) {
   if (ui.edit) return editClick(k);
   const u = unitAt(k), l = leaderAt(k); const p = state.phase, side = state.active;
   const selU = ui.sel && ui.sel.type === 'u' ? unitById(ui.sel.id) : null; const selL = ui.sel && ui.sel.type === 'l' ? leaderById(ui.sel.id) : null;
-  if (state.winner || !NET.myTurn) { ui.sel = u ? {type: 'u', id: u.id} : l ? {type: 'l', id: l.id} : null; return render(); }
+  if (state.winner || (!humanTurn() && !ui.aiActing)) { ui.sel = u ? {type: 'u', id: u.id} : l ? {type: 'l', id: l.id} : null; return render(); }
   if (p === 'order') {
     const d = effDef();
     if (u && u.side === side && d && d.k === 'rally' && state.tokens) {
@@ -442,10 +444,10 @@ function editClick(k) {
   }
   ui.editSel = (u || l) ? k : null; render();
 }
-const FREE_ACTIONS = new Set(['scenset', 'pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline']);
+const FREE_ACTIONS = new Set(['scenset', 'pbtn', 'pickextra', 'sfx', 'anim', 'tab', 'newgame', 'closenew', 'newmode', 'winseen', 'takeover', 'copylink', 'leave', 'join', 'create', 'myside', 'start', 'goscen', 'goonline', 'goai']);
 async function onAction(a, el) {
   const side = state && state.active;
-  if (NET.on && !NET.myTurn && !FREE_ACTIONS.has(a)) return;
+  if (!humanTurn() && !ui.aiActing && !FREE_ACTIONS.has(a)) return;
   switch (a) {
     case 'pbtn': { const pr = ui.prompt; if (!pr) return; const b = pr.buttons[+el.dataset.i];
       if (pr.toggles) { const tg = {}; pr.toggles.forEach(t => { const c = document.getElementById('tg-' + t.id); tg[t.id] = c && c.checked; }); pr.resolve({v: b.v, toggles: tg}); } else pr.resolve(b.v); return; }
@@ -476,7 +478,7 @@ async function onAction(a, el) {
     case 'anim': FX.toggle(); return render();
     case 'scoutsel': ui.cardSel = ui.cardSel === +el.dataset.i ? null : +el.dataset.i; return render();
     case 'scoutkeep': if (ui.cardSel == null) return; return act(() => { const i = ui.cardSel; ui.cardSel = null; chooseScout(i); });
-    case 'start': if (NET.on) NET.leave(); ui.newGame = false; ui.winSeen = false; ui.sel = null; ui.dice = null; ui.cardSel = null; ui.edit = false; undoStack.length = 0; newGame(el.dataset.v, ui.newMode || 'solo'); ui.tab = 'game'; save(); window.scrollTo({top: 0}); return render();
+    case 'start': if (NET.on) NET.leave(); ui.newGame = false; ui.winSeen = false; ui.sel = null; ui.dice = null; ui.cardSel = null; ui.edit = false; undoStack.length = 0; newGame(el.dataset.v, ui.newMode || 'solo', ui.newMode === 'ai' ? other(ui.mySide || 'B') : null); ui.tab = 'game'; save(); window.scrollTo({top: 0}); return render();
     case 'reveal': return act(() => { revealHand(); ui.cardSel = null; });
     case 'card': {
       const i = +el.dataset.i, k = state.hands[side][i];
@@ -512,6 +514,7 @@ async function onAction(a, el) {
     case 'saveov': { const o = loadOverrides(); o[state.scenId] = {terr: state.terr, units: state.units.map(u => ({...u, ordered: false, moved: 0, battled: false})), leaders: state.leaders.map(l => ({...l, ordered: false, moved: 0}))}; saveOverrides(o); state.overridden = true; toast('이 브라우저에 기본 배치로 저장했다.'); return render(); }
     case 'clearov': { const o = loadOverrides(); delete o[state.scenId]; saveOverrides(o); toast('책 배치로 되돌렸다. 새 게임부터 적용된다.'); return render(); }
     case 'tab': ui.tab = el.dataset.tab; render(); window.scrollTo({top: 0}); return;
+    case 'goai': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'ai'; ui.scenSet = ui.scenSet || 'base'; render(); window.scrollTo({top: 0}); return;
     case 'goonline': ui.tab = 'game'; ui.newGame = true; ui.newMode = 'online'; render(); window.scrollTo({top: 0}); return;
     case 'goscen': if (NET.on) NET.leave(); ui.tab = 'game'; ui.newGame = false; undoStack.length = 0; ui.sel = null; ui.dice = null; ui.winSeen = false; ui.newMode = el.dataset.m || 'solo'; newGame(el.dataset.v, ui.newMode); save(); render(); window.scrollTo({top: 0}); return;
   }
@@ -553,7 +556,7 @@ function renderScenarioList() {
    <p class="shist">${sc.hist}</p>
    <dl class="snotes"><div><dt>${topName(sc)}</dt><dd>${sc.B.cmdr} · 지휘카드 ${sc.B.cmd}장${sc.first === 'B' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>프랑스군</dt><dd>${sc.F.cmdr} · 지휘카드 ${sc.F.cmd}장${sc.first === 'F' ? ' · <b>먼저 이동</b>' : ''}</dd></div><div><dt>승리</dt><dd>승리깃발 ${sc.vb}개</dd></div></dl>
    <ul class="srules">${sc.rules.map(r => `<li>${r}</li>`).join('')}</ul>
-   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
+   <div class="sbtns"><button class="btn primary" data-a="goscen" data-v="${sc.id}" data-m="solo">솔로로 시작</button><button class="btn" data-a="goai">AI와 대전</button><button class="btn" data-a="goonline">온라인 2인으로</button></div></article>`).join('');
 }
 function renderRefTables() {
   const el = document.getElementById('unittables');
